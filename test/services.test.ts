@@ -86,7 +86,7 @@ services: [{ service: led-groove, edge: left, from: 100, to: 400 }]
   it('counts a service on a feature, and measures a whole-slab one in square metres', () => {
     const doc = documentOf(`${slab}
 services:
-  - { service: undermount-sink-cutout, target: zlew }
+  - { service: undermount-cutout, target: zlew }
   - { service: underside-polish-all }
 `)
     const [first, second] = doc.slabs[0]?.services ?? []
@@ -101,7 +101,7 @@ describe('validating a selection', () => {
     assert.deepEqual(
       codes(`${slab}
 services:
-  - { service: undermount-sink-cutout, target: zlew }
+  - { service: undermount-cutout, target: zlew }
   - { service: tap-hole, target: bateria }
   - { service: half-bullnose, edge: front }
   - { service: underside-polish-all }
@@ -133,7 +133,7 @@ services: [{ service: tap-hole, target: zlew }]
     )
     assert.ok(
       codes(`${slab}
-services: [{ service: undermount-sink-cutout, target: bateria }]
+services: [{ service: undermount-cutout, target: bateria }]
 `).includes('E_SERVICE_SCOPE'),
       'a cutout service cannot be applied to a hole',
     )
@@ -179,7 +179,7 @@ services:
 describe('marking a selection on the drawing', () => {
   const source = `${slab}
 services:
-  - { service: undermount-sink-cutout, target: zlew }
+  - { service: undermount-cutout, target: zlew }
   - { service: tap-hole, target: bateria }
   - { service: half-bullnose, edge: front }
   - { service: underside-polish-all }
@@ -207,7 +207,7 @@ cutouts:
     y: 100
     width: 310
     height: 390
-services: [{ service: undermount-sink-cutout, target: zlew }]
+services: [{ service: undermount-cutout, target: zlew }]
 `
     const svg = render(withProduct, 'svg').content as string
     // The opening carries the short tag; the schedule carries the order.
@@ -220,7 +220,7 @@ services: [{ service: undermount-sink-cutout, target: zlew }]
       `
 countertop: { name: Blat, width: 2000, depth: 600, thickness: 30 }
 cutouts: [{ id: zlew, label: Zlew, x: 800, y: 100, width: 310, height: 390 }]
-services: [{ service: undermount-sink-cutout, target: zlew }]
+services: [{ service: undermount-cutout, target: zlew }]
 `,
       'svg',
     ).content as string
@@ -231,7 +231,7 @@ services: [{ service: undermount-sink-cutout, target: zlew }]
     const svg = render(source, 'svg').content as string
     assert.ok(svg.includes('ADDITIONAL SERVICES'))
     for (const id of [
-      'undermount-sink-cutout',
+      'undermount-cutout',
       'tap-hole',
       'half-bullnose',
       'underside-polish-all',

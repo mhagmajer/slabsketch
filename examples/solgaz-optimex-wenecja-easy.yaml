@@ -1,5 +1,6 @@
 # Blat pod konkretne urządzenia, z wymiarami z dokumentacji producentów:
 #
+#   materiał       granit Shivakashi 2 cm, Lapis Gold
 #   płyta gazowa   Solgaz Optimex 2+1, montaż nakładany, pionowo
 #                  palniki jeden za drugim, sterowanie z przodu, wylot spalin z tyłu
 #                  (widok z góry, rys. 1.5 instrukcji) - stąd 330 w poprzek, 517 w głąb
@@ -22,6 +23,7 @@ countertop:
   width: 1400
   depth: 1000
   thickness: 20
+  material: Granit Shivakashi, Lapis Gold
   # Co blat zastaje po każdej stronie. Krawędź stykająca się z czymkolwiek nie
   # jest widoczna, nie wymaga wykończenia i musi być szablonowana na miejscu.
   edges:
@@ -33,7 +35,7 @@ countertop:
 cutouts:
   - id: plyta
     label: Płyta nakładana
-    product: Gazowa płyta ceramiczna Solgaz Optimex 2+1, nakładana
+    product: Gazowa płyta ceramiczna Solgaz Optimex 2+1
     x: 150          # min. 150 mm od boku szafki / narożnika wg instrukcji
     y: 252.5        # wyśrodkowane w głąb blatu
     width: 315      # w poprzek blatu
@@ -66,7 +68,7 @@ holes:
 services:
   - service: hob-cutout
     target: plyta
-  - service: undermount-sink-cutout
+  - service: undermount-cutout
     target: zlew
   - service: tap-hole
     target: bateria
@@ -80,7 +82,7 @@ notes:
   - Kołnierz płyty zakrywa cięcie tylko o 7,5 mm z boków - krawędź cięcia musi być równa.
   - Położenia i orientacja wycięć bez zmian; 150 mm od ściany to minimum producenta płyty.
   - Otworów Ø35 nie powiększać - kołnierz dozownika ma tylko Ø40.
-  - Do uzupełnienia przed wyceną - materiał i profil krawędzi frontowej.
+  - Do uzupełnienia - profil krawędzi frontowej i wykończenie powierzchni.
 
 checks:
   minEdgeDistance: 50

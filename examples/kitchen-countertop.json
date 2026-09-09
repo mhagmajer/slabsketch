@@ -48,7 +48,7 @@
       "target": "hob"
     },
     {
-      "service": "undermount-sink-cutout",
+      "service": "undermount-cutout",
       "target": "sink"
     },
     {

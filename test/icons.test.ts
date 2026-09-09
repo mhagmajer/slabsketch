@@ -25,9 +25,9 @@ holes:
   - { id: h5, x: 1500, y: 780, diameter: 35 }
 services:
   - { service: hob-cutout, target: c1 }
-  - { service: top-mount-sink-cutout, target: c7 }
+  - { service: top-mount-cutout, target: c7 }
   - { service: flush-cutout, target: c8 }
-  - { service: undermount-sink-cutout, target: c2 }
+  - { service: undermount-cutout, target: c2 }
   - { service: stone-sink-single, target: c3 }
   - { service: stone-sink-double, target: c4 }
   - { service: drainer-grooves, target: c5 }

@@ -51,7 +51,7 @@ holes:
 services:
   - service: hob-cutout
     target: hob
-  - service: undermount-sink-cutout
+  - service: undermount-cutout
     target: sink
   - service: tap-hole
     target: faucet

@@ -166,7 +166,7 @@ const ICONS: Record<ServiceId, IconPrimitive[]> = {
     },
     { kind: 'circle', center: [12, 3.2], radius: 1.6 },
   ],
-  'top-mount-sink-cutout': [
+  'top-mount-cutout': [
     ...sectionWithOpening(),
     // The rim rests on top of the worktop and overhangs the opening.
     {
@@ -194,7 +194,7 @@ const ICONS: Record<ServiceId, IconPrimitive[]> = {
       closed: false,
     },
   ],
-  'undermount-sink-cutout': [
+  'undermount-cutout': [
     ...sectionWithOpening(),
     // The rim hangs under the worktop, leaving the top face clear.
     {

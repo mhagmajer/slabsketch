@@ -29,10 +29,14 @@ export interface ServiceDefinition {
 const DEFINITIONS = [
   // --- Openings -----------------------------------------------------------
   //
-  // The price list groups these: one line covers any top-mounted fitting, and
-  // another covers undermount and flush work. A drawing is not a price list,
-  // though - the fabricator needs to read what is being cut, not which of three
-  // possibilities it might be - so each is named for the job it actually is.
+  // Named for the operation, not for what will sit in the hole - the fitting
+  // is spelled out on the feature's own `product` line, so the service does not
+  // have to guess between a sink and a basin. A hob keeps an entry of its own
+  // because the work differs: its flange hides the cut, where an undermount
+  // opening is polished and radiused.
+  //
+  // A price list groups these differently, by what they cost. A drawing is not
+  // a price list.
   {
     id: 'hob-cutout',
     scope: 'cutout',
@@ -40,28 +44,22 @@ const DEFINITIONS = [
     names: { en: 'Hob cutout', pl: 'Wycięcie pod płytę grzewczą' },
   },
   {
-    id: 'top-mount-sink-cutout',
+    id: 'top-mount-cutout',
     scope: 'cutout',
     measure: 'count',
-    names: {
-      en: 'Cutout for a top-mounted sink or basin',
-      pl: 'Wycięcie pod zlew lub umywalkę nakładaną',
-    },
+    names: { en: 'Top-mounted cutout', pl: 'Wycięcie nakładane' },
   },
   {
-    id: 'undermount-sink-cutout',
+    id: 'undermount-cutout',
     scope: 'cutout',
     measure: 'count',
-    names: {
-      en: 'Cutout for an undermount sink or basin',
-      pl: 'Wycięcie pod zlew lub umywalkę podwieszaną',
-    },
+    names: { en: 'Undermount cutout', pl: 'Wycięcie podwieszane' },
   },
   {
     id: 'flush-cutout',
     scope: 'cutout',
     measure: 'count',
-    names: { en: 'Flush cutout, rebated', pl: 'Otwór licowany, z wpustem' },
+    names: { en: 'Flush cutout, rebated', pl: 'Wycięcie licowane, z wpustem' },
   },
   {
     id: 'stone-sink-single',

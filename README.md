@@ -170,7 +170,7 @@ holes:
     diameter: 35
 
 services:              # additional services, see below
-  - service: undermount-sink-cutout
+  - service: undermount-cutout
     target: sink
   - service: half-bullnose
     edge: front
@@ -258,7 +258,7 @@ the geometry with a lettered balloon and listed in a schedule under the drawing:
 
 ```yaml
 services:
-  - service: undermount-sink-cutout   # applies to an opening
+  - service: undermount-cutout   # applies to an opening
     target: sink
 
   - service: tap-hole            # applies to a drilled hole
@@ -285,7 +285,7 @@ SVG with no external references.
 A price list groups several of these under one line — a single price for any
 top-mounted fitting, another for undermount and flush work. A drawing is not a
 price list: it names the job being done, so `hob-cutout` and
-`top-mount-sink-cutout` are separate even though they cost the same.
+`top-mount-cutout` are separate even though they cost the same.
 
 **SlabSketch does not know prices, and does not try to.** They depend on the
 workshop, the material and the job; a preliminary drawing is the wrong place to
@@ -295,7 +295,7 @@ in order to price it.
 
 | Applies to | Services |
 | --- | --- |
-| an opening (`target:`) | `hob-cutout` `top-mount-sink-cutout` `undermount-sink-cutout` `flush-cutout` `stone-sink-single` `stone-sink-double` `drainer-grooves` `column-notch` |
+| an opening (`target:`) | `hob-cutout` `top-mount-cutout` `undermount-cutout` `flush-cutout` `stone-sink-single` `stone-sink-double` `drainer-grooves` `column-notch` |
 | a hole (`target:`) | `tap-hole` `soap-dispenser-hole` `pop-up-waste-hole` `socket-hole` `siphon-hole` |
 | an edge (`edge:`) | `underside-polish` `led-groove` `thickened-edge` `half-bullnose` `quarter-bullnose` `waterfall-edge` |
 | the whole slab | `underside-polish-all` |
