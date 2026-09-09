@@ -70,7 +70,7 @@ services:
     target: dozownik
 
 notes:
-  - Blat wchodzi między ściany z trzech stron - szablon na miejscu, tylko front widoczny.
+  - Blat wchodzi między ściany z trzech stron - obrys wg szablonu z miejsca montażu, widoczny tylko front.
   - Płyta pionowo - sterowanie z przodu, wylot spalin z tyłu; wycięcie 315 x 495 mm ±1, naroża ostre.
   - Płyta nakładana wg instrukcji - leży na blacie na uszczelce, obrys 330 x 517 mm. Bez wpustu.
   - Producent nie wymaga mocowania płyty i odradza stosowanie klejów oraz silikonu.
