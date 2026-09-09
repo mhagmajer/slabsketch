@@ -151,6 +151,11 @@ countertop:
   depth: 620           # along y
   thickness: 20
   material: Silestone Blanco Norte
+  edges:               # what each edge runs up against; all open by default
+    back: wall         # open | wall | cabinet
+    left: open
+    right: cabinet
+    front: open
 
 cutouts:
   - id: hob            # x, y = back-left corner of the opening
@@ -162,18 +167,34 @@ cutouts:
     height: 490
     cornerRadius: 10   # optional; 0, the default, means square corners
 
+  - id: sink
+    label: Sink
+    x: 1730
+    y: 150
+    width: 540
+    height: 400
+    cornerRadius: 10
+
 holes:
   - id: faucet         # x, y = centre of the hole
     label: Faucet
+    product: Primagran Flex 6020
     x: 1920
     y: 75
     diameter: 35
 
-services:              # additional services, see below
+services:              # what the fabricator is being asked to do; see below
+  - service: hob-cutout
+    target: hob
   - service: undermount-cutout
     target: sink
+  - service: tap-hole
+    target: faucet
   - service: half-bullnose
     edge: front
+    from: 400          # optional: only part of the edge
+    to: 2700
+    note: promień do potwierdzenia
 
 notes:
   - Undermount sink; cutout dimensions are the finished opening.
@@ -184,7 +205,7 @@ checks:                # thresholds for the proximity warnings
 
 drawing:
   scale: auto          # or "1:10"
-  sheet: a3
+  sheet: a3            # a5 | a4 | a3 | a2 | a1
   orientation: landscape
   dimensions: auto     # or "none"
   language: en         # en | pl - language of generated text only
@@ -193,9 +214,13 @@ drawing:
     y: back            # back | front
 
 metadata:
+  status: preliminary  # preliminary | for-fabrication
+  surveyedOn: "2026-09-20"     # expected once status is for-fabrication
+  surveyedBy: M. Hagmajer
   project: Flat 4, Rosebery Avenue
   client: M. Nowak
   drawnBy: SlabSketch
+  date: "2026-09-20"
   revision: A
 ```
 
@@ -388,19 +413,26 @@ Six layers, each depending only on the ones above it. The geometry never knows
 about SVG, and the renderers never know about YAML.
 
 ```text
-  input/parse.ts       YAML | JSON  →  unknown          format detection
-  input/schema.ts      Zod           →  InputFile        types, shape, positivity
-  model/normalize.ts   InputFile     →  CountertopDocument
-  validate/checks.ts   document      →  Diagnostic[]     bounds, overlaps, clearances
-  geometry/            document      →  Dimension[]      what to measure, and where
-  render/drawing.ts    document      →  Drawing          renderer-neutral primitives
-  render/svg.ts        Drawing       →  string
-  render/pdf.ts        Drawing       →  Uint8Array
+  input/parse.ts        YAML | JSON  →  unknown         format detection
+  input/schema.ts       Zod           →  InputFile       types, shape, positivity
+  model/types.ts        the internal model, wider than the v1 input format
+  model/normalize.ts    InputFile     →  CountertopDocument
+  validate/checks.ts    document      →  Diagnostic[]    bounds, overlaps, clearances
+  geometry/dimensions.ts  document    →  Dimension[]     what to measure, and where
+  geometry/layout.ts    sheet sizes and every paper-space constant
+  geometry/primitives.ts  points, boxes, rounded rectangles, hatching
+  geometry/scale.ts     the scale ladder, "1:10" ⇄ 0.1
+  render/drawing.ts     document      →  Drawing         renderer-neutral primitives
+  render/svg.ts         Drawing       →  string
+  render/pdf.ts         Drawing       →  Uint8Array      PDF 1.4, no embedded fonts
+  render/icons.ts       a pictogram per service, drawn as vectors
 
-  services.ts          catalogue of the additional services, and their names
-  render/icons.ts      pictograms for each service, drawn as vectors
-  i18n.ts              wording of generated text (en, pl)
-  text.ts              Helvetica metrics, shared by dimensioning and both writers
+  services.ts           catalogue of the additional services, and their names
+  i18n.ts               wording of every string SlabSketch writes itself
+  text.ts               Helvetica metrics, shared by layout and both writers
+  diagnostics.ts        the one shape every error and warning takes
+  version.ts            the version and link stamped onto each drawing
+  index.ts              the public API; cli.ts is a thin shell over it
 ```
 
 Two ideas carry most of the extensibility:
@@ -415,6 +447,27 @@ polygons, text — in two spaces: `model` (real millimetres) and `paper` (sheet
 millimetres, for the frame and title block). Stroke widths and font sizes are
 always paper millimetres, so scale never changes line weights. A DXF exporter is
 a small addition: it consumes `model` and ignores the rest.
+
+Everything either writer emits is tagged with a layer, and they are drawn in
+this order. The SVG puts each in its own `<g id="...">`; a DXF exporter would
+map them straight onto DXF layers:
+
+| Layer | What is on it |
+| --- | --- |
+| `frame` | sheet border, title block rules, the schedule's rule |
+| `boundary` | the hatched or dashed bands marking walls and units |
+| `outline` | the slab itself |
+| `cutout` | rectangular openings, with their corner arcs |
+| `hole` | drilled holes |
+| `centreline` | the dash-dot cross on each hole |
+| `dimension` | dimension lines, arrows, leaders, radius callouts |
+| `service` | balloons and the marked edge runs |
+| `annotation` | labels inside openings, the `(0,0)` origin mark |
+| `title` | title block text, notes, schedule text, generator stamp |
+
+Adding a layer means adding it to `LAYER_ORDER` in `render/svg.ts` too; a layer
+missing from that list is silently dropped from the SVG while still appearing in
+the PDF, and a test guards against exactly that.
 
 Dimension placement is deterministic and rule-based:
 
@@ -463,13 +516,20 @@ from scratch; the PDF uses the base-14 Helvetica faces and embeds no fonts.
 ## Roadmap
 
 - [ ] DXF export (the `Drawing` model space is already the right shape for it)
-- [ ] L-shaped and polygonal countertops, and rounded slab corners
+- [ ] polygonal outlines: L-shaped tops, and notches cut in from an edge — the
+      strongest way to pass a pipe through stone near an edge, and today the
+      only thing in these drawings that has to be written rather than drawn
+- [ ] out-of-square outlines, so a top templated between three walls can be cut
+      to the quadrilateral it really is instead of the rectangle it is not
 - [ ] multiple slabs and backsplash pieces on one sheet
 - [ ] seams and joints, with their own annotation style
 - [ ] per-feature dimension overrides and manual placement hints
 - [ ] draw the chosen edge profiles in section, not only as a marked run
+- [ ] rounded corners on the slab itself (openings already have them)
 - [ ] more languages for the generated text (the tables live in `src/i18n.ts`)
 - [ ] manufacturer constraint profiles for the proximity checks
+- [ ] visual regression testing: the snapshot catches a changed drawing, not an
+      ugly one, and every layout fault so far was found by eye
 - [ ] a browser editor over the same document model
 
 ## License
