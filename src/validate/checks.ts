@@ -147,7 +147,9 @@ function checkPair(
         ),
       )
     } else {
-      diagnostics.push(warning('W_CUTOUT_OVERLAP', `${describe(a)} and ${describe(b)} overlap`, at))
+      diagnostics.push(
+        warning('W_FEATURE_OVERLAP', `${describe(a)} and ${describe(b)} overlap`, at),
+      )
     }
     return
   }

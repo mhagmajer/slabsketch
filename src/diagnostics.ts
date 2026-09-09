@@ -17,7 +17,7 @@ export type DiagnosticCode =
   // Heuristic warnings - see README, these are NOT fabrication rules
   | 'W_EDGE_CLEARANCE'
   | 'W_FEATURE_CLEARANCE'
-  | 'W_CUTOUT_OVERLAP'
+  | 'W_FEATURE_OVERLAP'
   | 'W_SCALE_CLAMPED'
 
 export interface Diagnostic {

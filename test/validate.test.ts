@@ -93,13 +93,13 @@ cutouts:
     assert.match(warn.message, /20 mm/)
   })
 
-  it('warns about overlapping cutouts without calling it an error', () => {
+  it('warns about overlapping features without calling it an error', () => {
     const diagnostics = check(`${slab}
 cutouts:
   - { id: a, x: 100, y: 100, width: 200, height: 200 }
   - { id: b, x: 250, y: 100, width: 200, height: 200 }
 `)
-    const warn = diagnostics.find((d) => d.code === 'W_CUTOUT_OVERLAP')
+    const warn = diagnostics.find((d) => d.code === 'W_FEATURE_OVERLAP')
     assert.ok(warn)
     assert.equal(warn.severity, 'warning')
   })

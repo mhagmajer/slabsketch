@@ -215,7 +215,7 @@ Warnings — rendered, but worth a look:
 | --- | --- |
 | `W_EDGE_CLEARANCE` | a feature is closer to an edge than `checks.minEdgeDistance` |
 | `W_FEATURE_CLEARANCE` | the bridge between two features is thinner than `checks.minFeatureDistance` |
-| `W_CUTOUT_OVERLAP` | two cutouts overlap |
+| `W_FEATURE_OVERLAP` | two cutouts, or two holes, overlap |
 | `W_SCALE_CLAMPED` | the drawing does not fit the sheet at any standard scale |
 
 > **The warnings are generic proximity heuristics, not fabrication rules.**
