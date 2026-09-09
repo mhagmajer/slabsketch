@@ -15,6 +15,8 @@ cutouts:
   - { id: c4, x: 1850, y: 200, width: 450, height: 400 }
   - { id: c5, x: 2400, y: 200, width: 450, height: 400 }
   - { id: c6, x: 200, y: 700, width: 300, height: 150 }
+  - { id: c7, x: 600, y: 200, width: 100, height: 400 }
+  - { id: c8, x: 2900, y: 200, width: 60, height: 400 }
 holes:
   - { id: h1, x: 700, y: 780, diameter: 35 }
   - { id: h2, x: 900, y: 780, diameter: 35 }
@@ -22,8 +24,10 @@ holes:
   - { id: h4, x: 1300, y: 780, diameter: 35 }
   - { id: h5, x: 1500, y: 780, diameter: 35 }
 services:
-  - { service: top-mount-cutout, target: c1 }
-  - { service: undermount-cutout, target: c2 }
+  - { service: hob-cutout, target: c1 }
+  - { service: top-mount-sink-cutout, target: c7 }
+  - { service: flush-cutout, target: c8 }
+  - { service: undermount-sink-cutout, target: c2 }
   - { service: stone-sink-single, target: c3 }
   - { service: stone-sink-double, target: c4 }
   - { service: drainer-grooves, target: c5 }

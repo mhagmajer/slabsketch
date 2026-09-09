@@ -60,9 +60,9 @@ holes:
     diameter: 35
 
 services:
-  - service: top-mount-cutout
+  - service: hob-cutout
     target: plyta
-  - service: undermount-cutout
+  - service: undermount-sink-cutout
     target: zlew
   - service: tap-hole
     target: bateria

@@ -48,9 +48,9 @@ holes:
 # Każda pozycja dostaje na rysunku swój znacznik (A, B, C ...) i wiersz w
 # zestawieniu. SlabSketch nie zna cen - notuje tylko wybór i jego zakres.
 services:
-  - service: top-mount-cutout
+  - service: hob-cutout
     target: plyta
-  - service: undermount-cutout
+  - service: undermount-sink-cutout
     target: zlew
   - service: tap-hole
     target: bateria

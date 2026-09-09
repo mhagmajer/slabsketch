@@ -28,14 +28,14 @@ function codes(source: string): string[] {
 
 describe('service catalogue', () => {
   it('covers every service on the order form', () => {
-    assert.equal(SERVICE_IDS.length, 18)
+    assert.equal(SERVICE_IDS.length, 20)
     const byScope = new Map<string, number>()
     for (const id of SERVICE_IDS) {
       const scope = serviceDefinition(id).scope
       byScope.set(scope, (byScope.get(scope) ?? 0) + 1)
     }
     assert.deepEqual([...byScope.entries()].sort(), [
-      ['cutout', 6],
+      ['cutout', 8],
       ['edge', 6],
       ['hole', 5],
       ['slab', 1],
@@ -86,7 +86,7 @@ services: [{ service: led-groove, edge: left, from: 100, to: 400 }]
   it('counts a service on a feature, and measures a whole-slab one in square metres', () => {
     const doc = documentOf(`${slab}
 services:
-  - { service: undermount-cutout, target: zlew }
+  - { service: undermount-sink-cutout, target: zlew }
   - { service: underside-polish-all }
 `)
     const [first, second] = doc.slabs[0]?.services ?? []
@@ -101,7 +101,7 @@ describe('validating a selection', () => {
     assert.deepEqual(
       codes(`${slab}
 services:
-  - { service: undermount-cutout, target: zlew }
+  - { service: undermount-sink-cutout, target: zlew }
   - { service: tap-hole, target: bateria }
   - { service: half-bullnose, edge: front }
   - { service: underside-polish-all }
@@ -133,7 +133,7 @@ services: [{ service: tap-hole, target: zlew }]
     )
     assert.ok(
       codes(`${slab}
-services: [{ service: undermount-cutout, target: bateria }]
+services: [{ service: undermount-sink-cutout, target: bateria }]
 `).includes('E_SERVICE_SCOPE'),
       'a cutout service cannot be applied to a hole',
     )
@@ -179,7 +179,7 @@ services:
 describe('marking a selection on the drawing', () => {
   const source = `${slab}
 services:
-  - { service: undermount-cutout, target: zlew }
+  - { service: undermount-sink-cutout, target: zlew }
   - { service: tap-hole, target: bateria }
   - { service: half-bullnose, edge: front }
   - { service: underside-polish-all }
@@ -200,7 +200,7 @@ services:
     const svg = render(source, 'svg').content as string
     assert.ok(svg.includes('ADDITIONAL SERVICES'))
     for (const id of [
-      'undermount-cutout',
+      'undermount-sink-cutout',
       'tap-hole',
       'half-bullnose',
       'underside-polish-all',

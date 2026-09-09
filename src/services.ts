@@ -28,23 +28,40 @@ export interface ServiceDefinition {
 
 const DEFINITIONS = [
   // --- Openings -----------------------------------------------------------
+  //
+  // The price list groups these: one line covers any top-mounted fitting, and
+  // another covers undermount and flush work. A drawing is not a price list,
+  // though - the fabricator needs to read what is being cut, not which of three
+  // possibilities it might be - so each is named for the job it actually is.
   {
-    id: 'top-mount-cutout',
+    id: 'hob-cutout',
+    scope: 'cutout',
+    measure: 'count',
+    names: { en: 'Hob cutout', pl: 'Wycięcie pod płytę grzewczą' },
+  },
+  {
+    id: 'top-mount-sink-cutout',
     scope: 'cutout',
     measure: 'count',
     names: {
-      en: 'Top-mounted sink or hob cutout',
-      pl: 'Otwór pod umywalkę/zlew nakładany/płytę grzewczą',
+      en: 'Cutout for a top-mounted sink or basin',
+      pl: 'Wycięcie pod zlew lub umywalkę nakładaną',
     },
   },
   {
-    id: 'undermount-cutout',
+    id: 'undermount-sink-cutout',
     scope: 'cutout',
     measure: 'count',
     names: {
-      en: 'Undermount sink or flush cutout',
-      pl: 'Otwór pod umywalkę/zlew podwieszany/otwór licowany',
+      en: 'Cutout for an undermount sink or basin',
+      pl: 'Wycięcie pod zlew lub umywalkę podwieszaną',
     },
+  },
+  {
+    id: 'flush-cutout',
+    scope: 'cutout',
+    measure: 'count',
+    names: { en: 'Flush cutout, rebated', pl: 'Otwór licowany, z wpustem' },
   },
   {
     id: 'stone-sink-single',

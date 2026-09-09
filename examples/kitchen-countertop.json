@@ -44,11 +44,11 @@
   ],
   "services": [
     {
-      "service": "top-mount-cutout",
+      "service": "hob-cutout",
       "target": "hob"
     },
     {
-      "service": "undermount-cutout",
+      "service": "undermount-sink-cutout",
       "target": "sink"
     },
     {

@@ -137,9 +137,38 @@ function holeMark(x: number, y: number, radius: number): IconPrimitive[] {
 
 const ICONS: Record<ServiceId, IconPrimitive[]> = {
   // --- Openings, in section -----------------------------------------------
-  'top-mount-cutout': [
+  'hob-cutout': [
     ...sectionWithOpening(),
-    // The bowl rim rests on top of the slab and overhangs the opening.
+    // The hob rests on the worktop; the circle is a burner seen from the side.
+    {
+      kind: 'poly',
+      points: [
+        [6, 5],
+        [18, 5],
+      ],
+      closed: false,
+    },
+    {
+      kind: 'poly',
+      points: [
+        [6, 5],
+        [6, 7],
+      ],
+      closed: false,
+    },
+    {
+      kind: 'poly',
+      points: [
+        [18, 5],
+        [18, 7],
+      ],
+      closed: false,
+    },
+    { kind: 'circle', center: [12, 3.2], radius: 1.6 },
+  ],
+  'top-mount-sink-cutout': [
+    ...sectionWithOpening(),
+    // The rim rests on top of the worktop and overhangs the opening.
     {
       kind: 'poly',
       points: [
@@ -165,9 +194,9 @@ const ICONS: Record<ServiceId, IconPrimitive[]> = {
       closed: false,
     },
   ],
-  'undermount-cutout': [
+  'undermount-sink-cutout': [
     ...sectionWithOpening(),
-    // The rim hangs under the slab, leaving the top face flush.
+    // The rim hangs under the worktop, leaving the top face clear.
     {
       kind: 'poly',
       points: [
@@ -191,6 +220,67 @@ const ICONS: Record<ServiceId, IconPrimitive[]> = {
         [18, 12],
       ],
       closed: false,
+    },
+  ],
+  // Let into a rebate, so the two top faces finish level.
+  'flush-cutout': [
+    {
+      kind: 'poly',
+      points: [
+        [1, 7],
+        [8, 7],
+      ],
+      closed: false,
+    },
+    {
+      kind: 'poly',
+      points: [
+        [1, 10],
+        [8, 10],
+      ],
+      closed: false,
+    },
+    {
+      kind: 'poly',
+      points: [
+        [8, 7],
+        [8, 10],
+      ],
+      closed: false,
+    },
+    {
+      kind: 'poly',
+      points: [
+        [16, 7],
+        [23, 7],
+      ],
+      closed: false,
+    },
+    {
+      kind: 'poly',
+      points: [
+        [16, 10],
+        [23, 10],
+      ],
+      closed: false,
+    },
+    {
+      kind: 'poly',
+      points: [
+        [16, 7],
+        [16, 10],
+      ],
+      closed: false,
+    },
+    {
+      kind: 'poly',
+      points: [
+        [6, 7],
+        [18, 7],
+        [18, 8.6],
+        [6, 8.6],
+      ],
+      closed: true,
     },
   ],
 

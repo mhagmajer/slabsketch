@@ -49,9 +49,9 @@ holes:
 # on the drawing (A, B, C ...) and a row in the schedule. SlabSketch records the
 # choice and its extent; prices are a matter for the fabricator.
 services:
-  - service: top-mount-cutout
+  - service: hob-cutout
     target: hob
-  - service: undermount-cutout
+  - service: undermount-sink-cutout
     target: sink
   - service: tap-hole
     target: faucet
