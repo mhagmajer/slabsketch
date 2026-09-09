@@ -196,6 +196,37 @@ services:
     assert.deepEqual(tags.sort(), ['A', 'B', 'C'])
   })
 
+  it('names the fitting in full in the schedule, and briefly on the geometry', () => {
+    const withProduct = `
+countertop: { name: Blat, width: 2000, depth: 600, thickness: 30 }
+cutouts:
+  - id: zlew
+    label: Zlew podwieszany
+    product: Zlewozmywak podwieszany jednokomorowy 40 cm Wenecja Easy
+    x: 800
+    y: 100
+    width: 310
+    height: 390
+services: [{ service: undermount-sink-cutout, target: zlew }]
+`
+    const svg = render(withProduct, 'svg').content as string
+    // The opening carries the short tag; the schedule carries the order.
+    assert.ok(svg.includes('Zlew podwieszany'))
+    assert.ok(svg.includes('Zlewozmywak podwieszany jednokomorowy 40 cm Wenecja Easy'))
+  })
+
+  it('falls back to the label when no product is given', () => {
+    const svg = render(
+      `
+countertop: { name: Blat, width: 2000, depth: 600, thickness: 30 }
+cutouts: [{ id: zlew, label: Zlew, x: 800, y: 100, width: 310, height: 390 }]
+services: [{ service: undermount-sink-cutout, target: zlew }]
+`,
+      'svg',
+    ).content as string
+    assert.ok(svg.includes('>Zlew<'))
+  })
+
   it('lists every selection in the schedule, whole-slab ones included', () => {
     const svg = render(source, 'svg').content as string
     assert.ok(svg.includes('ADDITIONAL SERVICES'))
@@ -236,8 +267,8 @@ services:
     const layout = scheduleLayout(sheet, 8)
     assert.ok(layout.columns >= 2, 'A3 should hold several schedule columns')
     assert.ok(layout.height > LAYOUT.scheduleRowHeight)
-    // Eight services over four columns need two rows, not eight.
-    assert.equal(layout.columns, 4)
+    // Eight services over three columns need three rows, not eight.
+    assert.equal(layout.columns, 3)
     assert.ok(layout.height < 40, `schedule band is ${layout.height} mm tall`)
   })
 })

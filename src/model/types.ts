@@ -19,7 +19,10 @@ import type { ServiceId, ServiceMeasure } from '../services.ts'
 export interface RectCutout {
   kind: 'rect-cutout'
   id: string
+  /** Short tag drawn on the geometry. */
   label?: string
+  /** Full designation of the fitting, as ordered. */
+  product?: string
   rect: Rect
   /** Corner radius; 0 for a square-cornered opening. */
   cornerRadius: Mm
@@ -32,6 +35,7 @@ export interface CircleHole {
   kind: 'circle-hole'
   id: string
   label?: string
+  product?: string
   center: Point
   diameter: Mm
   radius: Mm

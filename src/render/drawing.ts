@@ -1180,7 +1180,9 @@ function describeService(selected: SelectedService, slab: Slab, t: Strings): str
     parts.push(`${formatLength(selected.quantity.value)} mm`)
   } else if (selected.target) {
     const feature = slab.features.find((f) => f.id === selected.target)
-    parts.push(feature?.label ?? selected.target)
+    // The schedule is where the order is spelled out, so it names the fitting
+    // in full; the geometry only has room for a short tag.
+    parts.push(feature?.product ?? feature?.label ?? selected.target)
   } else {
     parts.push(t.wholeSlab)
     if (selected.quantity.kind === 'area') {

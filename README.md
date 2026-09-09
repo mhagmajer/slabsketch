@@ -154,7 +154,8 @@ countertop:
 
 cutouts:
   - id: hob            # x, y = back-left corner of the opening
-    label: Hob
+    label: Hob         # short tag drawn in the opening
+    product: Solgaz Optimex 2+1, top-mounted   # full designation, in the schedule
     x: 500
     y: 65
     width: 560

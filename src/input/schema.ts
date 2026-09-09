@@ -32,10 +32,14 @@ export const scaleSchema = z.union([
   z.number().finite().positive(),
 ])
 
+/** Full designation of the fitting, as ordered. Shown in the services schedule. */
+const product = z.string().min(1)
+
 export const cutoutSchema = z
   .object({
     id,
     label: label.optional(),
+    product: product.optional(),
     /** X of the cutout's left edge, from the slab's left edge. */
     x: coordinate,
     /** Y of the cutout's back edge, from the slab's back edge. */
@@ -51,6 +55,7 @@ export const holeSchema = z
   .object({
     id,
     label: label.optional(),
+    product: product.optional(),
     /** X of the hole centre. */
     x: coordinate,
     /** Y of the hole centre. */

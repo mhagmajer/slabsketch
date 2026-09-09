@@ -32,14 +32,16 @@ countertop:
 
 cutouts:
   - id: plyta
-    label: Solgaz Optimex 2+1
+    label: Płyta nakładana
+    product: Gazowa płyta ceramiczna Solgaz Optimex 2+1, nakładana
     x: 150          # min. 150 mm od boku szafki / narożnika wg instrukcji
     y: 252.5        # wyśrodkowane w głąb blatu
     width: 315      # w poprzek blatu
     height: 495     # w głąb blatu
 
   - id: zlew
-    label: Wenecja Easy 40
+    label: Zlew podwieszany
+    product: Zlewozmywak podwieszany jednokomorowy 40 cm Wenecja Easy
     x: 990          # 100 mm od prawej krawędzi
     y: 530          # 80 mm od krawędzi przedniej - wg założeń szablonu
     width: 310
@@ -48,13 +50,15 @@ cutouts:
 
 holes:
   - id: bateria
-    label: Bateria Flex 6020
+    label: Bateria
+    product: Bateria kuchenna z elastyczną wylewką Flex 6020 Primagran
     x: 1085         # para otworów wyśrodkowana nad komorą zlewu
     y: 460          # 70 mm za wycięciem zlewu
     diameter: 35
 
   - id: dozownik
-    label: Dozownik Slim 500
+    label: Dozownik
+    product: Dozownik do płynu Slim 500 ml Primagran
     x: 1205         # 120 mm w prawo od baterii
     y: 460
     diameter: 35
