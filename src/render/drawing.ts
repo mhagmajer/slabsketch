@@ -787,7 +787,12 @@ function buildSheetFurniture(
     entities.push({
       type: 'text',
       at: { x: align === 'start' ? left : right, y: rowMiddle(row) },
-      text: truncateToWidth(text, maxWidth, style.fontSize ?? LAYOUT.smallTextSize),
+      text: truncateToWidth(
+        text,
+        maxWidth,
+        style.fontSize ?? LAYOUT.smallTextSize,
+        style.bold ?? false,
+      ),
       anchor: align,
       baseline: 'middle',
       style,
@@ -838,7 +843,7 @@ function buildSheetFurniture(
   entities.push({
     type: 'text',
     at: { x: notesX, y: noteY },
-    text: truncateToWidth(t.preliminary, notesWidth, size),
+    text: truncateToWidth(t.preliminary, notesWidth, size, true),
     anchor: 'start',
     baseline: 'top',
     style: { layer: 'title', fill: INK, fontSize: size, bold: true },
@@ -1009,10 +1014,10 @@ function describeService(selected: SelectedService, slab: Slab, t: Strings): str
   return parts.join(' · ')
 }
 
-function truncateToWidth(text: string, maxWidth: number, fontSize: number): string {
-  if (textWidth(text, fontSize) <= maxWidth) return text
+function truncateToWidth(text: string, maxWidth: number, fontSize: number, bold = false): string {
+  if (textWidth(text, fontSize, bold) <= maxWidth) return text
   let result = text
-  while (result.length > 1 && textWidth(`${result}...`, fontSize) > maxWidth) {
+  while (result.length > 1 && textWidth(`${result}...`, fontSize, bold) > maxWidth) {
     result = result.slice(0, -1)
   }
   return `${result}...`
@@ -1102,7 +1107,7 @@ function entityBounds(entity: Entity, scale: number): Bounds {
 
 function textEntityBounds(entity: TextEntity, scale: number): Bounds {
   const fontSize = entity.style.fontSize ?? LAYOUT.smallTextSize
-  const width = textWidth(entity.text, fontSize) / scale
+  const width = textWidth(entity.text, fontSize, entity.style.bold ?? false) / scale
   const height = fontSize / scale
 
   const x0 = entity.anchor === 'start' ? 0 : entity.anchor === 'middle' ? -width / 2 : -width

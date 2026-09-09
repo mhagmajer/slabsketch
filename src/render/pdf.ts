@@ -11,7 +11,7 @@
  */
 
 import { round } from '../geometry/primitives.ts'
-import { baselineOffset, textWidth } from '../text.ts'
+import { baselineOffset, glyphWidth, textWidth } from '../text.ts'
 import { GENERATOR } from '../version.ts'
 import type { Drawing, Entity, Style, TextEntity } from './drawing.ts'
 import { projectEntity } from './drawing.ts'
@@ -43,8 +43,14 @@ export function renderPdf(drawing: Drawing, options: PdfOptions = {}): Uint8Arra
   const boldId = 7
   const infoId = 8
 
-  const font = (base: string): string =>
-    `<< /Type /Font /Subtype /Type1 /BaseFont /${base} /Encoding ${encodingId} 0 R >>`
+  // The widths matter: without them a viewer falls back to the standard
+  // Helvetica metrics, which have no entry for the glyphs the /Differences
+  // table introduces, so Polish letters are advanced by zero and collide with
+  // whatever follows them.
+  const font = (base: string, bold: boolean): string =>
+    `<< /Type /Font /Subtype /Type1 /BaseFont /${base} /Encoding ${encodingId} 0 R ` +
+    `/FirstChar ${FIRST_CHAR} /LastChar ${LAST_CHAR} ` +
+    `/Widths [${widthsArray(encoding, bold).join(' ')}] >>`
 
   const infoParts = [
     `/Title (${escapeString(options.title ?? drawing.title, encoding)})`,
@@ -65,8 +71,8 @@ export function renderPdf(drawing: Drawing, options: PdfOptions = {}): Uint8Arra
       `/Contents ${contentId} 0 R >>`,
     `<< /Length ${content.length} >>\nstream\n${content}\nendstream`,
     encodingObject(encoding),
-    font('Helvetica'),
-    font('Helvetica-Bold'),
+    font('Helvetica', false),
+    font('Helvetica-Bold', true),
     `<< ${infoParts.join(' ')} >>`,
   ]
 
@@ -181,7 +187,7 @@ function emitText(
   encoding: Encoding,
 ): void {
   const fontSize = entity.style.fontSize ?? 2.5
-  const width = textWidth(entity.text, fontSize)
+  const width = textWidth(entity.text, fontSize, entity.style.bold ?? false)
   const offsetX = entity.anchor === 'start' ? 0 : entity.anchor === 'middle' ? -width / 2 : -width
   const offsetY = baselineOffset(entity.baseline, fontSize)
 
@@ -388,6 +394,30 @@ export function buildEncoding(texts: readonly string[]): Encoding {
   })
   differences.sort((a, b) => a[0] - b[0])
   return { extra, differences }
+}
+
+const FIRST_CHAR = 32
+const LAST_CHAR = 255
+
+/** Character each code stands for, once /Differences has been applied. */
+function decodeTable(encoding: Encoding): Map<number, string> {
+  const table = new Map<number, string>()
+  for (let code = FIRST_CHAR; code <= 126; code++) table.set(code, String.fromCharCode(code))
+  for (const [char, code] of Object.entries(WIN_ANSI_SPECIALS)) table.set(code, char)
+  for (let code = 0xa0; code <= LAST_CHAR; code++) table.set(code, String.fromCharCode(code))
+  for (const [char, code] of encoding.extra) table.set(code, char)
+  return table
+}
+
+/** Advance width of every code in the font's range, in 1/1000 em. */
+function widthsArray(encoding: Encoding, bold: boolean): number[] {
+  const table = decodeTable(encoding)
+  const widths: number[] = []
+  for (let code = FIRST_CHAR; code <= LAST_CHAR; code++) {
+    const char = table.get(code)
+    widths.push(char === undefined ? 0 : glyphWidth(char, bold))
+  }
+  return widths
 }
 
 function encodingObject(encoding: Encoding): string {

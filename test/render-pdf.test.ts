@@ -106,6 +106,46 @@ describe('PDF rendering', () => {
     assert.ok(a.equals(b))
   })
 
+  it('states a width for every character it can print', () => {
+    const polish = readFileSync(
+      fileURLToPath(new URL('../examples/blat-kuchenny.yaml', import.meta.url)),
+      'utf8',
+    )
+    const text = Buffer.from(render(polish, 'pdf').content as Uint8Array).toString('latin1')
+
+    const fonts = [...text.matchAll(/\/FirstChar (\d+) \/LastChar (\d+) \/Widths \[([^\]]*)\]/g)]
+    assert.equal(fonts.length, 2, 'both the regular and the bold face need widths')
+
+    const differences = /\/Differences \[([^\]]*)\]/.exec(text)
+    assert.ok(differences?.[1])
+    const codes = [...differences[1].matchAll(/(\d+) \//g)].map((m) => Number(m[1]))
+    assert.ok(codes.length > 0)
+
+    for (const font of fonts) {
+      const first = Number(font[1])
+      const widths = (font[3] ?? '').trim().split(/\s+/).map(Number)
+      // A glyph introduced by /Differences that a viewer cannot measure gets
+      // advanced by zero, and the next letter lands on top of it.
+      for (const code of codes) {
+        const width = widths[code - first]
+        assert.ok(
+          typeof width === 'number' && width > 0,
+          `code ${code} has no usable width (${width})`,
+        )
+      }
+    }
+  })
+
+  it('measures the bold face as bold, not as the regular one', () => {
+    const text = pdf()
+    const fonts = [
+      ...text.matchAll(/\/BaseFont \/(Helvetica(?:-Bold)?) .*?\/Widths \[([^\]]*)\]/gs),
+    ]
+    assert.equal(fonts.length, 2)
+    const [regular, bold] = fonts.map((f) => (f[2] ?? '').trim())
+    assert.notEqual(regular, bold, 'the two faces cannot share one width table')
+  })
+
   it('names itself and its version in the metadata', () => {
     const text = pdf()
     assert.ok(text.includes(`/Producer (SlabSketch v${VERSION})`))
