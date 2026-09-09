@@ -5,7 +5,7 @@
 #                  korpus 517 x 330 mm; min. 150 mm od boku, min. 38 mm od frontu
 #   zlewozmywak    Primagran Wenecja Easy 40, podwieszany, jednokomorowy
 #                  wycięcie 310 x 390 mm, naroża R20 (szablon Undermount Easy)
-#                  komora 320 x 400 mm; min. 90 mm z tyłu, min. 80 mm z przodu
+#                  komora 320 x 400 mm; 90/80 mm z tyłu/przodu to założenia dla blatu 600-620 mm
 #   bateria        Primagran Flex 6020 - otwór Ø35 mm
 #   dozownik       Primagran Slim 500 ml - otwór Ø35 mm
 #
@@ -32,7 +32,7 @@ cutouts:
   - id: zlew
     label: Wenecja Easy 40
     x: 990          # 100 mm od prawej krawędzi
-    y: 530          # 80 mm od krawędzi przedniej - minimum wg szablonu
+    y: 530          # 80 mm od krawędzi przedniej - wg założeń szablonu
     width: 310
     height: 390
     cornerRadius: 20   # R20 wg szablonu Primagran
@@ -63,10 +63,12 @@ services:
 
 notes:
   - Krawędź tylna przylega do ściany - bez wykończenia i bez obróbki naroży tylnych.
-  - Płyta Solgaz licowana z blatem - wpust do potwierdzenia z kamieniarzem i instalatorem gazowym.
-  - Instrukcja Solgaz opisuje montaż nakładany, na uszczelce - licowanie jest odstępstwem od niej.
-  - Wycięcie płyty 495 x 315 mm z tolerancją ±1 mm wg rys. 5.1 instrukcji.
-  - Zlew 80 mm od krawędzi przedniej to minimum podane przez producenta.
+  - Płyta licowana z blatem - obrys korpusu 517 x 330 mm; wpust i jego głębokość ustala kamieniarz.
+  - Instrukcja Solgaz opisuje wyłącznie montaż nakładany na uszczelce - licowanie jest odstępstwem.
+  - Wycięcie płyty 495 x 315 mm, tolerancja ±1 mm, naroża ostre (rys. 5.1 instrukcji).
+  - Płyta 150 mm od lewej krawędzi - dokładnie minimum wymagane przy szafce na blacie lub narożniku.
+  - Zlew - wycięcie 310 x 390 mm, naroża R20, komora 320 x 400 mm (szablon Primagran).
+  - Zlew 80 mm od frontu - wg szablonu to założenie dla blatu 600/620 mm, nie wymóg dla 1000 mm.
 
 checks:
   minEdgeDistance: 50
