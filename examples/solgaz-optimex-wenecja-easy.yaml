@@ -38,7 +38,7 @@ cutouts:
     label: Płyta nakładana
     product: Gazowa płyta ceramiczna Solgaz Optimex 2+1
     x: 40           # z pomiaru; producent wymaga 150 mm - patrz uwagi
-    y: 80           # cofnięta ku ścianie; 135 mm materiału przed wycięciem
+    y: 100          # 100 mm od ściany, 115 mm materiału przed wycięciem
     width: 315      # w poprzek blatu
     height: 495     # w głąb blatu
 
@@ -46,7 +46,7 @@ cutouts:
     label: Zlew podwieszany
     product: Zlewozmywak podwieszany jednokomorowy 40 cm Wenecja Easy
     x: 1050         # 45 mm od prawej ściany, z pomiaru
-    y: 240          # 80 mm od krawędzi przedniej
+    y: 260          # 60 mm od krawędzi przedniej
     width: 310
     height: 390
     cornerRadius: 20   # R20 wg szablonu Primagran
@@ -56,14 +56,14 @@ holes:
     label: Bateria
     product: Bateria kuchenna z elastyczną wylewką Flex 6020 Primagran
     x: 1205         # na osi komory zlewu
-    y: 180          # 60 mm za wycięciem zlewu
+    y: 200          # 60 mm za wycięciem zlewu
     diameter: 35
 
   - id: dozownik
     label: Dozownik
     product: Dozownik do płynu Slim 500 ml Primagran
     x: 1085         # 120 mm w lewo od baterii, od strony przestrzeni roboczej
-    y: 180
+    y: 200
     diameter: 35
 
 services:
@@ -81,7 +81,7 @@ notes:
   - Wykończenie tylko krawędzi frontowej; tył i boki niewidoczne, bez obróbki.
   - Płyta nakładana, bez wpustu; wycięcie z tolerancją ±1 mm, naroża ostre.
   - Kołnierz płyty zakrywa cięcie tylko o 7,5 mm z boków - krawędź cięcia musi być równa.
-  - Wąskie pasy kamienia - 40 mm przy płycie, 45 mm przy zlewie, 42 mm między otworami a zlewem.
+  - Wąskie pasy kamienia - przy zlewie 45 mm z prawej, 60 z przodu, 42 z tyłu; przy płycie 40 mm.
   - Płyta 40 mm od ściany zamiast 150 mm wymaganych przez Solgaz - świadoma decyzja inwestora.
   - Otworów Ø35 nie powiększać - kołnierz dozownika ma tylko Ø40.
   - Do uzupełnienia - profil krawędzi frontowej i wykończenie powierzchni.
