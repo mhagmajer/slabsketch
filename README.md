@@ -49,15 +49,22 @@ One sheet, laid out the way a shop drawing is:
 - title block with material, thickness, scale, units, sheet size and metadata
 - notes block, always headed by a preliminary-drawing disclaimer
 
-Generate the example drawing and open it:
+Generate the example drawings and open one:
 
 ```bash
 npm run example
 open examples/output/kitchen-countertop.svg
 ```
 
-Generated drawings are not committed to this repository; the input that produces
-them is, in [`examples/kitchen-countertop.yaml`](examples/kitchen-countertop.yaml).
+Generated drawings are not committed to this repository; the inputs that produce
+them are:
+
+| Example | What it shows |
+| --- | --- |
+| [`kitchen-countertop.yaml`](examples/kitchen-countertop.yaml) | a wall run with a hob, an undermount sink and two tap holes |
+| [`kitchen-island.yaml`](examples/kitchen-island.yaml) | a deeper island, taps drilled in open material rather than against a wall |
+| [`bathroom-vanity.yaml`](examples/bathroom-vanity.yaml) | a smaller part, drawn at 1:5 because `scale: auto` found it fits |
+| [`tight-clearances.yaml`](examples/tight-clearances.yaml) | deliberately marginal geometry, so every proximity warning fires |
 
 ## Installation
 
@@ -260,8 +267,9 @@ Dimension placement is deterministic and rule-based:
    and to the left of the part, innermost band first
 3. a dimension moves one band outwards for as long as its label would collide
    with one already placed in that band, so chains nest by span length
-4. hole leaders are lengthened until the shoulder clears the part edge and the
-   previous label, which keeps the annotation legible without a solver
+4. a hole leader is placed in open material when a clear spot exists, and
+   otherwise pushed out through whichever edge of the part is nearest; labels
+   leaving through the same edge are staggered and kept off one another
 
 ### Library use
 
@@ -286,7 +294,7 @@ npm test              # node:test, no test framework dependency
 npm run test:update   # accept changed SVG snapshots
 npm run typecheck
 npm run lint
-npm run example       # regenerate examples/output/
+npm run example       # render every examples/*.yaml into examples/output/
 ```
 
 Requires Node 22.18+ for development (test and dev scripts run TypeScript

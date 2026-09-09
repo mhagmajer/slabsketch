@@ -1,0 +1,46 @@
+# This example is deliberately marginal. It renders, but every proximity check
+# fires, so it is a quick way to see what `slabsketch check` reports:
+#
+#   slabsketch check examples/tight-clearances.yaml
+#   slabsketch check examples/tight-clearances.yaml --strict   # exits 1
+#
+# The warnings are generic geometric heuristics, not fabrication rules. Whether
+# any of this is actually cuttable depends on the material and the fabricator.
+
+version: 1
+
+countertop:
+  name: Utility top (tight)
+  width: 1800
+  depth: 600
+  thickness: 20
+  material: Quartz
+
+cutouts:
+  - id: sink
+    label: Sink
+    x: 700
+    y: 30
+    width: 500
+    height: 420
+
+  - id: drainer
+    label: Drainer recess
+    x: 1230
+    y: 60
+    width: 300
+    height: 380
+
+holes:
+  - id: tap
+    label: Tap
+    x: 1215
+    y: 500
+    diameter: 35
+
+checks:
+  minEdgeDistance: 50
+  minFeatureDistance: 50
+
+drawing:
+  sheet: a3

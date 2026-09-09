@@ -19,6 +19,7 @@ import {
   type Dimension,
   type LinearDimension,
   autoDimensions,
+  insideInset,
   packDimensions,
 } from '../geometry/dimensions.ts'
 import {
@@ -244,11 +245,17 @@ function buildContent(doc: CountertopDocument, slab: Slab, scale: number): Conte
         style: { layer: 'cutout', stroke: INK, strokeWidth: LAYOUT.strokeCutout },
       })
       if (feature.label) {
+        // When the opening carries its own dimensions, they run just inside its
+        // back and left edges, so the label is centred on what is left.
+        const inset =
+          doc.drawing.dimensions === 'none'
+            ? undefined
+            : insideInset(feature.rect.width, feature.rect.height, scale)
         entities.push({
           type: 'text',
           at: {
-            x: (feature.bounds.minX + feature.bounds.maxX) / 2,
-            y: (feature.bounds.minY + feature.bounds.maxY) / 2,
+            x: (feature.bounds.minX + (inset ?? 0) + feature.bounds.maxX) / 2,
+            y: (feature.bounds.minY + (inset ?? 0) + feature.bounds.maxY) / 2,
           },
           text: feature.label,
           anchor: 'middle',
@@ -446,24 +453,27 @@ function diameterEntities(dimension: DiameterDimension, scale: number): Entity[]
   const anchor: TextAnchor = toRight ? 'start' : 'end'
   const textStyle: Style = { layer: 'dimension', fill: DIM_INK, fontSize: LAYOUT.dimTextSize }
 
-  entities.push({
-    type: 'text',
-    at: { x: textX, y: shoulder.y - p(LAYOUT.dimTextGap) },
-    text: dimension.text,
-    anchor,
-    baseline: 'bottom',
-    style: textStyle,
+  // The label sits on the far side of the shoulder from the hole, and reads
+  // top-down: the name first, the diameter under it.
+  const downward = direction.y > 0
+  const rowHeight = LAYOUT.dimTextSize + 0.8
+  const baseline: TextBaseline = downward ? 'top' : 'bottom'
+  const row = (index: number): Point => ({
+    x: textX,
+    y: shoulder.y + (downward ? 1 : -1) * p(LAYOUT.dimTextGap + index * rowHeight),
   })
-  if (dimension.label) {
+
+  const rows = dimension.label ? [dimension.label, dimension.text] : [dimension.text]
+  rows.forEach((text, index) => {
     entities.push({
       type: 'text',
-      at: { x: textX, y: shoulder.y - p(LAYOUT.dimTextGap + LAYOUT.dimTextSize + 0.8) },
-      text: dimension.label,
+      at: row(downward ? index : rows.length - 1 - index),
+      text,
       anchor,
-      baseline: 'bottom',
+      baseline,
       style: textStyle,
     })
-  }
+  })
   return entities
 }
 

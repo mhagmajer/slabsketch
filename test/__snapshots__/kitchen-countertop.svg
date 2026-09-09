@@ -102,17 +102,17 @@
       <line x1="282.987" y1="135.663" x2="294.25" y2="124.4" stroke="#1a4d80" stroke-width="0.18"/>
       <line x1="294.25" y1="124.4" x2="302.893" y2="124.4" stroke="#1a4d80" stroke-width="0.18"/>
       <polygon points="282.987,135.663 280.406,137.041 281.609,138.244" fill="#1a4d80"/>
-      <text x="294.75" y="123.4" dy="0" font-size="2.5" fill="#1a4d80">Ø35</text>
       <text x="294.75" y="120.1" dy="0" font-size="2.5" fill="#1a4d80">Faucet</text>
+      <text x="294.75" y="123.4" dy="0" font-size="2.5" fill="#1a4d80">Ø35</text>
       <line x1="291.74" y1="135.91" x2="309.75" y2="117.9" stroke="#1a4d80" stroke-width="0.18"/>
       <line x1="309.75" y1="117.9" x2="328.12" y2="117.9" stroke="#1a4d80" stroke-width="0.18"/>
       <polygon points="291.74,135.91 289.159,137.289 290.361,138.491" fill="#1a4d80"/>
-      <text x="310.25" y="116.9" dy="0" font-size="2.5" fill="#1a4d80">Ø28</text>
       <text x="310.25" y="113.6" dy="0" font-size="2.5" fill="#1a4d80">Soap dispenser</text>
+      <text x="310.25" y="116.9" dy="0" font-size="2.5" fill="#1a4d80">Ø28</text>
     </g>
     <g id="annotation">
-      <text x="167.75" y="160.4" dy="1.146" font-size="3.2" fill="#111111" text-anchor="middle" font-weight="bold">Hob</text>
-      <text x="281.75" y="164.4" dy="1.146" font-size="3.2" fill="#111111" text-anchor="middle" font-weight="bold">Sink</text>
+      <text x="171.25" y="163.9" dy="1.146" font-size="3.2" fill="#111111" text-anchor="middle" font-weight="bold">Hob</text>
+      <text x="285.25" y="167.9" dy="1.146" font-size="3.2" fill="#111111" text-anchor="middle" font-weight="bold">Sink</text>
       <text x="88.25" y="127.9" dy="0" font-size="2.4" fill="#111111" text-anchor="end">(0,0)</text>
     </g>
     <g id="title">

@@ -210,6 +210,25 @@ holes: [{ id: tap, label: Tap, x: 600, y: 60, diameter: 35 }]
     assert.ok(kneeY < 0, `label should be pushed past the back edge, knee at y=${kneeY}`)
   })
 
+  it('escapes through whichever edge of the part is nearest', () => {
+    // The tap is boxed in by two openings; the front edge is 100 mm away and
+    // the back edge 500 mm, so the leader goes forwards.
+    const source = `
+countertop: { name: Utility, width: 1800, depth: 600, thickness: 20 }
+cutouts:
+  - { id: sink, label: Sink, x: 700, y: 30, width: 500, height: 420 }
+  - { id: drainer, label: Drainer, x: 1230, y: 60, width: 300, height: 380 }
+holes: [{ id: tap, label: Tap, x: 1215, y: 500, diameter: 35 }]
+`
+    const scale = 0.1
+    const leader = dimensionsOf(source, scale).find((d) => d.kind === 'diameter')
+    assert.ok(leader?.kind === 'diameter')
+    assert.ok(leader.direction.y > 0, 'leader should point towards the front edge')
+    const kneeY =
+      leader.center.y + leader.direction.y * (leader.radius + leader.leaderPaper / scale)
+    assert.ok(kneeY > 600, `label should clear the front edge, knee at y=${kneeY}`)
+  })
+
   it('is deterministic', () => {
     const a = JSON.stringify(dimensionsOf(exampleYaml()))
     const b = JSON.stringify(dimensionsOf(exampleYaml()))

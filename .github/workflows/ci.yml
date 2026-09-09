@@ -35,7 +35,7 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Render the example (smoke test)
+      - name: Render every example (smoke test)
         run: npm run example
 
       - name: Check the example inputs stay in sync

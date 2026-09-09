@@ -20,7 +20,14 @@
 
 import type { DimensionReference, Slab } from '../model/types.ts'
 import { formatDiameter, formatLength, textWidth } from '../text.ts'
-import { type Bounds, type Mm, type Point, boundsContain, boundsOverlap } from './primitives.ts'
+import {
+  type Bounds,
+  type Mm,
+  type Point,
+  boundsContain,
+  boundsOverlap,
+  expandBounds,
+} from './primitives.ts'
 
 export type DimensionSide = 'top' | 'bottom' | 'left' | 'right'
 
@@ -81,7 +88,8 @@ const LEADER_CLEAR_PAPER = 5
 /** Extra clearance per hole, so neighbouring leaders land on separate rows. */
 const LEADER_STAGGER_PAPER = 6.5
 const LEADER_MIN_PAPER = 8
-const LEADER_MAX_PAPER = 34
+/** Breathing room required around a leader label, in paper mm. */
+const LABEL_CLEARANCE_PAPER = 2.5
 /** Smallest paper size of an opening that may carry its own dimensions. */
 const MIN_INSIDE_PAPER = 20
 const INSIDE_INSET_PAPER = 7
@@ -260,12 +268,13 @@ export function autoDimensions(slab: Slab, options: AutoDimensionOptions): Dimen
     .map((hole, index) => ({ hole, index }))
     .sort((a, b) => a.hole.center.x - b.hole.center.x || a.index - b.index)
 
-  // A leader label is placed in open material when one exists, and pushed clear
-  // of the part otherwise - never left straddling an edge or lying over an
-  // opening. Labels pushed outside share one strip of paper, so they are also
+  // A leader label is placed in open material when one exists, and otherwise
+  // pushed out through whichever edge of the part is nearest - never left
+  // straddling an edge or lying over an opening. Labels sharing an edge are
   // staggered and kept off one another. Every step is a function of the
   // geometry alone, so the result is stable.
-  let minKneeXPaper = Number.NEGATIVE_INFINITY
+  const minKneeXPaper = new Map<string, number>()
+  const placedLabels: Bounds[] = []
 
   byX.forEach(({ hole }, rank) => {
     const rows = hole.label ? 2 : 1
@@ -273,42 +282,57 @@ export function autoDimensions(slab: Slab, options: AutoDimensionOptions): Dimen
       textWidth(formatDiameter(hole.diameter), textSizePaper),
       hole.label ? textWidth(hole.label, textSizePaper) : 0,
     )
-    const labelHeight = rows * textSizePaper + (rows - 1) * 0.8 + LEADER_CLEAR_PAPER
     const shoulderPaper = Math.max(SHOULDER_PAPER, labelWidth + 1)
+    const metrics: LabelMetrics = {
+      width: shoulderPaper,
+      height: rows * textSizePaper + (rows - 1) * 0.8 + LEADER_CLEAR_PAPER,
+      scale,
+    }
+    const basePaper = LEADER_MIN_PAPER + rank * LEADER_STAGGER_PAPER
+    const clearance = (LEADER_CLEAR_PAPER + rank * LEADER_STAGGER_PAPER) / scale
 
-    let leaderPaper = LEADER_MIN_PAPER + rank * LEADER_STAGGER_PAPER
     let direction = LEADER_DIRECTIONS[0] as Point
-    const clear = LEADER_DIRECTIONS.find((candidate) =>
+    let leaderPaper = basePaper
+
+    const inOpenMaterial = LEADER_DIRECTIONS.find((candidate) =>
       labelIsClear(
         slab,
-        labelBox(hole.center, hole.radius, candidate, leaderPaper, {
-          width: shoulderPaper,
-          height: labelHeight,
-          scale,
-        }),
+        placedLabels,
+        labelBox(hole.center, hole.radius, candidate, basePaper, metrics),
+        LABEL_CLEARANCE_PAPER / scale,
       ),
     )
 
-    if (clear) {
-      direction = clear
+    if (inOpenMaterial) {
+      direction = inOpenMaterial
     } else {
-      // Nowhere clear inside the part: push the shoulder out past the back
-      // edge, one stagger step per hole, and keep clear of the previous label.
-      const targetY = slab.bounds.minY - (LEADER_CLEAR_PAPER + rank * LEADER_STAGGER_PAPER) / scale
-      leaderPaper = Math.max(
-        leaderPaper,
-        ((hole.center.y - targetY) / Math.abs(direction.y) - hole.radius) * scale,
-      )
-      if (Number.isFinite(minKneeXPaper)) {
-        leaderPaper = Math.max(
-          leaderPaper,
-          (minKneeXPaper - hole.center.x * scale) / direction.x - hole.radius * scale,
-        )
+      // Escape the part through the edge that needs the shortest leader.
+      let shortest = Number.POSITIVE_INFINITY
+      for (const candidate of LEADER_DIRECTIONS) {
+        const needed = leaderToEscape(slab, hole.center, hole.radius, candidate, metrics, clearance)
+        if (needed < shortest - 1e-9) {
+          shortest = needed
+          direction = candidate
+        }
       }
-      leaderPaper = Math.min(Math.max(leaderPaper, LEADER_MIN_PAPER), LEADER_MAX_PAPER)
+      leaderPaper = Math.max(basePaper, shortest)
+
+      // Labels leaving through the same edge share one strip of paper.
+      const edge = `${direction.y < 0 ? 'top' : 'bottom'}:${direction.x < 0 ? 'left' : 'right'}`
+      const previous = minKneeXPaper.get(edge)
+      if (previous !== undefined) {
+        const clearOfPrevious =
+          (previous - hole.center.x * scale) / direction.x - hole.radius * scale
+        leaderPaper = Math.max(leaderPaper, clearOfPrevious)
+      }
       const kneeXPaper = (hole.center.x + direction.x * (hole.radius + leaderPaper / scale)) * scale
-      minKneeXPaper = kneeXPaper + labelWidth + 2
+      minKneeXPaper.set(
+        edge,
+        direction.x > 0 ? kneeXPaper + labelWidth + 2 : kneeXPaper - labelWidth - 2,
+      )
     }
+
+    placedLabels.push(labelBox(hole.center, hole.radius, direction, leaderPaper, metrics))
 
     dimensions.push({
       kind: 'diameter',
@@ -337,7 +361,7 @@ function push(list: Dimension[], dimension: LinearDimension): void {
  * dimensions drawn inside it when both edges are long enough on paper to hold a
  * dimension line and its label. Otherwise the dimension joins the outer bands.
  */
-function insideInset(width: Mm, height: Mm, scale: number): Mm | undefined {
+export function insideInset(width: Mm, height: Mm, scale: number): Mm | undefined {
   const paperWidth = width * scale
   const paperHeight = height * scale
   if (paperWidth < MIN_INSIDE_PAPER || paperHeight < MIN_INSIDE_PAPER) return undefined
@@ -374,6 +398,8 @@ function round6(value: number): number {
 const LEADER_DIRECTIONS: readonly Point[] = [
   { x: SQRT1_2, y: -SQRT1_2 },
   { x: -SQRT1_2, y: -SQRT1_2 },
+  { x: SQRT1_2, y: SQRT1_2 },
+  { x: -SQRT1_2, y: SQRT1_2 },
 ]
 
 interface LabelMetrics {
@@ -384,7 +410,11 @@ interface LabelMetrics {
   scale: number
 }
 
-/** Where the label of a leader would land, in model coordinates. */
+/**
+ * Where the label of a leader would land, in model coordinates. The label sits
+ * on the far side of the shoulder from the hole, so an upward leader carries it
+ * above the shoulder and a downward one below.
+ */
 function labelBox(
   center: Point,
   radius: Mm,
@@ -396,20 +426,43 @@ function labelBox(
   const kneeX = center.x + direction.x * (radius + leaderPaper / scale)
   const kneeY = center.y + direction.y * (radius + leaderPaper / scale)
   const width = metrics.width / scale
+  const height = metrics.height / scale
   return {
     minX: direction.x >= 0 ? kneeX : kneeX - width,
     maxX: direction.x >= 0 ? kneeX + width : kneeX,
-    minY: kneeY - metrics.height / scale,
-    maxY: kneeY,
+    minY: direction.y < 0 ? kneeY - height : kneeY,
+    maxY: direction.y < 0 ? kneeY : kneeY + height,
   }
 }
 
-/** A label may sit in open material only: inside the part and off every opening. */
-function labelIsClear(slab: Slab, box: Bounds): boolean {
+/**
+ * Leader length, in paper millimetres, that puts the whole label past the edge
+ * this direction points at.
+ */
+function leaderToEscape(
+  slab: Slab,
+  center: Point,
+  radius: Mm,
+  direction: Point,
+  metrics: LabelMetrics,
+  clearance: Mm,
+): number {
+  const target = direction.y < 0 ? slab.bounds.minY - clearance : slab.bounds.maxY + clearance
+  return (Math.abs(target - center.y) / Math.abs(direction.y) - radius) * metrics.scale
+}
+
+/**
+ * A label may sit in open material only: inside the part, clear of every
+ * opening, and clear of the labels already placed. `margin` is the breathing
+ * room demanded around it, so a label never ends up wedged into a sliver.
+ */
+function labelIsClear(slab: Slab, placed: readonly Bounds[], box: Bounds, margin: Mm): boolean {
   if (!boundsContain(slab.bounds, box)) return false
-  return !slab.features.some(
-    (feature) => feature.kind === 'rect-cutout' && boundsOverlap(feature.bounds, box),
-  )
+  const padded = expandBounds(box, margin)
+  if (slab.features.some((f) => f.kind === 'rect-cutout' && boundsOverlap(f.bounds, padded))) {
+    return false
+  }
+  return !placed.some((other) => boundsOverlap(other, padded))
 }
 
 /**

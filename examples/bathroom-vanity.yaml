@@ -1,0 +1,42 @@
+# A smaller part, which SlabSketch draws at a larger scale automatically.
+
+version: 1
+
+countertop:
+  name: Bathroom vanity top
+  width: 1600
+  depth: 550
+  thickness: 20
+  material: Carrara marble
+
+cutouts:
+  - id: basin
+    label: Basin
+    x: 550
+    y: 150
+    width: 500
+    height: 330
+
+holes:
+  - id: tap
+    label: Tap
+    x: 800
+    y: 70
+    diameter: 35
+
+  - id: dispenser
+    label: Soap
+    x: 920
+    y: 70
+    diameter: 28
+
+notes:
+  - Undermount basin, reveal to be confirmed with the basin supplier.
+
+drawing:
+  scale: auto
+  sheet: a3
+
+metadata:
+  project: Meadow House bathroom
+  drawnBy: SlabSketch

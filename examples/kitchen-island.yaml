@@ -1,0 +1,51 @@
+# A free-standing island: deeper than a wall run, with the tap holes drilled in
+# open material behind the sink rather than against a wall.
+
+version: 1
+
+countertop:
+  name: Kitchen island
+  width: 2400
+  depth: 1000
+  thickness: 30
+  material: Dekton Kelya
+
+cutouts:
+  - id: hob
+    label: Induction hob
+    x: 300
+    y: 240
+    width: 750
+    height: 520
+
+  - id: sink
+    label: Sink
+    x: 1350
+    y: 270
+    width: 800
+    height: 450
+
+holes:
+  - id: mixer
+    label: Mixer tap
+    x: 1600
+    y: 150
+    diameter: 35
+
+  - id: dispenser
+    label: Soap dispenser
+    x: 1720
+    y: 150
+    diameter: 28
+
+notes:
+  - Island is visible from all sides - all four edges polished.
+  - Confirm hob cut-out against the appliance template before cutting.
+
+drawing:
+  sheet: a3
+
+metadata:
+  project: Meadow House kitchen
+  drawnBy: SlabSketch
+  revision: B

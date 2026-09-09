@@ -99,6 +99,26 @@ describe('SVG rendering', () => {
     assert.ok(!svg.includes('Bath <&>'))
   })
 
+  it('puts a leader label on the far side of its shoulder from the hole', () => {
+    // A tap boxed in against the front edge: the leader points forwards, so the
+    // label must sit below the shoulder rather than back over the hole.
+    const { drawing } = buildDrawing(
+      documentOf(`
+countertop: { name: Utility, width: 1800, depth: 600, thickness: 20 }
+cutouts:
+  - { id: sink, label: Sink, x: 700, y: 30, width: 500, height: 420 }
+  - { id: drainer, label: Drainer, x: 1230, y: 60, width: 300, height: 380 }
+holes: [{ id: tap, label: Tap, x: 1215, y: 500, diameter: 35 }]
+`),
+    )
+    const label = drawing.model.find((entity) => entity.type === 'text' && entity.text === 'Tap')
+    const diameter = drawing.model.find((entity) => entity.type === 'text' && entity.text === 'Ø35')
+    assert.ok(label?.type === 'text' && diameter?.type === 'text')
+    assert.equal(label.baseline, 'top', 'a downward leader hangs its label below the shoulder')
+    assert.ok(label.at.y > 500, 'label should be past the hole, not over it')
+    assert.ok(diameter.at.y > label.at.y, 'the diameter reads under the name')
+  })
+
   it('produces byte-identical output for the same input', () => {
     const a = render(exampleYaml(), 'svg').content as string
     const b = render(exampleYaml(), 'svg').content as string
