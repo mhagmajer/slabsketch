@@ -19,30 +19,14 @@ so they can confirm the layout before producing their own CAD/CNC documentation.
 
 ## What it produces
 
-One sheet, laid out the way a shop drawing is:
+One sheet, laid out the way a shop drawing is. This is real output, not a
+mock-up — it is [`examples/kitchen-countertop.yaml`](examples/kitchen-countertop.yaml)
+put through `npm run example`, and it is regenerated on every CI run:
 
-```text
- ┌─────────────────────────────────────────────────────────────────────────┐
- │                                                                         │
- │                    ├────────────── 2840 ──────────────┤   ← overall     │
- │                ├────────── 2010 ─────────┤                              │
- │            ├────── 1650 ─────┤                            ← offsets     │
- │        ├─ 500 ─┤                                            from the    │
- │                                                             left edge   │
- │   │  ┌──────────────────────────────────────────────────────┐           │
- │   │  │        ┌──────────┐              ⊕  ⊕ ─── Ø35 Faucet │           │
- │  620 │        │├── 560 ──┤│           ┌────────┐            │           │
- │   │  │        │   Hob    │            │  Sink  │            │           │
- │   │  │        └──────────┘            └────────┘            │           │
- │   │  └──────────────────────────────────────────────────────┘           │
- │                                                                         │
- │  PRELIMINARY DRAWING — verify on site        ┌────────────────────────┐ │
- │  1. Undermount sink; …                       │ Kitchen countertop     │ │
- │                                              │ Material · Thickness   │ │
- │                                              │ Scale 1:10 · mm · A3   │ │
- │                                              └────────────────────────┘ │
- └─────────────────────────────────────────────────────────────────────────┘
-```
+[![Example drawing: a kitchen countertop with a hob, an undermount sink, two tap holes and six chosen services](docs/example-drawing.svg)](docs/example-drawing.svg)
+
+<sub>An A3 sheet at 1:10. Open it full size to read the dimensions — it is an
+SVG, so it stays sharp at any zoom.</sub>
 
 - slab outline, cutouts and circular holes, drawn to scale on a real paper size
 - **overall dimensions**, and each feature's **offset from a reference edge**
@@ -55,15 +39,15 @@ One sheet, laid out the way a shop drawing is:
 - generator stamp in the bottom margin, naming the version and the source file
 - optional Polish wording for everything SlabSketch writes itself (`--lang pl`)
 
-Generate the example drawings and open one:
+Generate every example and open one:
 
 ```bash
 npm run example
 open examples/output/kitchen-countertop.svg
 ```
 
-Generated drawings are not committed to this repository; the inputs that produce
-them are:
+Apart from the one drawing above, generated output is not committed; the inputs
+that produce it are:
 
 | Example | What it shows |
 | --- | --- |
