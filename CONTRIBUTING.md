@@ -17,11 +17,13 @@ no test framework to install.
 ## Before opening a pull request
 
 ```bash
-npm run lint
-npm run typecheck
-npm test
-npm run build
+npm run check     # lint, typecheck, test and build, in that order
 ```
+
+That is exactly what CI runs, so a green `npm run check` should mean a green
+build. Run it rather than the individual steps: the formatter is part of
+`npm run lint`, and it is easy to reformat a file by accident and only find out
+from CI.
 
 If a change alters the example drawing, run `npm run test:update` and include
 the updated snapshot in `test/__snapshots__/`. Review the diff: a snapshot that

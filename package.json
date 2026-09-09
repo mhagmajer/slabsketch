@@ -47,6 +47,7 @@
     "format": "biome format --write .",
     "test": "node --test \"test/**/*.test.ts\"",
     "test:update": "UPDATE_SNAPSHOTS=1 node --test \"test/**/*.test.ts\"",
+    "check": "npm run lint && npm run typecheck && npm test && npm run build",
     "example": "node scripts/render-examples.ts",
     "start": "node src/cli.ts",
     "prepublishOnly": "npm run build"
