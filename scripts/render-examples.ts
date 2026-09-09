@@ -36,7 +36,7 @@ async function main(): Promise<number> {
     }
 
     for (const format of formats) {
-      const { content, drawing } = renderDocument(loaded.document, format)
+      const { content, drawing } = renderDocument(loaded.document, format, { source: name })
       const outputName = `${basename(name, extname(name))}.${format}`
       await writeFile(join(outputDir, outputName), content)
       process.stdout.write(

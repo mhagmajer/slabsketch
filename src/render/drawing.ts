@@ -28,7 +28,9 @@ import {
   type Sheet,
   contentArea,
   fitsIn,
+  frameArea,
   sheetSize,
+  titleBlockWidth,
   titleStripArea,
 } from '../geometry/layout.ts'
 import {
@@ -39,8 +41,10 @@ import {
   unionBounds,
 } from '../geometry/primitives.ts'
 import { SCALE_LADDER, formatScale } from '../geometry/scale.ts'
+import { type Language, strings } from '../i18n.ts'
 import type { CountertopDocument, Slab } from '../model/types.ts'
 import { formatLength, textWidth } from '../text.ts'
+import { GENERATOR } from '../version.ts'
 
 export type Layer =
   | 'frame'
@@ -121,9 +125,17 @@ export interface Drawing {
   scale: number
   scaleLabel: string
   title: string
+  language: Language
+  /** Human-readable summary, in the drawing's language. */
+  description: string
   transform: Transform
   model: Entity[]
   paper: Entity[]
+}
+
+export interface BuildOptions {
+  /** Name of the file the drawing came from, stamped into the bottom margin. */
+  source?: string
 }
 
 export interface BuildResult {
@@ -133,6 +145,7 @@ export interface BuildResult {
 
 const INK = '#111111'
 const DIM_INK = '#1a4d80'
+const STAMP_INK = '#767676'
 
 export function toPaper(transform: Transform, p: Point): Point {
   return {
@@ -141,7 +154,7 @@ export function toPaper(transform: Transform, p: Point): Point {
   }
 }
 
-export function buildDrawing(doc: CountertopDocument): BuildResult {
+export function buildDrawing(doc: CountertopDocument, options: BuildOptions = {}): BuildResult {
   const diagnostics: Diagnostic[] = []
   const sheet = sheetSize(doc.drawing.sheet, doc.drawing.orientation)
   const area = contentArea(sheet)
@@ -194,14 +207,17 @@ export function buildDrawing(doc: CountertopDocument): BuildResult {
       content.bounds.minY * scale,
   }
 
-  const paper = buildSheetFurniture(doc, slab, sheet, scale)
+  const paper = buildSheetFurniture(doc, slab, sheet, scale, options.source)
+  const scaleLabel = formatScale(scale)
 
   return {
     drawing: {
       sheet,
       scale,
-      scaleLabel: formatScale(scale),
+      scaleLabel,
       title: slab.name,
+      language: doc.drawing.language,
+      description: strings(doc.drawing.language).description(scaleLabel, sheet.name.toUpperCase()),
       transform,
       model: content.entities,
       paper,
@@ -509,14 +525,11 @@ function buildSheetFurniture(
   slab: Slab,
   sheet: Sheet,
   scale: number,
+  source: string | undefined,
 ): Entity[] {
+  const t = strings(doc.drawing.language)
   const entities: Entity[] = []
-  const frame = {
-    x: LAYOUT.frameInset,
-    y: LAYOUT.frameInset,
-    width: sheet.width - 2 * LAYOUT.frameInset,
-    height: sheet.height - 2 * LAYOUT.frameInset,
-  }
+  const frame = frameArea(sheet)
   const frameStyle: Style = { layer: 'frame', stroke: INK, strokeWidth: LAYOUT.strokeFrame }
   entities.push({
     type: 'polyline',
@@ -526,22 +539,19 @@ function buildSheetFurniture(
   })
 
   const strip = titleStripArea(sheet)
+  const blockWidth = titleBlockWidth(sheet)
   const block = {
-    x: strip.x + strip.width - LAYOUT.titleBlockWidth,
+    x: strip.x + strip.width - blockWidth,
     y: strip.y,
-    width: LAYOUT.titleBlockWidth,
+    width: blockWidth,
     height: LAYOUT.titleBlockHeight,
   }
   entities.push({ type: 'polyline', points: rectPoints(block), closed: true, style: frameStyle })
 
   const rowHeights = [11, 8, 8, 7]
-  const rules: number[] = []
-  let y = block.y
+  let ruleY = block.y
   for (const height of rowHeights.slice(0, -1)) {
-    y += height
-    rules.push(y)
-  }
-  for (const ruleY of rules) {
+    ruleY += height
     entities.push({
       type: 'line',
       a: { x: block.x, y: ruleY },
@@ -553,108 +563,113 @@ function buildSheetFurniture(
   const pad = 2.5
   const left = block.x + pad
   const right = block.x + block.width - pad
-  const rowTop = (index: number): number =>
-    block.y + rowHeights.slice(0, index).reduce((a, b) => a + b, 0)
-  const rowMiddle = (index: number): number => rowTop(index) + (rowHeights[index] ?? 8) / 2
+  const innerWidth = block.width - 2 * pad
+  const rowMiddle = (index: number): number =>
+    block.y + rowHeights.slice(0, index).reduce((a, b) => a + b, 0) + (rowHeights[index] ?? 8) / 2
 
   const title: Style = { layer: 'title', fill: INK, fontSize: 4, bold: true }
   const small: Style = { layer: 'title', fill: INK, fontSize: LAYOUT.smallTextSize }
 
-  entities.push({
-    type: 'text',
-    at: { x: left, y: rowMiddle(0) },
-    text: slab.name,
-    anchor: 'start',
-    baseline: 'middle',
-    style: title,
-  })
+  const cell = (
+    text: string,
+    row: number,
+    align: 'start' | 'end',
+    style: Style,
+    maxWidth: number,
+  ) => {
+    entities.push({
+      type: 'text',
+      at: { x: align === 'start' ? left : right, y: rowMiddle(row) },
+      text: truncateToWidth(text, maxWidth, style.fontSize ?? LAYOUT.smallTextSize),
+      anchor: align,
+      baseline: 'middle',
+      style,
+    })
+  }
 
-  entities.push({
-    type: 'text',
-    at: { x: left, y: rowMiddle(1) },
-    text: `Material: ${slab.material ?? '-'}`,
-    anchor: 'start',
-    baseline: 'middle',
-    style: small,
-  })
-  entities.push({
-    type: 'text',
-    at: { x: right, y: rowMiddle(1) },
-    text: `Thickness: ${formatLength(slab.thickness)} mm`,
-    anchor: 'end',
-    baseline: 'middle',
-    style: small,
-  })
+  /**
+   * A row holds a left and a right field. The right one is usually short, so it
+   * is measured first and the left one gets whatever is left over.
+   */
+  const row = (leftText: string, rightText: string, index: number): void => {
+    const size = LAYOUT.smallTextSize
+    const rightWidth = Math.min(textWidth(rightText, size), innerWidth - 12)
+    cell(rightText, index, 'end', small, rightWidth)
+    cell(leftText, index, 'start', small, innerWidth - rightWidth - 3)
+  }
 
-  entities.push({
-    type: 'text',
-    at: { x: left, y: rowMiddle(2) },
-    text: `Scale ${formatScale(scale)}`,
-    anchor: 'start',
-    baseline: 'middle',
-    style: small,
-  })
-  entities.push({
-    type: 'text',
-    at: { x: right, y: rowMiddle(2) },
-    text: `Units: mm | Sheet: ${sheet.name.toUpperCase()}`,
-    anchor: 'end',
-    baseline: 'middle',
-    style: small,
-  })
+  cell(slab.name, 0, 'start', title, innerWidth)
+  row(
+    `${t.material}: ${slab.material ?? '-'}`,
+    `${t.thickness}: ${formatLength(slab.thickness)} mm`,
+    1,
+  )
+  row(
+    `${t.scale} ${formatScale(scale)}`,
+    `${t.units}: mm | ${t.sheet}: ${sheet.name.toUpperCase()}`,
+    2,
+  )
 
   const meta = doc.metadata
   const leftParts = [
-    meta.project ? `Project: ${meta.project}` : undefined,
-    meta.client ? `Client: ${meta.client}` : undefined,
+    meta.project ? `${t.project}: ${meta.project}` : undefined,
+    meta.client ? `${t.client}: ${meta.client}` : undefined,
   ].filter(Boolean)
   const rightParts = [
-    meta.drawnBy ? `Drawn: ${meta.drawnBy}` : undefined,
-    meta.revision ? `Rev: ${meta.revision}` : undefined,
+    meta.drawnBy ? `${t.drawnBy}: ${meta.drawnBy}` : undefined,
+    meta.revision ? `${t.revision} ${meta.revision}` : undefined,
     meta.date,
   ].filter(Boolean)
-  entities.push({
-    type: 'text',
-    at: { x: left, y: rowMiddle(3) },
-    text: leftParts.join(' | ') || 'SlabSketch',
-    anchor: 'start',
-    baseline: 'middle',
-    style: small,
-  })
-  entities.push({
-    type: 'text',
-    at: { x: right, y: rowMiddle(3) },
-    text: rightParts.join(' | ') || '',
-    anchor: 'end',
-    baseline: 'middle',
-    style: small,
-  })
+  row(leftParts.join(' | ') || GENERATOR, rightParts.join(' | '), 3)
 
-  // Notes, to the left of the title block
-  const notesWidth = strip.width - LAYOUT.titleBlockWidth - LAYOUT.titleBlockGap
+  // Notes, to the left of the title block, clipped to the space they have.
+  const notesX = strip.x + pad
+  const notesWidth = strip.width - block.width - LAYOUT.titleBlockGap - 2 * pad
   const lineHeight = 3.4
+  const size = LAYOUT.smallTextSize
   let noteY = strip.y + 1
   entities.push({
     type: 'text',
-    at: { x: strip.x, y: noteY },
-    text: PRELIMINARY_NOTE,
+    at: { x: notesX, y: noteY },
+    text: truncateToWidth(t.preliminary, notesWidth, size),
     anchor: 'start',
     baseline: 'top',
-    style: { layer: 'title', fill: INK, fontSize: LAYOUT.smallTextSize, bold: true },
+    style: { layer: 'title', fill: INK, fontSize: size, bold: true },
   })
-  noteY += lineHeight + 0.6
+  noteY += lineHeight + 1
 
-  const maxLines = Math.max(0, Math.floor((strip.height - (noteY - strip.y)) / lineHeight))
-  const notes = doc.notes.slice(0, maxLines)
-  notes.forEach((note, index) => {
+  if (doc.notes.length > 0) {
     entities.push({
       type: 'text',
-      at: { x: strip.x, y: noteY + index * lineHeight },
-      text: truncateToWidth(`${index + 1}. ${note}`, notesWidth, LAYOUT.smallTextSize),
+      at: { x: notesX, y: noteY },
+      text: `${t.notesHeading}:`,
       anchor: 'start',
       baseline: 'top',
-      style: { layer: 'title', fill: INK, fontSize: LAYOUT.smallTextSize },
+      style: { layer: 'title', fill: INK, fontSize: size, bold: true },
     })
+    noteY += lineHeight
+
+    const room = Math.max(0, Math.floor((strip.y + strip.height - noteY) / lineHeight))
+    doc.notes.slice(0, room).forEach((note, index) => {
+      entities.push({
+        type: 'text',
+        at: { x: notesX, y: noteY + index * lineHeight },
+        text: truncateToWidth(`${index + 1}. ${note}`, notesWidth, size),
+        anchor: 'start',
+        baseline: 'top',
+        style: { layer: 'title', fill: INK, fontSize: size },
+      })
+    })
+  }
+
+  // Generator stamp, in the bottom margin outside the frame.
+  entities.push({
+    type: 'text',
+    at: { x: frame.x, y: sheet.height - LAYOUT.frameInset / 2 },
+    text: truncateToWidth(t.generatedWith(source), frame.width, LAYOUT.stampTextSize),
+    anchor: 'start',
+    baseline: 'middle',
+    style: { layer: 'title', fill: STAMP_INK, fontSize: LAYOUT.stampTextSize },
   })
 
   return entities
@@ -681,6 +696,37 @@ function rectPoints(area: Area): Point[] {
 // ---------------------------------------------------------------------------
 // Bounds
 // ---------------------------------------------------------------------------
+
+/**
+ * Bounding box of everything the drawing puts on the sheet, in paper
+ * millimetres. Used to check that a drawing stays inside its margins.
+ */
+export function drawingPaperBounds(drawing: Drawing): Bounds {
+  const projected: Entity[] = [
+    ...drawing.model.map((entity) => projectEntity(entity, drawing.transform)),
+    ...drawing.paper,
+  ]
+  return boundsOfEntities(projected, 1)
+}
+
+/** Model-space entity, moved onto the sheet. */
+export function projectEntity(entity: Entity, transform: Transform): Entity {
+  switch (entity.type) {
+    case 'line':
+      return { ...entity, a: toPaper(transform, entity.a), b: toPaper(transform, entity.b) }
+    case 'polyline':
+    case 'polygon':
+      return { ...entity, points: entity.points.map((p) => toPaper(transform, p)) }
+    case 'circle':
+      return {
+        ...entity,
+        center: toPaper(transform, entity.center),
+        radius: entity.radius * transform.scale,
+      }
+    case 'text':
+      return { ...entity, at: toPaper(transform, entity.at) }
+  }
+}
 
 export function paperBounds(bounds: Bounds, scale: number): Bounds {
   return {

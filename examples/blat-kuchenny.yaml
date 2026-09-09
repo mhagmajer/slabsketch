@@ -1,0 +1,60 @@
+# Ten sam rodzaj blatu, opisany po polsku.
+#
+# Nazwy i etykiety pochodzą z tego pliku i trafiają na rysunek dokładnie tak,
+# jak je zapisano. Flaga `drawing.language` steruje tylko tekstem, który
+# SlabSketch generuje sam: tabelką rysunkową, uwagą wstępną i stopką.
+#
+#   slabsketch render examples/blat-kuchenny.yaml -o rysunek.pdf
+
+version: 1
+
+countertop:
+  name: Blat kuchenny
+  width: 3100
+  depth: 630
+  thickness: 30
+  material: Konglomerat kwarcowy, Bianco Assoluto
+
+cutouts:
+  - id: plyta
+    label: Płyta indukcyjna
+    x: 620
+    y: 70
+    width: 560
+    height: 490
+
+  - id: zlew
+    label: Zlew podwieszany
+    x: 1850
+    y: 160
+    width: 620
+    height: 400
+
+holes:
+  - id: bateria
+    label: Bateria
+    x: 2050
+    y: 80
+    diameter: 35
+
+  - id: dozownik
+    label: Dozownik mydła
+    x: 2170
+    y: 80
+    diameter: 28
+
+notes:
+  - Zlew podwieszany - wymiary wycięcia to gotowy otwór.
+  - Wykończenie krawędzi czołowej do potwierdzenia z wykonawcą.
+  - Ściana nie jest w kącie prostym - szablon na miejscu przed cięciem.
+
+drawing:
+  language: pl
+  scale: auto
+  sheet: a3
+
+metadata:
+  project: Mieszkanie 4, ul. Różana
+  client: M. Nowak
+  drawnBy: SlabSketch
+  revision: A

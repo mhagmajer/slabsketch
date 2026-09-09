@@ -114,11 +114,26 @@ const WIDTHS: Record<string, number> = {
 
 const FALLBACK_WIDTH = 556
 
+/**
+ * The unaccented letter a character is built from, so that accented Latin
+ * characters measure correctly - in Helvetica they have the same advance width
+ * as their base letter. Stroked letters have no combining form, so they are
+ * listed explicitly.
+ */
+const STROKED: Record<string, string> = { ł: 'l', Ł: 'L', đ: 'd', Đ: 'D', ø: 'o' }
+
+export function baseLetter(char: string): string {
+  const stroked = STROKED[char]
+  if (stroked) return stroked
+  const stripped = char.normalize('NFD').replace(/\p{M}+/gu, '')
+  return stripped === '' ? char : stripped
+}
+
 /** Advance width of `text` when set in Helvetica at `fontSize`, in the same unit. */
 export function textWidth(text: string, fontSize: number): number {
   let total = 0
   for (const char of text) {
-    total += WIDTHS[char] ?? FALLBACK_WIDTH
+    total += WIDTHS[char] ?? WIDTHS[baseLetter(char)] ?? FALLBACK_WIDTH
   }
   return (total / 1000) * fontSize
 }

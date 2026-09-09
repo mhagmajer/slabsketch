@@ -8,8 +8,9 @@
 
 import { round } from '../geometry/primitives.ts'
 import { baselineOffset } from '../text.ts'
+import { GENERATOR } from '../version.ts'
 import type { Drawing, Entity, Layer, Style, TextEntity } from './drawing.ts'
-import { toPaper } from './drawing.ts'
+import { projectEntity } from './drawing.ts'
 
 const LAYER_ORDER: readonly Layer[] = [
   'frame',
@@ -34,7 +35,7 @@ export function renderSvg(drawing: Drawing, options: SvgOptions = {}): string {
   const { sheet } = drawing
 
   const entities: Entity[] = [
-    ...drawing.model.map((entity) => transformEntity(entity, drawing)),
+    ...drawing.model.map((entity) => projectEntity(entity, drawing.transform)),
     ...drawing.paper,
   ]
 
@@ -47,16 +48,13 @@ export function renderSvg(drawing: Drawing, options: SvgOptions = {}): string {
 
   const lines: string[] = []
   lines.push('<?xml version="1.0" encoding="UTF-8"?>')
+  lines.push(`<!-- ${GENERATOR} -->`)
   lines.push(
     `<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="${n(sheet.width)}mm" ` +
       `height="${n(sheet.height)}mm" viewBox="0 0 ${n(sheet.width)} ${n(sheet.height)}">`,
   )
   lines.push(`  <title>${escapeXml(drawing.title)}</title>`)
-  lines.push(
-    `  <desc>${escapeXml(
-      `SlabSketch technical drawing. Scale ${drawing.scaleLabel}, units mm, sheet ${sheet.name.toUpperCase()}.`,
-    )}</desc>`,
-  )
+  lines.push(`  <desc>${escapeXml(drawing.description)}</desc>`)
   if (background !== null) {
     lines.push(
       `  <rect x="0" y="0" width="${n(sheet.width)}" height="${n(sheet.height)}" fill="${background}"/>`,
@@ -80,21 +78,6 @@ export function renderSvg(drawing: Drawing, options: SvgOptions = {}): string {
   lines.push('  </g>')
   lines.push('</svg>')
   return `${lines.join('\n')}\n`
-}
-
-function transformEntity(entity: Entity, drawing: Drawing): Entity {
-  const t = drawing.transform
-  switch (entity.type) {
-    case 'line':
-      return { ...entity, a: toPaper(t, entity.a), b: toPaper(t, entity.b) }
-    case 'polyline':
-    case 'polygon':
-      return { ...entity, points: entity.points.map((p) => toPaper(t, p)) }
-    case 'circle':
-      return { ...entity, center: toPaper(t, entity.center), radius: entity.radius * t.scale }
-    case 'text':
-      return { ...entity, at: toPaper(t, entity.at) }
-  }
 }
 
 function renderEntity(entity: Entity): string {

@@ -15,7 +15,10 @@ function documentOf(source: string): CountertopDocument {
 describe('SVG rendering', () => {
   it('sizes the page in real millimetres', () => {
     const svg = render(exampleYaml(), 'svg').content as string
-    assert.match(svg, /^<\?xml version="1\.0" encoding="UTF-8"\?>\n<svg /)
+    assert.match(
+      svg,
+      /^<\?xml version="1\.0" encoding="UTF-8"\?>\n<!-- SlabSketch v[\d.]+ -->\n<svg /,
+    )
     assert.match(svg, /width="420mm" height="297mm"/)
     assert.match(svg, /viewBox="0 0 420 297"/)
     assert.ok(svg.trimEnd().endsWith('</svg>'))

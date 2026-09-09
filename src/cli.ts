@@ -7,13 +7,13 @@
  */
 
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
-import { dirname, extname, resolve } from 'node:path'
+import { basename, dirname, extname, resolve } from 'node:path'
 import { parseArgs } from 'node:util'
 import { type Diagnostic, countBySeverity, formatDiagnostic } from './diagnostics.ts'
+import { LANGUAGES, type Language } from './i18n.ts'
 import { type OutputFormat, loadDocument, renderDocument } from './index.ts'
 import type { Orientation, SheetName } from './model/types.ts'
-
-const VERSION = '0.1.0'
+import { VERSION } from './version.ts'
 
 const USAGE = `slabsketch ${VERSION} - dimensioned technical drawings of countertops
 
@@ -29,6 +29,7 @@ Options:
       --sheet <size>      a5 | a4 | a3 | a2 | a1           (default: from the input file)
       --orientation <o>   landscape | portrait             (default: from the input file)
       --dimensions <d>    auto | none                      (default: auto)
+      --lang <code>       en | pl - language of generated text (default: en)
       --strict            treat warnings as errors
   -q, --quiet             only print errors
   -h, --help              show this help
@@ -38,6 +39,10 @@ Examples:
   slabsketch examples/kitchen-countertop.yaml
   slabsketch render countertop.yaml -o drawing.pdf --scale 1:20
   slabsketch check countertop.yaml --strict
+  slabsketch render blat.yaml --lang pl -o rysunek.pdf
+
+Only text SlabSketch generates is translated - names, labels and notes are
+reproduced exactly as written in the input file.
 `
 
 const SHEETS: readonly string[] = ['a5', 'a4', 'a3', 'a2', 'a1']
@@ -99,6 +104,12 @@ async function main(argv: string[]): Promise<number> {
     )
     return 2
   }
+  if (values.lang !== undefined && !LANGUAGES.includes(values.lang as Language)) {
+    process.stderr.write(
+      `error: unknown --lang "${values.lang}", expected one of ${LANGUAGES.join(', ')}\n`,
+    )
+    return 2
+  }
 
   let source: string
   try {
@@ -118,6 +129,7 @@ async function main(argv: string[]): Promise<number> {
     ...(values.dimensions === undefined
       ? {}
       : { dimensions: values.dimensions as 'auto' | 'none' }),
+    ...(values.lang === undefined ? {} : { language: values.lang as Language }),
   })
 
   if (!loaded.ok) {
@@ -139,7 +151,7 @@ async function main(argv: string[]): Promise<number> {
 
   let rendered: ReturnType<typeof renderDocument>
   try {
-    rendered = renderDocument(loaded.document, format)
+    rendered = renderDocument(loaded.document, format, { source: basename(inputPath) })
   } catch (cause) {
     process.stderr.write(`error: ${(cause as Error).message}\n`)
     return 1
@@ -181,6 +193,7 @@ const optionSpec = {
   sheet: { type: 'string' },
   orientation: { type: 'string' },
   dimensions: { type: 'string' },
+  lang: { type: 'string' },
   strict: { type: 'boolean' },
   quiet: { type: 'boolean', short: 'q' },
   help: { type: 'boolean', short: 'h' },

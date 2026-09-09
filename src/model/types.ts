@@ -13,6 +13,7 @@
  */
 
 import type { Bounds, Mm, Point, Rect } from '../geometry/primitives.ts'
+import type { Language } from '../i18n.ts'
 
 export interface RectCutout {
   kind: 'rect-cutout'
@@ -61,6 +62,8 @@ export interface DrawingOptions {
   sheet: SheetName
   orientation: Orientation
   dimensions: 'auto' | 'none'
+  /** Language of generated text. Input text is reproduced as written. */
+  language: Language
   reference: DimensionReference
 }
 

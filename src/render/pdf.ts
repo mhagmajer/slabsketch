@@ -12,8 +12,9 @@
 
 import { round } from '../geometry/primitives.ts'
 import { baselineOffset, textWidth } from '../text.ts'
+import { GENERATOR } from '../version.ts'
 import type { Drawing, Entity, Style, TextEntity } from './drawing.ts'
-import { toPaper } from './drawing.ts'
+import { projectEntity } from './drawing.ts'
 
 const MM_TO_PT = 72 / 25.4
 /** Bezier circle constant: 4/3 * (sqrt(2) - 1). */
@@ -27,45 +28,47 @@ export interface PdfOptions {
 }
 
 export function renderPdf(drawing: Drawing, options: PdfOptions = {}): Uint8Array {
-  const content = buildContentStream(drawing)
+  const encoding = buildEncoding(collectText(drawing))
+  const content = buildContentStream(drawing, encoding)
   const pageWidth = drawing.sheet.width * MM_TO_PT
   const pageHeight = drawing.sheet.height * MM_TO_PT
 
-  const objects: string[] = []
-  const add = (body: string): number => {
-    objects.push(body)
-    return objects.length
-  }
+  // Object numbers are fixed so the page dictionary can refer to them directly.
+  const catalogId = 1
+  const pagesId = 2
+  const pageId = 3
+  const contentId = 4
+  const encodingId = 5
+  const regularId = 6
+  const boldId = 7
+  const infoId = 8
 
-  const catalogId = add('<< /Type /Catalog /Pages 2 0 R >>')
-  const pagesId = add('<< /Type /Pages /Kids [3 0 R] /Count 1 >>')
-  const pageId = add(
-    `<< /Type /Page /Parent ${pagesId} 0 R ` +
-      `/MediaBox [0 0 ${num(pageWidth)} ${num(pageHeight)}] ` +
-      '/Resources << /Font << /F1 5 0 R /F2 6 0 R >> >> ' +
-      '/Contents 4 0 R >>',
-  )
-  const contentId = add(`<< /Length ${content.length} >>\nstream\n${content}\nendstream`)
-  const regularId = add(
-    '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>',
-  )
-  const boldId = add(
-    '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>',
-  )
+  const font = (base: string): string =>
+    `<< /Type /Font /Subtype /Type1 /BaseFont /${base} /Encoding ${encodingId} 0 R >>`
 
   const infoParts = [
-    `/Title (${escapeString(options.title ?? drawing.title)})`,
-    '/Producer (SlabSketch)',
-    '/Creator (SlabSketch)',
+    `/Title (${escapeString(options.title ?? drawing.title, encoding)})`,
+    `/Producer (${GENERATOR})`,
+    `/Creator (${GENERATOR})`,
   ]
-  if (options.author) infoParts.push(`/Author (${escapeString(options.author)})`)
-  if (options.creationDate) infoParts.push(`/CreationDate (${escapeString(options.creationDate)})`)
-  const infoId = add(`<< ${infoParts.join(' ')} >>`)
-
-  // Sanity: object numbering must match the hard-coded references above.
-  if (catalogId !== 1 || pageId !== 3 || contentId !== 4 || regularId !== 5 || boldId !== 6) {
-    throw new Error('renderPdf: object numbering drifted from the page dictionary')
+  if (options.author) infoParts.push(`/Author (${escapeString(options.author, encoding)})`)
+  if (options.creationDate) {
+    infoParts.push(`/CreationDate (${escapeString(options.creationDate, encoding)})`)
   }
+
+  const objects: string[] = [
+    `<< /Type /Catalog /Pages ${pagesId} 0 R >>`,
+    `<< /Type /Pages /Kids [${pageId} 0 R] /Count 1 >>`,
+    `<< /Type /Page /Parent ${pagesId} 0 R ` +
+      `/MediaBox [0 0 ${num(pageWidth)} ${num(pageHeight)}] ` +
+      `/Resources << /Font << /F1 ${regularId} 0 R /F2 ${boldId} 0 R >> >> ` +
+      `/Contents ${contentId} 0 R >>`,
+    `<< /Length ${content.length} >>\nstream\n${content}\nendstream`,
+    encodingObject(encoding),
+    font('Helvetica'),
+    font('Helvetica-Bold'),
+    `<< ${infoParts.join(' ')} >>`,
+  ]
 
   let pdf = '%PDF-1.4\n%âãÏÓ\n'
   const offsets: number[] = []
@@ -92,7 +95,7 @@ export function renderPdf(drawing: Drawing, options: PdfOptions = {}): Uint8Arra
 // Content stream
 // ---------------------------------------------------------------------------
 
-function buildContentStream(drawing: Drawing): string {
+function buildContentStream(drawing: Drawing, encoding: Encoding): string {
   const height = drawing.sheet.height
   const ops: string[] = []
 
@@ -102,32 +105,17 @@ function buildContentStream(drawing: Drawing): string {
   ops.push('1 J 1 j')
 
   const entities: Entity[] = [
-    ...drawing.model.map((entity) => transformEntity(entity, drawing)),
+    ...drawing.model.map((entity) => projectEntity(entity, drawing.transform)),
     ...drawing.paper,
   ]
 
   for (const entity of entities) {
-    emitEntity(ops, entity, height)
+    emitEntity(ops, entity, height, encoding)
   }
   return ops.join('\n')
 }
 
-function transformEntity(entity: Entity, drawing: Drawing): Entity {
-  const t = drawing.transform
-  switch (entity.type) {
-    case 'line':
-      return { ...entity, a: toPaper(t, entity.a), b: toPaper(t, entity.b) }
-    case 'polyline':
-    case 'polygon':
-      return { ...entity, points: entity.points.map((p) => toPaper(t, p)) }
-    case 'circle':
-      return { ...entity, center: toPaper(t, entity.center), radius: entity.radius * t.scale }
-    case 'text':
-      return { ...entity, at: toPaper(t, entity.at) }
-  }
-}
-
-function emitEntity(ops: string[], entity: Entity, sheetHeight: number): void {
+function emitEntity(ops: string[], entity: Entity, sheetHeight: number, encoding: Encoding): void {
   switch (entity.type) {
     case 'line': {
       applyStroke(ops, entity.style)
@@ -157,7 +145,7 @@ function emitEntity(ops: string[], entity: Entity, sheetHeight: number): void {
       return
     }
     case 'text':
-      emitText(ops, entity, sheetHeight)
+      emitText(ops, entity, sheetHeight, encoding)
   }
 }
 
@@ -181,7 +169,12 @@ function emitCircle(ops: string[], cx: number, cy: number, r: number): void {
   ops.push(`${x(cx + k)} ${x(cy - r)} ${x(cx + r)} ${x(cy - k)} ${x(cx + r)} ${x(cy)} c`)
 }
 
-function emitText(ops: string[], entity: TextEntity, sheetHeight: number): void {
+function emitText(
+  ops: string[],
+  entity: TextEntity,
+  sheetHeight: number,
+  encoding: Encoding,
+): void {
   const fontSize = entity.style.fontSize ?? 2.5
   const width = textWidth(entity.text, fontSize)
   const offsetX = entity.anchor === 'start' ? 0 : entity.anchor === 'middle' ? -width / 2 : -width
@@ -209,7 +202,7 @@ function emitText(ops: string[], entity: TextEntity, sheetHeight: number): void 
       Math.cos(theta),
     )} ${pt(baseX)} ${pt(sheetHeight - baseY)} Tm`,
   )
-  ops.push(`(${escapeString(entity.text)}) Tj`)
+  ops.push(`(${escapeString(entity.text, encoding)}) Tj`)
   ops.push('ET')
 }
 
@@ -255,43 +248,164 @@ function parseColor(color: string): [number, number, number] {
   ]
 }
 
-/** Characters beyond ASCII that the drawing style may emit, in WinAnsiEncoding. */
-const WIN_ANSI: Record<string, number> = {
-  Ø: 0xd8,
-  ø: 0xf8,
-  '×': 0xd7,
-  '°': 0xb0,
-  '–': 0x96,
-  '—': 0x97,
-  '“': 0x93,
-  '”': 0x94,
+/**
+ * Text encoding.
+ *
+ * The base-14 fonts are used with WinAnsiEncoding, which covers Western
+ * European text but not Polish - `ł`, `ą`, `ę`, `ś`, `ż`, `ź`, `ć` and `ń` are
+ * all absent. Rather than embedding a font, the drawing's own characters are
+ * collected and any that WinAnsi cannot express are mapped, by their standard
+ * PostScript glyph names, onto spare codes through an /Encoding /Differences
+ * table. Viewers resolve those names against the substituted font, and the
+ * advance widths of accented Latin letters match their base letters, so the
+ * metrics this package computes stay correct.
+ */
+
+/** WinAnsi codes for the characters in 0x80-0x9F, which are not Latin-1. */
+const WIN_ANSI_SPECIALS: Record<string, number> = {
+  '€': 0x80,
+  '‚': 0x82,
+  ƒ: 0x83,
+  '„': 0x84,
+  '…': 0x85,
+  '†': 0x86,
+  '‡': 0x87,
+  ˆ: 0x88,
+  '‰': 0x89,
+  Š: 0x8a,
+  '‹': 0x8b,
+  Œ: 0x8c,
+  Ž: 0x8e,
   '‘': 0x91,
   '’': 0x92,
-  '…': 0x85,
+  '“': 0x93,
+  '”': 0x94,
+  '•': 0x95,
+  '–': 0x96,
+  '—': 0x97,
+  '˜': 0x98,
+  '™': 0x99,
+  š: 0x9a,
+  '›': 0x9b,
+  œ: 0x9c,
+  ž: 0x9e,
+  Ÿ: 0x9f,
 }
 
-function escapeString(text: string): string {
+/** Glyph names for characters WinAnsiEncoding cannot express. */
+const EXTRA_GLYPH_NAMES: Record<string, string> = {
+  ą: 'aogonek',
+  Ą: 'Aogonek',
+  ć: 'cacute',
+  Ć: 'Cacute',
+  ę: 'eogonek',
+  Ę: 'Eogonek',
+  ł: 'lslash',
+  Ł: 'Lslash',
+  ń: 'nacute',
+  Ń: 'Nacute',
+  ś: 'sacute',
+  Ś: 'Sacute',
+  ź: 'zacute',
+  Ź: 'Zacute',
+  ż: 'zdotaccent',
+  Ż: 'Zdotaccent',
+  č: 'ccaron',
+  Č: 'Ccaron',
+  ě: 'ecaron',
+  Ě: 'Ecaron',
+  ř: 'rcaron',
+  Ř: 'Rcaron',
+  š: 'scaron',
+  Š: 'Scaron',
+  ť: 'tcaron',
+  Ť: 'Tcaron',
+  ů: 'uring',
+  Ů: 'Uring',
+  ž: 'zcaron',
+  Ž: 'Zcaron',
+}
+
+/** Codes WinAnsiEncoding leaves undefined, so they are handed out first. */
+const SPARE_CODES = [0x81, 0x8d, 0x8f, 0x90, 0x9d]
+
+export interface Encoding {
+  /** Characters that needed a code of their own. */
+  extra: Map<string, number>
+  /** `code /glyphname` pairs for the /Differences array. */
+  differences: Array<[number, string]>
+}
+
+/** Every character the drawing will ask the font for. */
+function collectText(drawing: Drawing): string[] {
+  const texts: string[] = [drawing.title]
+  for (const entity of [...drawing.model, ...drawing.paper]) {
+    if (entity.type === 'text') texts.push(entity.text)
+  }
+  return texts
+}
+
+function winAnsiCode(char: string): number | undefined {
+  const code = char.codePointAt(0)
+  if (code === undefined) return undefined
+  if (code >= 32 && code <= 126) return code
+  if (code >= 0xa0 && code <= 0xff) return code
+  return WIN_ANSI_SPECIALS[char]
+}
+
+export function buildEncoding(texts: readonly string[]): Encoding {
+  const used = new Set<number>()
+  const missing: string[] = []
+  for (const text of texts) {
+    for (const char of text) {
+      const code = winAnsiCode(char)
+      if (code !== undefined) used.add(code)
+      else if (EXTRA_GLYPH_NAMES[char] && !missing.includes(char)) missing.push(char)
+    }
+  }
+
+  // Deterministic order: by code point, not by order of appearance.
+  missing.sort((a, b) => (a.codePointAt(0) ?? 0) - (b.codePointAt(0) ?? 0))
+
+  const free: number[] = [...SPARE_CODES]
+  for (let code = 0x80; code <= 0xff; code++) {
+    if (!used.has(code) && !SPARE_CODES.includes(code)) free.push(code)
+  }
+
+  const extra = new Map<string, number>()
+  const differences: Array<[number, string]> = []
+  missing.forEach((char, index) => {
+    const code = free[index]
+    const name = EXTRA_GLYPH_NAMES[char]
+    if (code === undefined || name === undefined) return
+    extra.set(char, code)
+    differences.push([code, name])
+  })
+  differences.sort((a, b) => a[0] - b[0])
+  return { extra, differences }
+}
+
+function encodingObject(encoding: Encoding): string {
+  const base = '<< /Type /Encoding /BaseEncoding /WinAnsiEncoding'
+  if (encoding.differences.length === 0) return `${base} >>`
+  const entries = encoding.differences.map(([code, name]) => `${code} /${name}`).join(' ')
+  return `${base} /Differences [${entries}] >>`
+}
+
+function escapeString(text: string, encoding: Encoding): string {
   let out = ''
   for (const char of text) {
     if (char === '(' || char === ')' || char === '\\') {
       out += `\\${char}`
       continue
     }
-    const code = char.codePointAt(0) ?? 63
-    if (code >= 32 && code <= 126) {
-      out += char
+    const code = winAnsiCode(char) ?? encoding.extra.get(char)
+    if (code === undefined) {
+      out += '?'
       continue
     }
-    const mapped = WIN_ANSI[char]
-    if (mapped !== undefined) {
-      out += `\\${mapped.toString(8).padStart(3, '0')}`
-      continue
-    }
-    if (code < 256) {
-      out += `\\${code.toString(8).padStart(3, '0')}`
-      continue
-    }
-    out += '?'
+    if (code >= 32 && code <= 126) out += char
+    else out += `\\${code.toString(8).padStart(3, '0')}`
   }
   return out
 }

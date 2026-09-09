@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import { describe, it } from 'node:test'
+import { fileURLToPath } from 'node:url'
 import { render } from '../src/index.ts'
+import { VERSION } from '../src/version.ts'
 import { exampleYaml } from './helpers.ts'
 
 function pdf(): string {
@@ -53,7 +56,7 @@ describe('PDF rendering', () => {
     const text = pdf()
     assert.match(text, /\/BaseFont \/Helvetica /)
     assert.match(text, /\/BaseFont \/Helvetica-Bold /)
-    assert.match(text, /\/Encoding \/WinAnsiEncoding/)
+    assert.match(text, /\/BaseEncoding \/WinAnsiEncoding/)
     assert.ok(!text.includes('/FontFile'))
   })
 
@@ -67,6 +70,46 @@ describe('PDF rendering', () => {
     const b = Buffer.from(render(exampleYaml(), 'pdf').content as Uint8Array)
     assert.ok(a.equals(b))
     assert.ok(!a.toString('latin1').includes('/CreationDate'))
+  })
+
+  it('maps Polish characters onto spare codes, without embedding a font', () => {
+    const polish = readFileSync(
+      fileURLToPath(new URL('../examples/blat-kuchenny.yaml', import.meta.url)),
+      'utf8',
+    )
+    const text = Buffer.from(render(polish, 'pdf').content as Uint8Array).toString('latin1')
+
+    const differences = /\/Differences \[([^\]]*)\]/.exec(text)
+    assert.ok(differences?.[1], 'expected an /Differences table for the Polish glyphs')
+    for (const glyph of ['lslash', 'aogonek', 'eogonek', 'sacute', 'cacute', 'zdotaccent']) {
+      assert.ok(differences[1].includes(`/${glyph}`), `missing glyph ${glyph}`)
+    }
+    assert.ok(!text.includes('/FontFile'), 'no font should be embedded')
+
+    // Every code handed out must be free in WinAnsiEncoding's upper half.
+    const codes = [...differences[1].matchAll(/(\d+) \//g)].map((m) => Number(m[1]))
+    assert.equal(new Set(codes).size, codes.length, 'codes must be unique')
+    for (const code of codes) assert.ok(code >= 0x80 && code <= 0xff, `code ${code} out of range`)
+
+    // Nothing may have silently degraded to a question mark.
+    const stream = text.slice(text.indexOf('stream'), text.indexOf('endstream'))
+    assert.ok(!stream.includes('?) Tj'), 'a character was dropped from the content stream')
+  })
+
+  it('is deterministic for Polish text too', () => {
+    const polish = readFileSync(
+      fileURLToPath(new URL('../examples/blat-kuchenny.yaml', import.meta.url)),
+      'utf8',
+    )
+    const a = Buffer.from(render(polish, 'pdf').content as Uint8Array)
+    const b = Buffer.from(render(polish, 'pdf').content as Uint8Array)
+    assert.ok(a.equals(b))
+  })
+
+  it('names itself and its version in the metadata', () => {
+    const text = pdf()
+    assert.ok(text.includes(`/Producer (SlabSketch v${VERSION})`))
+    assert.ok(text.includes(`/Creator (SlabSketch v${VERSION})`))
   })
 
   it('includes a creation date only when one is supplied', () => {

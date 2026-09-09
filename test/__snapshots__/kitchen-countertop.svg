@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- SlabSketch v0.1.0 -->
 <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="420mm" height="297mm" viewBox="0 0 420 297">
   <title>Kitchen countertop</title>
   <desc>SlabSketch technical drawing. Scale 1:10, units mm, sheet A3.</desc>
@@ -117,16 +118,18 @@
     </g>
     <g id="title">
       <text x="316.5" y="258.5" dy="1.432" font-size="4" fill="#111111" font-weight="bold">Kitchen countertop</text>
-      <text x="316.5" y="268" dy="0.859" font-size="2.4" fill="#111111">Material: Silestone Blanco Norte</text>
       <text x="407.5" y="268" dy="0.859" font-size="2.4" fill="#111111" text-anchor="end">Thickness: 20 mm</text>
-      <text x="316.5" y="276" dy="0.859" font-size="2.4" fill="#111111">Scale 1:10</text>
+      <text x="316.5" y="268" dy="0.859" font-size="2.4" fill="#111111">Material: Silestone Blanco Norte</text>
       <text x="407.5" y="276" dy="0.859" font-size="2.4" fill="#111111" text-anchor="end">Units: mm | Sheet: A3</text>
+      <text x="316.5" y="276" dy="0.859" font-size="2.4" fill="#111111">Scale 1:10</text>
+      <text x="407.5" y="283.5" dy="0.859" font-size="2.4" fill="#111111" text-anchor="end">Drawn: SlabSketch | Rev. A</text>
       <text x="316.5" y="283.5" dy="0.859" font-size="2.4" fill="#111111">Project: Flat 4, Rosebery Avenue | Client: M. Nowak</text>
-      <text x="407.5" y="283.5" dy="0.859" font-size="2.4" fill="#111111" text-anchor="end">Drawn: SlabSketch | Rev: A</text>
-      <text x="10" y="254" dy="1.718" font-size="2.4" fill="#111111" font-weight="bold">PRELIMINARY DRAWING - all dimensions to be verified on site and by the fabricator.</text>
-      <text x="10" y="258" dy="1.718" font-size="2.4" fill="#111111">1. Undermount sink; cutout dimensions are the finished opening.</text>
-      <text x="10" y="261.4" dy="1.718" font-size="2.4" fill="#111111">2. Front edge profile to be confirmed with the fabricator.</text>
-      <text x="10" y="264.8" dy="1.718" font-size="2.4" fill="#111111">3. Wall run is not square - template on site before cutting.</text>
+      <text x="12.5" y="254" dy="1.718" font-size="2.4" fill="#111111" font-weight="bold">PRELIMINARY DRAWING - all dimensions to be verified on site and by the fabricator.</text>
+      <text x="12.5" y="258.4" dy="1.718" font-size="2.4" fill="#111111" font-weight="bold">NOTES:</text>
+      <text x="12.5" y="261.8" dy="1.718" font-size="2.4" fill="#111111">1. Undermount sink; cutout dimensions are the finished opening.</text>
+      <text x="12.5" y="265.2" dy="1.718" font-size="2.4" fill="#111111">2. Front edge profile to be confirmed with the fabricator.</text>
+      <text x="12.5" y="268.6" dy="1.718" font-size="2.4" fill="#111111">3. Wall run is not square - template on site before cutting.</text>
+      <text x="10" y="292" dy="0.716" font-size="2" fill="#767676">Generated with SlabSketch v0.1.0</text>
     </g>
   </g>
 </svg>

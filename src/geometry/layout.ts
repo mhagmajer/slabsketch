@@ -35,8 +35,11 @@ export const LAYOUT = {
   /** Border frame inset from the page edge. */
   frameInset: 10,
   /** Clear space kept between the frame and the drawing content. */
-  contentPadding: 6,
+  contentPadding: 8,
+  /** Preferred title block width; narrowed on small sheets so notes still fit. */
   titleBlockWidth: 96,
+  /** Title block never takes more than this fraction of the frame width. */
+  titleBlockMaxFraction: 0.45,
   titleBlockHeight: 34,
   titleBlockGap: 4,
   /** Distance from the part to the innermost dimension band. */
@@ -47,6 +50,8 @@ export const LAYOUT = {
   labelTextSize: 3.2,
   subLabelTextSize: 2.4,
   smallTextSize: 2.4,
+  /** Generator stamp in the bottom margin. */
+  stampTextSize: 2,
   arrowLength: 2.8,
   arrowHalfWidth: 0.85,
   /** Gap between the geometry and the start of an extension line. */
@@ -67,6 +72,12 @@ export interface Area {
   y: number
   width: number
   height: number
+}
+
+/** Width the title block actually gets on this sheet. */
+export function titleBlockWidth(sheet: Sheet): number {
+  const frame = frameArea(sheet)
+  return Math.min(LAYOUT.titleBlockWidth, frame.width * LAYOUT.titleBlockMaxFraction)
 }
 
 export function frameArea(sheet: Sheet): Area {

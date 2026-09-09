@@ -107,10 +107,25 @@ describe('cli', () => {
     assert.match(strict.stderr, /W_EDGE_CLEARANCE/)
   })
 
+  it('switches the generated text to Polish', async () => {
+    const result = await cli('render', EXAMPLE_YAML, '-o', '-', '--lang', 'pl')
+    assert.equal(result.code, 0, result.stderr)
+    assert.ok(result.stdout.includes('Materiał:'))
+    assert.ok(result.stdout.includes('RYSUNEK WSTĘPNY'))
+    assert.ok(!result.stdout.includes('PRELIMINARY'))
+  })
+
+  it('stamps the source file name into the drawing', async () => {
+    const result = await cli('render', EXAMPLE_YAML, '-o', '-')
+    assert.equal(result.code, 0, result.stderr)
+    assert.ok(result.stdout.includes('from kitchen-countertop.yaml'))
+  })
+
   it('reports usage problems with exit code 2', async () => {
     assert.equal((await cli()).code, 2)
     assert.equal((await cli('render', EXAMPLE_YAML, '-f', 'dxf')).code, 2)
     assert.equal((await cli('render', EXAMPLE_YAML, '--sheet', 'a9')).code, 2)
+    assert.equal((await cli('render', EXAMPLE_YAML, '--lang', 'de')).code, 2)
     assert.equal((await cli('render', join(dir, 'missing.yaml'))).code, 2)
   })
 
@@ -118,6 +133,7 @@ describe('cli', () => {
     const help = await cli('--help')
     assert.equal(help.code, 0)
     assert.match(help.stdout, /Usage:/)
+    assert.match(help.stdout, /--lang <code>/)
     const version = await cli('--version')
     assert.equal(version.code, 0)
     assert.match(version.stdout, /^\d+\.\d+\.\d+\n$/)

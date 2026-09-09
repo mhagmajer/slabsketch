@@ -66,14 +66,19 @@ export interface RenderResult {
 export interface RenderOptions {
   svg?: SvgOptions
   pdf?: PdfOptions
+  /** Name of the source file, stamped into the drawing's bottom margin. */
+  source?: string
 }
 
 /** Build the drawing for a document without exporting it. */
-export function createDrawing(document: CountertopDocument): {
+export function createDrawing(
+  document: CountertopDocument,
+  options: { source?: string } = {},
+): {
   drawing: Drawing
   diagnostics: Diagnostic[]
 } {
-  return buildDrawing(document)
+  return buildDrawing(document, options)
 }
 
 export function renderDocument(
@@ -81,7 +86,9 @@ export function renderDocument(
   format: OutputFormat,
   options: RenderOptions = {},
 ): RenderResult {
-  const { drawing, diagnostics } = buildDrawing(document)
+  const { drawing, diagnostics } = buildDrawing(document, {
+    ...(options.source === undefined ? {} : { source: options.source }),
+  })
   if (format === 'svg') {
     return { format, content: renderSvg(drawing, options.svg), drawing, diagnostics }
   }
@@ -99,7 +106,7 @@ export function render(
   format: OutputFormat = 'svg',
   options: LoadOptions & RenderOptions = {},
 ): RenderResult {
-  const { svg, pdf, ...loadOptions } = options
+  const { svg, pdf, source: sourceName, ...loadOptions } = options
   const loaded = loadDocument(source, loadOptions)
   if (!loaded.ok) {
     throw new SlabSketchError('the input document has validation errors', loaded.diagnostics)
@@ -107,6 +114,7 @@ export function render(
   const result = renderDocument(loaded.document, format, {
     ...(svg ? { svg } : {}),
     ...(pdf ? { pdf } : {}),
+    ...(sourceName === undefined ? {} : { source: sourceName }),
   })
   return { ...result, diagnostics: [...loaded.diagnostics, ...result.diagnostics] }
 }
@@ -136,6 +144,9 @@ export { autoDimensions, packDimensions } from './geometry/dimensions.ts'
 export type { Dimension, LinearDimension, DiameterDimension } from './geometry/dimensions.ts'
 export { parseScale, formatScale, SCALE_LADDER } from './geometry/scale.ts'
 export { LAYOUT, sheetSize } from './geometry/layout.ts'
+export { LANGUAGES, strings } from './i18n.ts'
+export type { Language, Strings } from './i18n.ts'
+export { VERSION, GENERATOR } from './version.ts'
 export { buildDrawing, toPaper } from './render/drawing.ts'
 export type { Drawing, Entity, Style, Layer } from './render/drawing.ts'
 export { renderSvg } from './render/svg.ts'

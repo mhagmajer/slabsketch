@@ -48,6 +48,8 @@ One sheet, laid out the way a shop drawing is:
 - centre lines on holes, labels on cutouts, an explicit `(0,0)` origin marker
 - title block with material, thickness, scale, units, sheet size and metadata
 - notes block, always headed by a preliminary-drawing disclaimer
+- generator stamp in the bottom margin, naming the version and the source file
+- optional Polish wording for everything SlabSketch writes itself (`--lang pl`)
 
 Generate the example drawings and open one:
 
@@ -65,6 +67,7 @@ them are:
 | [`kitchen-island.yaml`](examples/kitchen-island.yaml) | a deeper island, taps drilled in open material rather than against a wall |
 | [`bathroom-vanity.yaml`](examples/bathroom-vanity.yaml) | a smaller part, drawn at 1:5 because `scale: auto` found it fits |
 | [`tight-clearances.yaml`](examples/tight-clearances.yaml) | deliberately marginal geometry, so every proximity warning fires |
+| [`blat-kuchenny.yaml`](examples/blat-kuchenny.yaml) | the same kind of part described in Polish, with `language: pl` |
 
 ## Installation
 
@@ -100,6 +103,7 @@ slabsketch check countertop.yaml --strict           # validate only
 | `--sheet <size>` | `a5` `a4` `a3` `a2` `a1` |
 | `--orientation <o>` | `landscape` or `portrait` |
 | `--dimensions <d>` | `auto` or `none` |
+| `--lang <code>` | `en` or `pl` — language of generated text |
 | `--strict` | treat warnings as errors |
 | `-q, --quiet` | print errors only |
 
@@ -109,6 +113,39 @@ Exit codes: `0` success, `1` validation errors (or warnings under `--strict`),
 With `scale: auto`, SlabSketch picks the largest scale from 1:1, 1:2, 1:5, 1:10,
 1:20, 1:25, 1:50, 1:100, 1:200 at which the part *and its dimensions* still fit
 the sheet.
+
+### Language
+
+`--lang pl` (or `drawing.language: pl` in the file) switches the text SlabSketch
+writes itself: the title block field names, the preliminary-drawing note, the
+notes heading and the generator stamp.
+
+Names, labels, notes and metadata come from the input file and are reproduced
+exactly as written — SlabSketch never translates your content. Diagnostics stay
+in English: they are read by whoever runs the tool, not by whoever receives the
+drawing.
+
+The PDF writer keeps its promise of embedding no fonts. Polish characters are
+absent from WinAnsiEncoding, so the characters a drawing actually uses are
+collected and the missing ones are mapped, by their standard PostScript glyph
+names, onto spare codes through an `/Encoding /Differences` table.
+
+### Margins and the generator stamp
+
+The frame sits 10 mm inside the page edge, with a further 8 mm of clear space
+before the drawing, and the title block strip is reserved at the bottom. The
+drawing is centred in what is left, so nothing ever touches the frame; a test
+asserts this for every example on A4, A3 and A2.
+
+The bottom margin, outside the frame, carries a stamp naming what produced the
+file and from which input:
+
+```text
+Generated with SlabSketch v0.1.0 from kitchen-countertop.yaml
+```
+
+The SVG repeats it as a comment and in `<desc>`; the PDF puts it in `/Producer`
+and `/Creator`.
 
 ## Input format
 
@@ -151,6 +188,7 @@ drawing:
   sheet: a3
   orientation: landscape
   dimensions: auto     # or "none"
+  language: en         # en | pl - language of generated text only
   reference:           # which edges offsets are measured from
     x: left            # left | right
     y: back            # back | front
@@ -245,6 +283,9 @@ about SVG, and the renderers never know about YAML.
   render/drawing.ts    document      →  Drawing          renderer-neutral primitives
   render/svg.ts        Drawing       →  string
   render/pdf.ts        Drawing       →  Uint8Array
+
+  i18n.ts              wording of generated text (en, pl)
+  text.ts              Helvetica metrics, shared by dimensioning and both writers
 ```
 
 Two ideas carry most of the extensibility:
@@ -313,6 +354,7 @@ from scratch; the PDF uses the base-14 Helvetica faces and embeds no fonts.
 - [ ] edge finishing annotations (profile, polished edges)
 - [ ] undermount vs top-mount sink representation
 - [ ] per-feature dimension overrides and manual placement hints
+- [ ] more languages for the generated text (the tables live in `src/i18n.ts`)
 - [ ] manufacturer constraint profiles for the proximity checks
 - [ ] a browser editor over the same document model
 

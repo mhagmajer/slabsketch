@@ -17,6 +17,7 @@ export interface NormalizeOverrides {
   sheet?: CountertopDocument['drawing']['sheet']
   orientation?: CountertopDocument['drawing']['orientation']
   dimensions?: CountertopDocument['drawing']['dimensions']
+  language?: CountertopDocument['drawing']['language']
 }
 
 export function normalizeDocument(
@@ -77,6 +78,7 @@ export function normalizeDocument(
       sheet: overrides.sheet ?? input.drawing.sheet,
       orientation: overrides.orientation ?? input.drawing.orientation,
       dimensions: overrides.dimensions ?? input.drawing.dimensions,
+      language: overrides.language ?? input.drawing.language,
       reference: input.drawing.reference,
     },
   }

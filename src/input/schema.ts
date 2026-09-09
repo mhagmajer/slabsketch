@@ -80,6 +80,8 @@ export const drawingSchema = z
     sheet: z.enum(['a5', 'a4', 'a3', 'a2', 'a1']).default('a3'),
     orientation: z.enum(['landscape', 'portrait']).default('landscape'),
     dimensions: z.enum(['auto', 'none']).default('auto'),
+    /** Language of the text SlabSketch generates; input text is never translated. */
+    language: z.enum(['en', 'pl']).default('en'),
     reference: referenceSchema,
   })
   .strict()
