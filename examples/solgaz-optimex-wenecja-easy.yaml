@@ -1,6 +1,6 @@
 # Blat pod konkretne urządzenia, z wymiarami z dokumentacji producentów:
 #
-#   płyta gazowa   Solgaz Optimex 2+1, montaż pionowy
+#   płyta gazowa   Solgaz Optimex 2+1, montaż nakładany, pionowo
 #                  palniki jeden za drugim, sterowanie z przodu, wylot spalin z tyłu
 #                  (widok z góry, rys. 1.5 instrukcji) - stąd 330 w poprzek, 517 w głąb
 #                  wycięcie 315 x 495 mm ±1, naroża ostre (instrukcja, rys. 5.1, s. 36)
@@ -53,9 +53,8 @@ holes:
     diameter: 35
 
 services:
-  - service: undermount-cutout
+  - service: top-mount-cutout
     target: plyta
-    note: płyta licowana z blatem
   - service: undermount-cutout
     target: zlew
   - service: tap-hole
@@ -66,8 +65,8 @@ services:
 notes:
   - Krawędź tylna przylega do ściany - bez wykończenia i bez obróbki naroży tylnych.
   - Płyta pionowo - sterowanie z przodu, wylot spalin z tyłu; wycięcie 315 x 495 mm ±1, naroża ostre.
-  - Płyta licowana - obrys korpusu 330 x 517 mm; wpust i jego głębokość ustala kamieniarz.
-  - Instrukcja Solgaz opisuje wyłącznie montaż nakładany na uszczelce - licowanie jest odstępstwem.
+  - Płyta nakładana wg instrukcji - leży na blacie na uszczelce, obrys 330 x 517 mm. Bez wpustu.
+  - Producent nie wymaga mocowania płyty i odradza stosowanie klejów oraz silikonu.
   - Płyta 150 mm od lewej krawędzi - dokładnie minimum wymagane przy szafce na blacie lub narożniku.
   - Zlew - wycięcie 310 x 390 mm, naroża R20; 80 mm od frontu to założenie szablonu dla blatu 600/620.
   - Otwory Ø35 wg kart katalogowych; kołnierz dozownika ma Ø40, otworu nie wolno powiększać.
