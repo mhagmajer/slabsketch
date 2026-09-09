@@ -121,6 +121,27 @@ absent from WinAnsiEncoding, so the characters a drawing actually uses are
 collected and the missing ones are mapped, by their standard PostScript glyph
 names, onto spare codes through an `/Encoding /Differences` table.
 
+### If you need a PNG
+
+SlabSketch writes SVG and PDF only — rasterising would mean pulling in a
+renderer, and the drawing is line work that belongs in vectors. When a form
+insists on an image, convert the SVG. Any of these gives a 300 dpi A3, which for
+a drawing this sparse lands around half a megabyte:
+
+```bash
+# headless Chrome: A3 is 1587 x 1123 CSS px, so 3.2x gives ~300 dpi
+chrome --headless --disable-gpu --hide-scrollbars \
+  --force-device-scale-factor=3.2 --window-size=1588,1123 \
+  --default-background-color=FFFFFFFF \
+  --screenshot=drawing.png "file://$PWD/examples/output/kitchen-countertop.svg"
+
+# or, with librsvg
+rsvg-convert --dpi-x 300 --dpi-y 300 -b white -o drawing.png drawing.svg
+```
+
+Prefer PNG to JPEG: JPEG artefacts settle on exactly the thin lines and small
+text a technical drawing is made of.
+
 ### Margins and the generator stamp
 
 The frame sits 10 mm inside the page edge, with a further 8 mm of clear space
