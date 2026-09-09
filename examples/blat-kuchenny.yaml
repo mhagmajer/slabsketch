@@ -43,6 +43,28 @@ holes:
     y: 80
     diameter: 28
 
+# Usługi dodatkowe: co ma zostać wykonane i w którym miejscu.
+# Każda pozycja dostaje na rysunku swój znacznik (A, B, C ...) i wiersz w
+# zestawieniu. SlabSketch nie zna cen - notuje tylko wybór i jego zakres.
+services:
+  - service: top-mount-cutout
+    target: plyta
+  - service: undermount-cutout
+    target: zlew
+  - service: tap-hole
+    target: bateria
+  - service: soap-dispenser-hole
+    target: dozownik
+  - service: half-bullnose
+    edge: front
+  - service: led-groove
+    edge: front
+    from: 400
+    to: 2700
+  - service: underside-polish
+    edge: right
+  - service: underside-polish-all
+
 notes:
   - Zlew podwieszany - wymiary wycięcia to gotowy otwór.
   - Wykończenie krawędzi czołowej do potwierdzenia z wykonawcą.

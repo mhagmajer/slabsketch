@@ -48,6 +48,7 @@ One sheet, laid out the way a shop drawing is:
 - centre lines on holes, labels on cutouts, an explicit `(0,0)` origin marker
 - title block with material, thickness, scale, units, sheet size and metadata
 - notes block, always headed by a preliminary-drawing disclaimer
+- **chosen additional services** marked on the geometry and listed in a schedule
 - generator stamp in the bottom margin, naming the version and the source file
 - optional Polish wording for everything SlabSketch writes itself (`--lang pl`)
 
@@ -67,7 +68,7 @@ them are:
 | [`kitchen-island.yaml`](examples/kitchen-island.yaml) | a deeper island, taps drilled in open material rather than against a wall |
 | [`bathroom-vanity.yaml`](examples/bathroom-vanity.yaml) | a smaller part, drawn at 1:5 because `scale: auto` found it fits |
 | [`tight-clearances.yaml`](examples/tight-clearances.yaml) | deliberately marginal geometry, so every proximity warning fires |
-| [`blat-kuchenny.yaml`](examples/blat-kuchenny.yaml) | the same kind of part described in Polish, with `language: pl` |
+| [`blat-kuchenny.yaml`](examples/blat-kuchenny.yaml) | the same kind of part in Polish, with `language: pl` and eight chosen services |
 
 ## Installation
 
@@ -176,6 +177,12 @@ holes:
     y: 75
     diameter: 35
 
+services:              # additional services, see below
+  - service: undermount-cutout
+    target: sink
+  - service: half-bullnose
+    edge: front
+
 notes:
   - Undermount sink; cutout dimensions are the finished opening.
 
@@ -203,6 +210,54 @@ metadata:
 Only `countertop` is required; everything else has a documented default.
 Objects are **strict** — an unknown key such as `hight: 490` is an error, not a
 silently ignored field. That matters when a coding agent is editing the file.
+
+### Additional services
+
+The fabrication extras a customer picks — edge profiles, undermount cutouts, tap
+holes, an LED groove, a polished underside — are part of the order, so they
+belong on the drawing rather than only in an email. Each selection is marked on
+the geometry with a lettered balloon and listed in a schedule under the drawing:
+
+```yaml
+services:
+  - service: undermount-cutout   # applies to an opening
+    target: sink
+
+  - service: tap-hole            # applies to a drilled hole
+    target: faucet
+
+  - service: half-bullnose       # runs along an edge
+    edge: front                  # back | front | left | right
+
+  - service: led-groove
+    edge: front
+    from: 400                    # optional: only part of the edge, in mm
+    to: 2700
+
+  - service: underside-polish-all  # applies to the whole slab
+```
+
+**SlabSketch does not know prices, and does not try to.** They depend on the
+workshop, the material and the job; a preliminary drawing is the wrong place to
+quote them. What it records is the choice and its extent — edge runs in
+millimetres, whole-slab work in square metres — which is what a fabricator needs
+in order to price it.
+
+| Applies to | Services |
+| --- | --- |
+| an opening (`target:`) | `top-mount-cutout` `undermount-cutout` `stone-sink-single` `stone-sink-double` `drainer-grooves` `column-notch` |
+| a hole (`target:`) | `tap-hole` `soap-dispenser-hole` `pop-up-waste-hole` `socket-hole` `siphon-hole` |
+| an edge (`edge:`) | `underside-polish` `led-groove` `thickened-edge` `half-bullnose` `quarter-bullnose` `waterfall-edge` |
+| the whole slab | `underside-polish-all` |
+
+Ranges are measured from the start of the edge: left to right along the back and
+front edges, back to front along the left and right ones. Applying a service to
+the wrong kind of thing — a tap hole to a cutout, an edge profile to a hole — is
+an error, not a silent no-op.
+
+The schedule is a band above the title block rather than a side column: a
+countertop is a wide, shallow part, so a sheet has spare height and rarely spare
+width, and taking the space from the bottom leaves the drawing scale alone.
 
 ### Coordinate system
 
@@ -253,6 +308,9 @@ Errors — the document will not render:
 | `E_DUPLICATE_ID` | two features share an id |
 | `E_CUTOUT_OUT_OF_BOUNDS` / `E_HOLE_OUT_OF_BOUNDS` | the feature leaves the slab |
 | `E_HOLE_INSIDE_CUTOUT` | a hole overlaps an opening, so there is nothing to drill |
+| `E_SERVICE_TARGET` | a chosen service names an element or edge that is not there |
+| `E_SERVICE_SCOPE` | a service was applied to the wrong kind of thing |
+| `E_SERVICE_RANGE` | an edge run is empty, or longer than the edge |
 
 Warnings — rendered, but worth a look:
 
@@ -262,6 +320,7 @@ Warnings — rendered, but worth a look:
 | `W_FEATURE_CLEARANCE` | the bridge between two features is thinner than `checks.minFeatureDistance` |
 | `W_FEATURE_OVERLAP` | two cutouts, or two holes, overlap |
 | `W_SCALE_CLAMPED` | the drawing does not fit the sheet at any standard scale |
+| `W_DUPLICATE_SERVICE` | the same service was chosen twice for the same place |
 
 > **The warnings are generic proximity heuristics, not fabrication rules.**
 > Whether a given bridge of material is safe depends on the stone, the slab, the
@@ -284,6 +343,7 @@ about SVG, and the renderers never know about YAML.
   render/svg.ts        Drawing       →  string
   render/pdf.ts        Drawing       →  Uint8Array
 
+  services.ts          catalogue of the additional services, and their names
   i18n.ts              wording of generated text (en, pl)
   text.ts              Helvetica metrics, shared by dimensioning and both writers
 ```
@@ -351,9 +411,8 @@ from scratch; the PDF uses the base-14 Helvetica faces and embeds no fonts.
 - [ ] L-shaped and polygonal countertops, rounded corners
 - [ ] multiple slabs and backsplash pieces on one sheet
 - [ ] seams and joints, with their own annotation style
-- [ ] edge finishing annotations (profile, polished edges)
-- [ ] undermount vs top-mount sink representation
 - [ ] per-feature dimension overrides and manual placement hints
+- [ ] draw the chosen edge profiles in section, not only as a marked run
 - [ ] more languages for the generated text (the tables live in `src/i18n.ts`)
 - [ ] manufacturer constraint profiles for the proximity checks
 - [ ] a browser editor over the same document model

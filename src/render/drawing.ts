@@ -29,6 +29,8 @@ import {
   contentArea,
   fitsIn,
   frameArea,
+  scheduleArea,
+  scheduleLayout,
   sheetSize,
   titleBlockWidth,
   titleStripArea,
@@ -41,8 +43,10 @@ import {
   unionBounds,
 } from '../geometry/primitives.ts'
 import { SCALE_LADDER, formatScale } from '../geometry/scale.ts'
-import { type Language, strings } from '../i18n.ts'
-import type { CountertopDocument, Slab } from '../model/types.ts'
+import { type Language, type Strings, strings } from '../i18n.ts'
+import { edgeLength } from '../model/normalize.ts'
+import type { CountertopDocument, SelectedService, Slab } from '../model/types.ts'
+import { serviceName } from '../services.ts'
 import { formatLength, textWidth } from '../text.ts'
 import { GENERATOR } from '../version.ts'
 
@@ -53,6 +57,7 @@ export type Layer =
   | 'hole'
   | 'centreline'
   | 'dimension'
+  | 'service'
   | 'annotation'
   | 'title'
 
@@ -145,7 +150,9 @@ export interface BuildResult {
 
 const INK = '#111111'
 const DIM_INK = '#1a4d80'
+const SERVICE_INK = '#b4531a'
 const STAMP_INK = '#767676'
+const PAPER = '#ffffff'
 
 export function toPaper(transform: Transform, p: Point): Point {
   return {
@@ -157,7 +164,8 @@ export function toPaper(transform: Transform, p: Point): Point {
 export function buildDrawing(doc: CountertopDocument, options: BuildOptions = {}): BuildResult {
   const diagnostics: Diagnostic[] = []
   const sheet = sheetSize(doc.drawing.sheet, doc.drawing.orientation)
-  const area = contentArea(sheet)
+  const schedule = scheduleLayout(sheet, doc.slabs[0]?.services.length ?? 0)
+  const area = contentArea(sheet, schedule.height)
   const slab = doc.slabs[0]
   if (!slab) throw new Error('buildDrawing: document has no slab')
 
@@ -319,6 +327,8 @@ function buildContent(doc: CountertopDocument, slab: Slab, scale: number): Conte
   })
 
   if (doc.drawing.dimensions === 'none') {
+    // Chosen services are marked whether or not the drawing is dimensioned.
+    entities.push(...serviceEntities(slab, [], scale))
     return { entities, bounds: boundsOfEntities(entities, scale) }
   }
 
@@ -354,8 +364,140 @@ function buildContent(doc: CountertopDocument, slab: Slab, scale: number): Conte
     )
   }
   entities.push(...leaderEntities)
+  entities.push(...serviceEntities(slab, diameters, scale))
 
   return { entities, bounds: boundsOfEntities(entities, scale) }
+}
+
+// ---------------------------------------------------------------------------
+// Chosen services
+// ---------------------------------------------------------------------------
+
+/**
+ * Marks the services the customer selected, and ties each to its schedule row
+ * with a lettered balloon:
+ *
+ *   edge     a heavy line just inside the edge, ticked at both ends
+ *   cutout   a balloon in the free corner of the opening
+ *   hole     a balloon just past the hole's own leader
+ *   slab     nothing on the geometry; the schedule says "whole slab"
+ */
+function serviceEntities(
+  slab: Slab,
+  leaders: readonly DiameterDimension[],
+  scale: number,
+): Entity[] {
+  const entities: Entity[] = []
+  const p = (paperMm: number): Mm => paperMm / scale
+  const style: Style = { layer: 'service', stroke: SERVICE_INK, strokeWidth: LAYOUT.strokeService }
+
+  // Several services can share one edge or one opening. Each new one on the
+  // same anchor is stepped further out, so neither the runs nor the balloons
+  // can land on top of each other.
+  const stacked = new Map<string, number>()
+  const step = (key: string): number => {
+    const index = stacked.get(key) ?? 0
+    stacked.set(key, index + 1)
+    return index
+  }
+  const balloonPitch = 2 * LAYOUT.markRadius + 1.5
+
+  for (const selected of slab.services) {
+    if (selected.scope === 'edge' && selected.run) {
+      const { start, end, inward } = selected.run
+      const index = step(`edge:${selected.run.edge}`)
+      const lineOffset = p(2.2 + index * 2.6)
+      const shift = (point: Point, by: Mm): Point => ({
+        x: point.x + inward.x * by,
+        y: point.y + inward.y * by,
+      })
+      const a = shift(start, lineOffset)
+      const b = shift(end, lineOffset)
+      entities.push({ type: 'line', a, b, style })
+
+      // Ticks show exactly where the run begins and ends.
+      const tick = lineOffset + p(2.4)
+      entities.push({ type: 'line', a: start, b: shift(start, tick), style })
+      entities.push({ type: 'line', a: end, b: shift(end, tick), style })
+
+      const middle = { x: (start.x + end.x) / 2, y: (start.y + end.y) / 2 }
+      const reach = p(2.2 + LAYOUT.markRadius + 3 + index * balloonPitch)
+      entities.push(...balloon(shift(middle, reach), selected.tag, scale))
+      continue
+    }
+
+    const feature = slab.features.find((f) => f.id === selected.target)
+    if (!feature) continue
+    const index = step(`feature:${feature.id}`)
+    const along = p(index * balloonPitch)
+
+    if (feature.kind === 'rect-cutout') {
+      // On the opening's right edge, halfway down: clear of the centred label
+      // and of the dimensions the opening draws along its back and left edges.
+      entities.push(
+        ...balloon(
+          {
+            x: feature.bounds.maxX + along,
+            y: (feature.bounds.minY + feature.bounds.maxY) / 2,
+          },
+          selected.tag,
+          scale,
+        ),
+      )
+      continue
+    }
+
+    // A hole: sit the balloon just past the leader that already labels it.
+    const leader = leaders.find((l) => l.elementId === feature.id)
+    if (leader) {
+      const toRight = leader.direction.x >= 0
+      const kneeX = leader.center.x + leader.direction.x * (feature.radius + p(leader.leaderPaper))
+      const kneeY = leader.center.y + leader.direction.y * (feature.radius + p(leader.leaderPaper))
+      const reach = p(leader.shoulderPaper + LAYOUT.markRadius + 1) + along
+      entities.push(
+        ...balloon({ x: kneeX + (toRight ? 1 : -1) * reach, y: kneeY }, selected.tag, scale),
+      )
+    } else {
+      entities.push(
+        ...balloon(
+          {
+            x: feature.center.x + feature.radius + p(LAYOUT.markRadius + 2) + along,
+            y: feature.center.y,
+          },
+          selected.tag,
+          scale,
+        ),
+      )
+    }
+  }
+
+  return entities
+}
+
+/** A lettered balloon: an opaque disc so it stays readable over any geometry. */
+function balloon(at: Point, tag: string, scale: number): Entity[] {
+  const radius = LAYOUT.markRadius / scale
+  return [
+    {
+      type: 'circle',
+      center: at,
+      radius,
+      style: {
+        layer: 'service',
+        stroke: SERVICE_INK,
+        strokeWidth: LAYOUT.strokeDimension * 2,
+        fill: PAPER,
+      },
+    },
+    {
+      type: 'text',
+      at,
+      text: tag,
+      anchor: 'middle',
+      baseline: 'middle',
+      style: { layer: 'service', fill: SERVICE_INK, fontSize: LAYOUT.markTextSize, bold: true },
+    },
+  ]
 }
 
 function dimStyle(): Style {
@@ -662,6 +804,8 @@ function buildSheetFurniture(
     })
   }
 
+  if (slab.services.length > 0) entities.push(...scheduleEntities(doc, slab, sheet))
+
   // Generator stamp, in the bottom margin outside the frame.
   entities.push({
     type: 'text',
@@ -673,6 +817,120 @@ function buildSheetFurniture(
   })
 
   return entities
+}
+
+/**
+ * The schedule of chosen services: one row per selection, in its own column so
+ * it can never collide with the drawing. Each row repeats the balloon used on
+ * the geometry, names the service, and says where it applies and how much of it
+ * there is - lengths in millimetres, areas in square metres, and nothing for
+ * services that are simply present.
+ */
+function scheduleEntities(doc: CountertopDocument, slab: Slab, sheet: Sheet): Entity[] {
+  const t = strings(doc.drawing.language)
+  const language = doc.drawing.language
+  const { columns, height } = scheduleLayout(sheet, slab.services.length)
+  if (columns === 0) return []
+  const area = scheduleArea(sheet, height)
+  const entities: Entity[] = []
+
+  entities.push({
+    type: 'text',
+    at: { x: area.x, y: area.y },
+    text: t.servicesHeading,
+    anchor: 'start',
+    baseline: 'top',
+    style: { layer: 'title', fill: INK, fontSize: LAYOUT.scheduleHeadingSize, bold: true },
+  })
+  const ruleY = area.y + LAYOUT.scheduleHeadingSize + 1.6
+  entities.push({
+    type: 'line',
+    a: { x: area.x, y: ruleY },
+    b: { x: area.x + area.width, y: ruleY },
+    style: { layer: 'frame', stroke: INK, strokeWidth: LAYOUT.strokeDimension },
+  })
+
+  const top = ruleY + 2
+  const columnWidth = area.width / columns
+  const rows = Math.ceil(slab.services.length / columns)
+
+  slab.services.forEach((selected, index) => {
+    const column = index % columns
+    const rowIndex = Math.floor(index / columns)
+    if (rowIndex >= rows) return
+    const x = area.x + column * columnWidth
+    const y = top + rowIndex * LAYOUT.scheduleRowHeight
+    const markX = x + LAYOUT.markRadius
+    const textX = x + 2 * LAYOUT.markRadius + 2.5
+    const available = columnWidth - (textX - x) - LAYOUT.scheduleGap
+
+    entities.push({
+      type: 'circle',
+      center: { x: markX, y: y + LAYOUT.markRadius },
+      radius: LAYOUT.markRadius,
+      style: {
+        layer: 'service',
+        stroke: SERVICE_INK,
+        strokeWidth: LAYOUT.strokeDimension * 2,
+        fill: PAPER,
+      },
+    })
+    entities.push({
+      type: 'text',
+      at: { x: markX, y: y + LAYOUT.markRadius },
+      text: selected.tag,
+      anchor: 'middle',
+      baseline: 'middle',
+      style: { layer: 'service', fill: SERVICE_INK, fontSize: LAYOUT.markTextSize, bold: true },
+    })
+    entities.push({
+      type: 'text',
+      at: { x: textX, y },
+      text: truncateToWidth(
+        serviceName(selected.service, language),
+        available,
+        LAYOUT.scheduleTextSize,
+      ),
+      anchor: 'start',
+      baseline: 'top',
+      style: { layer: 'title', fill: INK, fontSize: LAYOUT.scheduleTextSize },
+    })
+    entities.push({
+      type: 'text',
+      at: { x: textX, y: y + LAYOUT.scheduleTextSize + 1.4 },
+      text: truncateToWidth(describeService(selected, slab, t), available, LAYOUT.scheduleTextSize),
+      anchor: 'start',
+      baseline: 'top',
+      style: { layer: 'title', fill: STAMP_INK, fontSize: LAYOUT.scheduleTextSize },
+    })
+  })
+
+  return entities
+}
+
+/** Where a service applies, and how much of it there is. */
+function describeService(selected: SelectedService, slab: Slab, t: Strings): string {
+  const parts: string[] = []
+
+  if (selected.run) {
+    const { edge, from, to } = selected.run
+    const full = from === 0 && Math.abs(to - edgeLength(edge, slab.bounds)) < 1e-9
+    parts.push(
+      full ? t.edgeNames[edge] : `${t.edgeNames[edge]} ${formatLength(from)}-${formatLength(to)}`,
+    )
+    parts.push(`${formatLength(selected.quantity.value)} mm`)
+  } else if (selected.target) {
+    const feature = slab.features.find((f) => f.id === selected.target)
+    parts.push(feature?.label ?? selected.target)
+  } else {
+    parts.push(t.wholeSlab)
+    if (selected.quantity.kind === 'area') {
+      parts.push(`${(Math.round(selected.quantity.value * 100) / 100).toFixed(2)} m²`)
+    }
+  }
+
+  if (selected.note) parts.push(selected.note)
+  return parts.join(' · ')
 }
 
 function truncateToWidth(text: string, maxWidth: number, fontSize: number): string {

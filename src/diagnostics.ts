@@ -14,11 +14,16 @@ export type DiagnosticCode =
   | 'E_CUTOUT_OUT_OF_BOUNDS'
   | 'E_HOLE_OUT_OF_BOUNDS'
   | 'E_HOLE_INSIDE_CUTOUT'
+  // Additional services
+  | 'E_SERVICE_TARGET'
+  | 'E_SERVICE_SCOPE'
+  | 'E_SERVICE_RANGE'
   // Heuristic warnings - see README, these are NOT fabrication rules
   | 'W_EDGE_CLEARANCE'
   | 'W_FEATURE_CLEARANCE'
   | 'W_FEATURE_OVERLAP'
   | 'W_SCALE_CLAMPED'
+  | 'W_DUPLICATE_SERVICE'
 
 export interface Diagnostic {
   severity: Severity

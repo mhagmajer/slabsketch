@@ -14,6 +14,7 @@
 
 import type { Bounds, Mm, Point, Rect } from '../geometry/primitives.ts'
 import type { Language } from '../i18n.ts'
+import type { ServiceId, ServiceMeasure } from '../services.ts'
 
 export interface RectCutout {
   kind: 'rect-cutout'
@@ -44,6 +45,45 @@ export interface Slab {
   thickness: Mm
   material?: string
   features: Feature[]
+  services: SelectedService[]
+}
+
+export type SlabEdge = 'back' | 'front' | 'left' | 'right'
+
+/** A run along one edge of the slab, resolved to real coordinates. */
+export interface EdgeRun {
+  edge: SlabEdge
+  /** Distance along the edge from its start. */
+  from: Mm
+  to: Mm
+  start: Point
+  end: Point
+  /** Unit vector pointing into the slab from this edge. */
+  inward: Point
+}
+
+export interface ServiceQuantity {
+  kind: ServiceMeasure
+  /** Millimetres, pieces, or square metres, per `kind`. */
+  value: number
+}
+
+/**
+ * An additional service the customer selected, resolved against the geometry:
+ * which element or edge run it covers, and how much of it there is.
+ */
+export interface SelectedService {
+  id: string
+  /** Short mark used on the drawing and in the schedule: A, B, C ... */
+  tag: string
+  service: ServiceId
+  scope: 'edge' | 'cutout' | 'hole' | 'slab'
+  /** Id of the feature it applies to, for cutout and hole services. */
+  target?: string
+  /** Resolved edge run, for edge services. */
+  run?: EdgeRun
+  quantity: ServiceQuantity
+  note?: string
 }
 
 export type ReferenceX = 'left' | 'right'

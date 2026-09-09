@@ -52,6 +52,16 @@ export const LAYOUT = {
   smallTextSize: 2.4,
   /** Generator stamp in the bottom margin. */
   stampTextSize: 2,
+  /** Band above the title strip holding the schedule of chosen services. */
+  scheduleColumnWidth: 128,
+  scheduleGap: 6,
+  scheduleRowHeight: 7.2,
+  scheduleTextSize: 2.4,
+  scheduleHeadingSize: 2.8,
+  /** Radius of the mark that ties a service on the drawing to its schedule row. */
+  markRadius: 2.4,
+  markTextSize: 2.6,
+  strokeService: 0.9,
   arrowLength: 2.8,
   arrowHalfWidth: 0.85,
   /** Gap between the geometry and the start of an extension line. */
@@ -89,15 +99,46 @@ export function frameArea(sheet: Sheet): Area {
   }
 }
 
-/** The area the part and its dimensions may occupy, above the title block strip. */
-export function contentArea(sheet: Sheet): Area {
+/**
+ * How the schedule of chosen services is laid out: a band above the title
+ * strip, split into as many columns as the sheet is wide enough for.
+ *
+ * A countertop is a wide, shallow part, so the sheet always has spare height
+ * and rarely spare width. Taking the space from the bottom therefore costs
+ * nothing, where a side column would force a smaller scale.
+ */
+export function scheduleLayout(sheet: Sheet, count: number): { columns: number; height: number } {
+  if (count === 0) return { columns: 0, height: 0 }
+  const frame = frameArea(sheet)
+  const width = frame.width - 2 * LAYOUT.contentPadding
+  const columns = Math.max(1, Math.floor(width / LAYOUT.scheduleColumnWidth))
+  const rows = Math.ceil(count / columns)
+  const height =
+    LAYOUT.scheduleHeadingSize + 3 + rows * LAYOUT.scheduleRowHeight + LAYOUT.scheduleGap
+  return { columns, height }
+}
+
+/** The area the part and its dimensions may occupy, above everything else. */
+export function contentArea(sheet: Sheet, scheduleHeight = 0): Area {
   const frame = frameArea(sheet)
   const reserved = LAYOUT.titleBlockHeight + LAYOUT.titleBlockGap
   return {
     x: frame.x + LAYOUT.contentPadding,
     y: frame.y + LAYOUT.contentPadding,
     width: frame.width - 2 * LAYOUT.contentPadding,
-    height: frame.height - reserved - 2 * LAYOUT.contentPadding,
+    height: frame.height - reserved - scheduleHeight - 2 * LAYOUT.contentPadding,
+  }
+}
+
+/** The band listing the chosen services, when any were chosen. */
+export function scheduleArea(sheet: Sheet, height: number): Area {
+  const frame = frameArea(sheet)
+  const reserved = LAYOUT.titleBlockHeight + LAYOUT.titleBlockGap
+  return {
+    x: frame.x + LAYOUT.contentPadding,
+    y: frame.y + frame.height - reserved - height,
+    width: frame.width - 2 * LAYOUT.contentPadding,
+    height,
   }
 }
 

@@ -19,6 +19,7 @@ const LAYER_ORDER: readonly Layer[] = [
   'hole',
   'centreline',
   'dimension',
+  'service',
   'annotation',
   'title',
 ]
@@ -98,7 +99,7 @@ function renderEntity(entity: Entity): string {
     case 'circle':
       return `<circle cx="${n(entity.center.x)}" cy="${n(entity.center.y)}" r="${n(
         entity.radius,
-      )}"${strokeAttrs(entity.style)} fill="none"/>`
+      )}"${strokeAttrs(entity.style)} fill="${entity.style.fill ?? 'none'}"/>`
     case 'text':
       return renderText(entity)
   }

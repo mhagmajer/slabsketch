@@ -7,6 +7,7 @@
  */
 
 import { z } from 'zod'
+import { SERVICE_IDS, type ServiceId } from '../services.ts'
 
 const idPattern = /^[A-Za-z0-9][A-Za-z0-9._-]*$/
 
@@ -53,6 +54,25 @@ export const holeSchema = z
     /** Y of the hole centre. */
     y: coordinate,
     diameter: size,
+  })
+  .strict()
+
+export const serviceSchema = z
+  .object({
+    /** Optional stable id, so a drawing can refer back to a chosen service. */
+    id: id.optional(),
+    /** Which service was chosen; see the catalogue in src/services.ts. */
+    service: z.enum(SERVICE_IDS as [ServiceId, ...ServiceId[]]),
+    /** Id of the cutout or hole it applies to. Omit for a whole-slab service. */
+    target: id.optional(),
+    /** Edge it runs along, for edge services. */
+    edge: z.enum(['back', 'front', 'left', 'right']).optional(),
+    /** Start of the run along that edge, from its beginning. Defaults to 0. */
+    from: coordinate.nonnegative().optional(),
+    /** End of the run along that edge. Defaults to the full edge. */
+    to: coordinate.nonnegative().optional(),
+    /** Free text shown beside the service in the schedule. */
+    note: z.string().min(1).optional(),
   })
   .strict()
 
@@ -115,6 +135,7 @@ export const inputSchema = z
     cutouts: z.array(cutoutSchema).default([]),
     holes: z.array(holeSchema).default([]),
     notes: z.array(z.string().min(1)).default([]),
+    services: z.array(serviceSchema).default([]),
     checks: checksSchema,
     drawing: drawingSchema,
     metadata: metadataSchema,

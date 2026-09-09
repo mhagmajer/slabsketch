@@ -24,7 +24,12 @@ export interface Strings {
   drawnBy: string
   revision: string
   notesHeading: string
+  servicesHeading: string
+  /** Column words used in the services schedule. */
+  wholeSlab: string
+  edgeNames: Record<'back' | 'front' | 'left' | 'right', string>
   preliminary: string
+  moreItems: (count: number) => string
   generatedWith: (source?: string) => string
   description: (scale: string, sheet: string) => string
 }
@@ -40,7 +45,11 @@ const en: Strings = {
   drawnBy: 'Drawn',
   revision: 'Rev.',
   notesHeading: 'NOTES',
+  servicesHeading: 'ADDITIONAL SERVICES',
+  wholeSlab: 'whole slab',
+  edgeNames: { back: 'back edge', front: 'front edge', left: 'left edge', right: 'right edge' },
   preliminary: 'PRELIMINARY DRAWING - all dimensions to be verified on site and by the fabricator.',
+  moreItems: (count) => `+${count} more`,
   generatedWith: (source) =>
     source ? `Generated with ${GENERATOR} from ${source}` : `Generated with ${GENERATOR}`,
   description: (scale, sheet) =>
@@ -58,7 +67,16 @@ const pl: Strings = {
   drawnBy: 'Rysował',
   revision: 'Rew.',
   notesHeading: 'UWAGI',
+  servicesHeading: 'USŁUGI DODATKOWE',
+  wholeSlab: 'cały blat',
+  edgeNames: {
+    back: 'krawędź tylna',
+    front: 'krawędź przednia',
+    left: 'krawędź lewa',
+    right: 'krawędź prawa',
+  },
   preliminary: 'RYSUNEK WSTĘPNY - wszystkie wymiary do weryfikacji na budowie i przez wykonawcę.',
+  moreItems: (count) => `+${count} więcej`,
   generatedWith: (source) =>
     source ? `Wygenerowano w ${GENERATOR} z pliku ${source}` : `Wygenerowano w ${GENERATOR}`,
   description: (scale, sheet) =>

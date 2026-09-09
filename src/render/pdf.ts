@@ -140,8 +140,13 @@ function emitEntity(ops: string[], entity: Entity, sheetHeight: number, encoding
     }
     case 'circle': {
       applyStroke(ops, entity.style)
+      if (entity.style.fill) {
+        const [r, g, b] = parseColor(entity.style.fill)
+        ops.push(`${num(r)} ${num(g)} ${num(b)} rg`)
+      }
       emitCircle(ops, entity.center.x, sheetHeight - entity.center.y, entity.radius)
-      ops.push('S')
+      // B fills and strokes; S strokes only.
+      ops.push(entity.style.fill ? 'B' : 'S')
       return
     }
     case 'text':

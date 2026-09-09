@@ -16,7 +16,9 @@ import {
   distanceToBoundsEdge,
   round,
 } from '../geometry/primitives.ts'
-import type { CountertopDocument, Feature, Slab } from '../model/types.ts'
+import { edgeLength } from '../model/normalize.ts'
+import type { CountertopDocument, Feature, SelectedService, Slab } from '../model/types.ts'
+import { serviceDefinition } from '../services.ts'
 
 function mm(value: number): string {
   return `${round(value, 2)} mm`
@@ -43,8 +45,108 @@ export function checkDocument(doc: CountertopDocument): Diagnostic[] {
   const diagnostics: Diagnostic[] = []
   for (const slab of doc.slabs) {
     checkSlab(slab, doc.checks, diagnostics)
+    checkServices(slab, diagnostics)
   }
   return diagnostics
+}
+
+/**
+ * A chosen service has to land on something that exists, and on something of
+ * the right kind: an edge profile cannot be applied to a hole, and a tap hole
+ * cannot be applied to an edge.
+ */
+function checkServices(slab: Slab, diagnostics: Diagnostic[]): void {
+  const features = new Map(slab.features.map((f) => [f.id, f]))
+  const seen = new Map<string, SelectedService>()
+
+  slab.services.forEach((selected, index) => {
+    const path = `services[${index}]`
+    const at = { path, elementId: selected.id }
+    const definition = serviceDefinition(selected.service)
+    const name = `service "${selected.service}"`
+
+    if (definition.scope === 'edge') {
+      if (!selected.run) {
+        diagnostics.push(
+          error('E_SERVICE_TARGET', `${name} runs along an edge, so it needs an "edge"`, at),
+        )
+      } else {
+        const length = edgeLength(selected.run.edge, slab.bounds)
+        const { from, to } = selected.run
+        if (to <= from) {
+          diagnostics.push(
+            error('E_SERVICE_RANGE', `${name} has an empty run (${mm(from)} to ${mm(to)})`, at),
+          )
+        } else if (to > length + 1e-9) {
+          diagnostics.push(
+            error(
+              'E_SERVICE_RANGE',
+              `${name} runs to ${mm(to)} along the ${selected.run.edge} edge, ` +
+                `which is only ${mm(length)} long`,
+              at,
+            ),
+          )
+        }
+      }
+      if (selected.target) {
+        diagnostics.push(
+          error('E_SERVICE_SCOPE', `${name} applies to an edge, not to "${selected.target}"`, at),
+        )
+      }
+    } else if (definition.scope === 'slab') {
+      if (selected.target || selected.run) {
+        diagnostics.push(
+          error('E_SERVICE_SCOPE', `${name} applies to the whole slab; drop the target`, at),
+        )
+      }
+    } else {
+      if (!selected.target) {
+        diagnostics.push(
+          error(
+            'E_SERVICE_TARGET',
+            `${name} applies to a ${definition.scope}, so it needs a "target"`,
+            at,
+          ),
+        )
+      } else {
+        const feature = features.get(selected.target)
+        if (!feature) {
+          diagnostics.push(
+            error(
+              'E_SERVICE_TARGET',
+              `${name} points at "${selected.target}", which does not exist`,
+              at,
+            ),
+          )
+        } else {
+          const kind = feature.kind === 'rect-cutout' ? 'cutout' : 'hole'
+          if (kind !== definition.scope) {
+            diagnostics.push(
+              error(
+                'E_SERVICE_SCOPE',
+                `${name} applies to a ${definition.scope}, but "${selected.target}" is a ${kind}`,
+                at,
+              ),
+            )
+          }
+        }
+      }
+    }
+
+    const key = [selected.service, selected.target ?? '', selected.run?.edge ?? ''].join('|')
+    const previous = seen.get(key)
+    if (previous) {
+      diagnostics.push(
+        warning(
+          'W_DUPLICATE_SERVICE',
+          `${name} was chosen twice for the same place (also ${previous.tag})`,
+          at,
+        ),
+      )
+    } else {
+      seen.set(key, selected)
+    }
+  })
 }
 
 function checkSlab(

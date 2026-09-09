@@ -41,6 +41,32 @@
       "diameter": 28
     }
   ],
+  "services": [
+    {
+      "service": "top-mount-cutout",
+      "target": "hob"
+    },
+    {
+      "service": "undermount-cutout",
+      "target": "sink"
+    },
+    {
+      "service": "tap-hole",
+      "target": "faucet"
+    },
+    {
+      "service": "soap-dispenser-hole",
+      "target": "dispenser"
+    },
+    {
+      "service": "half-bullnose",
+      "edge": "front"
+    },
+    {
+      "service": "underside-polish",
+      "edge": "front"
+    }
+  ],
   "notes": [
     "Undermount sink; cutout dimensions are the finished opening.",
     "Front edge profile to be confirmed with the fabricator.",

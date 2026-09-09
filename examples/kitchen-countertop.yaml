@@ -44,6 +44,23 @@ holes:
     y: 75
     diameter: 28
 
+# Additional services: what should be done, and where. Each entry gets a mark
+# on the drawing (A, B, C ...) and a row in the schedule. SlabSketch records the
+# choice and its extent; prices are a matter for the fabricator.
+services:
+  - service: top-mount-cutout
+    target: hob
+  - service: undermount-cutout
+    target: sink
+  - service: tap-hole
+    target: faucet
+  - service: soap-dispenser-hole
+    target: dispenser
+  - service: half-bullnose
+    edge: front
+  - service: underside-polish
+    edge: front
+
 notes:
   - Undermount sink; cutout dimensions are the finished opening.
   - Front edge profile to be confirmed with the fabricator.
