@@ -53,9 +53,12 @@ export const LAYOUT = {
   /** Generator stamp in the bottom margin. */
   stampTextSize: 2,
   /** Band above the title strip holding the schedule of chosen services. */
-  scheduleColumnWidth: 128,
+  scheduleColumnWidth: 92,
   scheduleGap: 6,
-  scheduleRowHeight: 7.2,
+  scheduleRowHeight: 9,
+  /** Slot each schedule row gives its pictogram. */
+  scheduleIconWidth: 12,
+  scheduleIconHeight: 7,
   scheduleTextSize: 2.4,
   scheduleHeadingSize: 2.8,
   /** Radius of the mark that ties a service on the drawing to its schedule row. */

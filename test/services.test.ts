@@ -236,7 +236,8 @@ services:
     const layout = scheduleLayout(sheet, 8)
     assert.ok(layout.columns >= 2, 'A3 should hold several schedule columns')
     assert.ok(layout.height > LAYOUT.scheduleRowHeight)
-    // Eight services over three columns need three rows, not eight.
-    assert.equal(layout.columns, 3)
+    // Eight services over four columns need two rows, not eight.
+    assert.equal(layout.columns, 4)
+    assert.ok(layout.height < 40, `schedule band is ${layout.height} mm tall`)
   })
 })

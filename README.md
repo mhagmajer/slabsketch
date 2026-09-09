@@ -237,6 +237,13 @@ services:
   - service: underside-polish-all  # applies to the whole slab
 ```
 
+Each row in the schedule carries a pictogram: a plan view for anything cut
+through the slab, a section for anything done to an edge. They are **drawn by
+SlabSketch, not imported** — vector geometry on a 24 × 14 grid in
+[`src/render/icons.ts`](src/render/icons.ts), scaled into the row. That keeps
+them sharp at any scale, keeps the PDF free of embedded images, and leaves the
+SVG with no external references.
+
 **SlabSketch does not know prices, and does not try to.** They depend on the
 workshop, the material and the job; a preliminary drawing is the wrong place to
 quote them. What it records is the choice and its extent — edge runs in
@@ -344,6 +351,7 @@ about SVG, and the renderers never know about YAML.
   render/pdf.ts        Drawing       →  Uint8Array
 
   services.ts          catalogue of the additional services, and their names
+  render/icons.ts      pictograms for each service, drawn as vectors
   i18n.ts              wording of generated text (en, pl)
   text.ts              Helvetica metrics, shared by dimensioning and both writers
 ```

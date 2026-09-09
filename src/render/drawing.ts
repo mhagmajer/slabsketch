@@ -46,9 +46,10 @@ import { SCALE_LADDER, formatScale } from '../geometry/scale.ts'
 import { type Language, type Strings, strings } from '../i18n.ts'
 import { edgeLength } from '../model/normalize.ts'
 import type { CountertopDocument, SelectedService, Slab } from '../model/types.ts'
-import { serviceName } from '../services.ts'
+import { type ServiceId, serviceName } from '../services.ts'
 import { formatLength, textWidth } from '../text.ts'
 import { GENERATOR } from '../version.ts'
+import { ICON_BOX, type IconPoint, serviceIcon } from './icons.ts'
 
 export type Layer =
   | 'frame'
@@ -151,6 +152,7 @@ export interface BuildResult {
 const INK = '#111111'
 const DIM_INK = '#1a4d80'
 const SERVICE_INK = '#b4531a'
+const ICON_FILL = '#dcdcdc'
 const STAMP_INK = '#767676'
 const PAPER = '#ffffff'
 
@@ -472,6 +474,47 @@ function serviceEntities(
   }
 
   return entities
+}
+
+/**
+ * A service pictogram, scaled uniformly into the slot the schedule gives it.
+ * Filled shapes are emitted first, so an outline is never painted over.
+ */
+function iconEntities(
+  id: ServiceId,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+): Entity[] {
+  const scale = Math.min(width / ICON_BOX.width, height / ICON_BOX.height)
+  const originX = x + (width - ICON_BOX.width * scale) / 2
+  const originY = y + (height - ICON_BOX.height * scale) / 2
+  const at = (point: IconPoint): Point => ({
+    x: originX + point[0] * scale,
+    y: originY + point[1] * scale,
+  })
+
+  const outline: Style = { layer: 'service', stroke: INK, strokeWidth: 0.25 }
+  const primitives = serviceIcon(id)
+  const ordered = [...primitives.filter((p) => p.fill), ...primitives.filter((p) => !p.fill)]
+
+  return ordered.map((primitive): Entity => {
+    if (primitive.kind === 'circle') {
+      return {
+        type: 'circle',
+        center: at(primitive.center),
+        radius: primitive.radius * scale,
+        style: primitive.fill
+          ? { layer: 'service', stroke: INK, strokeWidth: 0.25, fill: INK }
+          : outline,
+      }
+    }
+    const points = primitive.points.map(at)
+    return primitive.fill
+      ? { type: 'polygon', points, style: { layer: 'service', fill: ICON_FILL } }
+      : { type: 'polyline', points, closed: primitive.closed, style: outline }
+  })
 }
 
 /** A lettered balloon: an opaque disc so it stays readable over any geometry. */
@@ -861,12 +904,15 @@ function scheduleEntities(doc: CountertopDocument, slab: Slab, sheet: Sheet): En
     const x = area.x + column * columnWidth
     const y = top + rowIndex * LAYOUT.scheduleRowHeight
     const markX = x + LAYOUT.markRadius
-    const textX = x + 2 * LAYOUT.markRadius + 2.5
+    const iconX = x + 2 * LAYOUT.markRadius + 2
+    const textX = iconX + LAYOUT.scheduleIconWidth + 3
     const available = columnWidth - (textX - x) - LAYOUT.scheduleGap
+    const middle = y + LAYOUT.scheduleRowHeight / 2
+    const textTop = middle - (2 * LAYOUT.scheduleTextSize + 1.4) / 2
 
     entities.push({
       type: 'circle',
-      center: { x: markX, y: y + LAYOUT.markRadius },
+      center: { x: markX, y: middle },
       radius: LAYOUT.markRadius,
       style: {
         layer: 'service',
@@ -877,15 +923,24 @@ function scheduleEntities(doc: CountertopDocument, slab: Slab, sheet: Sheet): En
     })
     entities.push({
       type: 'text',
-      at: { x: markX, y: y + LAYOUT.markRadius },
+      at: { x: markX, y: middle },
       text: selected.tag,
       anchor: 'middle',
       baseline: 'middle',
       style: { layer: 'service', fill: SERVICE_INK, fontSize: LAYOUT.markTextSize, bold: true },
     })
+    entities.push(
+      ...iconEntities(
+        selected.service,
+        iconX,
+        middle - LAYOUT.scheduleIconHeight / 2,
+        LAYOUT.scheduleIconWidth,
+        LAYOUT.scheduleIconHeight,
+      ),
+    )
     entities.push({
       type: 'text',
-      at: { x: textX, y },
+      at: { x: textX, y: textTop },
       text: truncateToWidth(
         serviceName(selected.service, language),
         available,
@@ -897,7 +952,7 @@ function scheduleEntities(doc: CountertopDocument, slab: Slab, sheet: Sheet): En
     })
     entities.push({
       type: 'text',
-      at: { x: textX, y: y + LAYOUT.scheduleTextSize + 1.4 },
+      at: { x: textX, y: textTop + LAYOUT.scheduleTextSize + 1.4 },
       text: truncateToWidth(describeService(selected, slab, t), available, LAYOUT.scheduleTextSize),
       anchor: 'start',
       baseline: 'top',
