@@ -56,6 +56,7 @@ that produce it are:
 | [`bathroom-vanity.yaml`](examples/bathroom-vanity.yaml) | a smaller part, drawn at 1:5 because `scale: auto` found it fits |
 | [`tight-clearances.yaml`](examples/tight-clearances.yaml) | deliberately marginal geometry, so every proximity warning fires |
 | [`blat-kuchenny.yaml`](examples/blat-kuchenny.yaml) | the same kind of part in Polish, with `language: pl` and eight chosen services |
+| [`solgaz-optimex-wenecja-easy.yaml`](examples/solgaz-optimex-wenecja-easy.yaml) | a real order: cutouts taken from the manufacturers' own installation drawings |
 
 ## Installation
 

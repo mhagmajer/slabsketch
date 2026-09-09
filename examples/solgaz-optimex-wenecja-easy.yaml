@@ -1,0 +1,83 @@
+# Blat pod konkretne urządzenia, z wymiarami z dokumentacji producentów:
+#
+#   płyta gazowa   Solgaz Optimex 2+1
+#                  wycięcie 495 x 315 mm ±1 (instrukcja, rys. 5.1, s. 36)
+#                  korpus 517 x 330 mm; min. 150 mm od boku, min. 38 mm od frontu
+#   zlewozmywak    Primagran Wenecja Easy 40, podwieszany, jednokomorowy
+#                  wycięcie 310 x 390 mm, naroża R20 (szablon Undermount Easy)
+#                  komora 320 x 400 mm; min. 90 mm z tyłu, min. 80 mm z przodu
+#   bateria        Primagran Flex 6020 - otwór Ø35 mm
+#   dozownik       Primagran Slim 500 ml - otwór Ø35 mm
+#
+# Rozmieszczenie: płyta dosunięta w lewo i wyśrodkowana w głąb, zlew przy
+# prawej i przedniej krawędzi, bateria z dozownikiem za zlewem. Między nimi
+# zostaje 345 mm wolnego blatu na całej głębokości - to jest przestrzeń robocza.
+
+version: 1
+
+countertop:
+  name: Blat kuchenny 1400 x 1000
+  width: 1400
+  depth: 1000
+  thickness: 20
+
+cutouts:
+  - id: plyta
+    label: Solgaz Optimex 2+1
+    x: 150          # min. 150 mm od boku szafki / narożnika wg instrukcji
+    y: 342.5        # wyśrodkowane w głąb blatu
+    width: 495
+    height: 315
+
+  - id: zlew
+    label: Wenecja Easy 40
+    x: 990          # 100 mm od prawej krawędzi
+    y: 530          # 80 mm od krawędzi przedniej - minimum wg szablonu
+    width: 310
+    height: 390
+
+holes:
+  - id: bateria
+    label: Bateria Flex 6020
+    x: 1145         # na osi komory zlewu
+    y: 460          # 70 mm za wycięciem zlewu
+    diameter: 35
+
+  - id: dozownik
+    label: Dozownik Slim 500
+    x: 1265         # 120 mm w prawo od baterii
+    y: 460
+    diameter: 35
+
+services:
+  - service: undermount-cutout
+    target: plyta
+    note: płyta licowana z blatem
+  - service: undermount-cutout
+    target: zlew
+  - service: tap-hole
+    target: bateria
+  - service: soap-dispenser-hole
+    target: dozownik
+
+notes:
+  - Krawędź tylna przylega do ściany - bez wykończenia i bez obróbki naroży tylnych.
+  - Płyta Solgaz licowana z blatem - wpust do potwierdzenia z kamieniarzem i instalatorem gazowym.
+  - Instrukcja Solgaz opisuje montaż nakładany, na uszczelce - licowanie jest odstępstwem od niej.
+  - Wycięcie płyty 495 x 315 mm z tolerancją ±1 mm wg rys. 5.1 instrukcji.
+  - Zlew - naroża wycięcia R20 wg szablonu Primagran; SlabSketch rysuje je jako ostre.
+  - Zlew 80 mm od krawędzi przedniej to minimum podane przez producenta.
+
+checks:
+  minEdgeDistance: 50
+  minFeatureDistance: 50
+
+drawing:
+  language: pl
+  scale: auto
+  sheet: a3
+
+metadata:
+  project: Blat 1400 x 1000 - Solgaz Optimex 2+1 / Wenecja Easy 40
+  drawnBy: SlabSketch
+  revision: A

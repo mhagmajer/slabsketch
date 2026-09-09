@@ -436,8 +436,10 @@ function labelBox(
 }
 
 /**
- * Leader length, in paper millimetres, that puts the whole label past the edge
- * this direction points at.
+ * Leader length, in paper millimetres, that puts the whole label clear of the
+ * part along this direction. A diagonal leader can leave through either of the
+ * two edges it points at, so both are measured and the shorter wins - otherwise
+ * a hole near the right edge would be dragged all the way past the back one.
  */
 function leaderToEscape(
   slab: Slab,
@@ -447,8 +449,12 @@ function leaderToEscape(
   metrics: LabelMetrics,
   clearance: Mm,
 ): number {
-  const target = direction.y < 0 ? slab.bounds.minY - clearance : slab.bounds.maxY + clearance
-  return (Math.abs(target - center.y) / Math.abs(direction.y) - radius) * metrics.scale
+  const vertical = direction.y < 0 ? slab.bounds.minY - clearance : slab.bounds.maxY + clearance
+  const horizontal = direction.x < 0 ? slab.bounds.minX - clearance : slab.bounds.maxX + clearance
+
+  const byY = (Math.abs(vertical - center.y) / Math.abs(direction.y) - radius) * metrics.scale
+  const byX = (Math.abs(horizontal - center.x) / Math.abs(direction.x) - radius) * metrics.scale
+  return Math.min(byY, byX)
 }
 
 /**

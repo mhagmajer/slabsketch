@@ -113,10 +113,10 @@
       <text x="310.25" y="102" dy="0" font-size="2.5" fill="#1a4d80">Ø28</text>
     </g>
     <g id="service">
-      <circle cx="195.75" cy="145.5" r="2.4" stroke="#b4531a" stroke-width="0.36" fill="#ffffff"/>
-      <text x="195.75" y="145.5" dy="0.931" font-size="2.6" fill="#b4531a" text-anchor="middle" font-weight="bold">A</text>
-      <circle cx="308.75" cy="149.5" r="2.4" stroke="#b4531a" stroke-width="0.36" fill="#ffffff"/>
-      <text x="308.75" y="149.5" dy="0.931" font-size="2.6" fill="#b4531a" text-anchor="middle" font-weight="bold">B</text>
+      <circle cx="195.75" cy="165.6" r="2.4" stroke="#b4531a" stroke-width="0.36" fill="#ffffff"/>
+      <text x="195.75" y="165.6" dy="0.931" font-size="2.6" fill="#b4531a" text-anchor="middle" font-weight="bold">A</text>
+      <circle cx="308.75" cy="165.1" r="2.4" stroke="#b4531a" stroke-width="0.36" fill="#ffffff"/>
+      <text x="308.75" y="165.1" dy="0.931" font-size="2.6" fill="#b4531a" text-anchor="middle" font-weight="bold">B</text>
       <circle cx="306.293" cy="109.5" r="2.4" stroke="#b4531a" stroke-width="0.36" fill="#ffffff"/>
       <text x="306.293" y="109.5" dy="0.931" font-size="2.6" fill="#b4531a" text-anchor="middle" font-weight="bold">C</text>
       <circle cx="331.52" cy="103" r="2.4" stroke="#b4531a" stroke-width="0.36" fill="#ffffff"/>

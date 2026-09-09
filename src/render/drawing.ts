@@ -434,13 +434,14 @@ function serviceEntities(
     const along = p(index * balloonPitch)
 
     if (feature.kind === 'rect-cutout') {
-      // On the opening's right edge, halfway down: clear of the centred label
-      // and of the dimensions the opening draws along its back and left edges.
+      // On the opening's right edge, near its front corner: clear of the label
+      // centred in the opening, and of the dimensions the opening draws along
+      // its own back and left edges.
       entities.push(
         ...balloon(
           {
             x: feature.bounds.maxX + along,
-            y: (feature.bounds.minY + feature.bounds.maxY) / 2,
+            y: feature.bounds.maxY - p(LAYOUT.markRadius + 2),
           },
           selected.tag,
           scale,
