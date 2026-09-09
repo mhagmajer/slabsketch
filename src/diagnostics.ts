@@ -14,6 +14,7 @@ export type DiagnosticCode =
   | 'E_CUTOUT_OUT_OF_BOUNDS'
   | 'E_HOLE_OUT_OF_BOUNDS'
   | 'E_HOLE_INSIDE_CUTOUT'
+  | 'E_CORNER_RADIUS'
   // Additional services
   | 'E_SERVICE_TARGET'
   | 'E_SERVICE_SCOPE'

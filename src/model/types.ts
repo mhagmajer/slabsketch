@@ -21,6 +21,10 @@ export interface RectCutout {
   id: string
   label?: string
   rect: Rect
+  /** Corner radius; 0 for a square-cornered opening. */
+  cornerRadius: Mm
+  /** Closed outline, rounded when `cornerRadius` is greater than zero. */
+  outline: Point[]
   bounds: Bounds
 }
 

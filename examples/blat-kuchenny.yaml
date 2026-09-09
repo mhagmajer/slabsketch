@@ -29,6 +29,7 @@ cutouts:
     y: 160
     width: 620
     height: 400
+    cornerRadius: 20
 
 holes:
   - id: bateria

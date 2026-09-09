@@ -22,7 +22,8 @@
       "x": 1650,
       "y": 150,
       "width": 540,
-      "height": 400
+      "height": 400,
+      "cornerRadius": 10
     }
   ],
   "holes": [

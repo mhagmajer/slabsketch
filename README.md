@@ -31,6 +31,7 @@ SVG, so it stays sharp at any zoom.</sub>
 - slab outline, cutouts and circular holes, drawn to scale on a real paper size
 - **overall dimensions**, and each feature's **offset from a reference edge**
 - **cutout sizes** dimensioned inside the opening, where there is room for them
+- **corner radii** drawn as real arcs and called out (`R20`), not left square
 - **diameter leaders** for holes, staggered so their labels never collide
 - centre lines on holes, labels on cutouts, an explicit `(0,0)` origin marker
 - title block with material, thickness, scale, units, sheet size and metadata
@@ -157,6 +158,7 @@ cutouts:
     y: 65
     width: 560
     height: 490
+    cornerRadius: 10   # optional; 0, the default, means square corners
 
 holes:
   - id: faucet         # x, y = centre of the hole
@@ -303,6 +305,7 @@ Errors — the document will not render:
 | `E_DUPLICATE_ID` | two features share an id |
 | `E_CUTOUT_OUT_OF_BOUNDS` / `E_HOLE_OUT_OF_BOUNDS` | the feature leaves the slab |
 | `E_HOLE_INSIDE_CUTOUT` | a hole overlaps an opening, so there is nothing to drill |
+| `E_CORNER_RADIUS` | a corner radius is larger than half the opening's shorter side |
 | `E_SERVICE_TARGET` | a chosen service names an element or edge that is not there |
 | `E_SERVICE_SCOPE` | a service was applied to the wrong kind of thing |
 | `E_SERVICE_RANGE` | an edge run is empty, or longer than the edge |
@@ -404,7 +407,7 @@ from scratch; the PDF uses the base-14 Helvetica faces and embeds no fonts.
 ## Roadmap
 
 - [ ] DXF export (the `Drawing` model space is already the right shape for it)
-- [ ] L-shaped and polygonal countertops, rounded corners
+- [ ] L-shaped and polygonal countertops, and rounded slab corners
 - [ ] multiple slabs and backsplash pieces on one sheet
 - [ ] seams and joints, with their own annotation style
 - [ ] per-feature dimension overrides and manual placement hints

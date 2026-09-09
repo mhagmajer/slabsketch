@@ -42,6 +42,8 @@ export const cutoutSchema = z
     y: coordinate,
     width: size,
     height: size,
+    /** Radius the corners are cut to. Required by most undermount sinks. */
+    cornerRadius: coordinate.nonnegative().optional(),
   })
   .strict()
 

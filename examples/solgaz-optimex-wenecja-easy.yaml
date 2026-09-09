@@ -1,7 +1,7 @@
 # Blat pod konkretne urządzenia, z wymiarami z dokumentacji producentów:
 #
 #   płyta gazowa   Solgaz Optimex 2+1
-#                  wycięcie 495 x 315 mm ±1 (instrukcja, rys. 5.1, s. 36)
+#                  wycięcie 495 x 315 mm ±1, naroża ostre (instrukcja, rys. 5.1, s. 36)
 #                  korpus 517 x 330 mm; min. 150 mm od boku, min. 38 mm od frontu
 #   zlewozmywak    Primagran Wenecja Easy 40, podwieszany, jednokomorowy
 #                  wycięcie 310 x 390 mm, naroża R20 (szablon Undermount Easy)
@@ -35,6 +35,7 @@ cutouts:
     y: 530          # 80 mm od krawędzi przedniej - minimum wg szablonu
     width: 310
     height: 390
+    cornerRadius: 20   # R20 wg szablonu Primagran
 
 holes:
   - id: bateria
@@ -65,7 +66,6 @@ notes:
   - Płyta Solgaz licowana z blatem - wpust do potwierdzenia z kamieniarzem i instalatorem gazowym.
   - Instrukcja Solgaz opisuje montaż nakładany, na uszczelce - licowanie jest odstępstwem od niej.
   - Wycięcie płyty 495 x 315 mm z tolerancją ±1 mm wg rys. 5.1 instrukcji.
-  - Zlew - naroża wycięcia R20 wg szablonu Primagran; SlabSketch rysuje je jako ostre.
   - Zlew 80 mm od krawędzi przedniej to minimum podane przez producenta.
 
 checks:

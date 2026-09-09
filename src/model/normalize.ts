@@ -14,6 +14,7 @@ import {
   circleBounds,
   rectBounds,
   rectToPolygon,
+  roundedRectToPolygon,
 } from '../geometry/primitives.ts'
 import { parseScale } from '../geometry/scale.ts'
 import type { InputFile } from '../input/schema.ts'
@@ -45,11 +46,14 @@ export function normalizeDocument(
   const features: Feature[] = []
   for (const cutout of input.cutouts) {
     const rect = { x: cutout.x, y: cutout.y, width: cutout.width, height: cutout.height }
+    const cornerRadius = cutout.cornerRadius ?? 0
     features.push({
       kind: 'rect-cutout',
       id: cutout.id,
       ...(cutout.label === undefined ? {} : { label: cutout.label }),
       rect,
+      cornerRadius,
+      outline: roundedRectToPolygon(rect, cornerRadius),
       bounds: rectBounds(rect),
     })
   }

@@ -178,6 +178,22 @@ function checkSlab(
       seen.set(feature.id, feature)
     }
 
+    // A corner radius cannot exceed half the shorter side, or the opening
+    // stops being a rectangle with rounded corners.
+    if (feature.kind === 'rect-cutout' && feature.cornerRadius > 0) {
+      const limit = Math.min(feature.rect.width, feature.rect.height) / 2
+      if (feature.cornerRadius > limit + 1e-9) {
+        diagnostics.push(
+          error(
+            'E_CORNER_RADIUS',
+            `${describe(feature)} has a corner radius of ${mm(feature.cornerRadius)}, ` +
+              `more than half its shorter side (${mm(limit)})`,
+            { elementId: feature.id, ...(path ? { path } : {}) },
+          ),
+        )
+      }
+    }
+
     // Containment
     if (!boundsContain(slab.bounds, feature.bounds)) {
       outOfBounds.add(feature)

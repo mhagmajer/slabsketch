@@ -261,15 +261,24 @@ function buildContent(doc: CountertopDocument, slab: Slab, scale: number): Conte
     if (feature.kind === 'rect-cutout') {
       entities.push({
         type: 'polyline',
-        points: [
-          { x: feature.bounds.minX, y: feature.bounds.minY },
-          { x: feature.bounds.maxX, y: feature.bounds.minY },
-          { x: feature.bounds.maxX, y: feature.bounds.maxY },
-          { x: feature.bounds.minX, y: feature.bounds.maxY },
-        ],
+        points: feature.outline,
         closed: true,
         style: { layer: 'cutout', stroke: INK, strokeWidth: LAYOUT.strokeCutout },
       })
+      if (feature.cornerRadius > 0 && doc.drawing.dimensions !== 'none') {
+        // Called out at a corner, the way a fabricator expects to read it.
+        entities.push({
+          type: 'text',
+          at: {
+            x: feature.bounds.minX + paperToModel(LAYOUT.dimTextSize + 8),
+            y: feature.bounds.maxY - paperToModel(1.5),
+          },
+          text: `R${formatLength(feature.cornerRadius)}`,
+          anchor: 'start',
+          baseline: 'bottom',
+          style: { layer: 'dimension', fill: DIM_INK, fontSize: LAYOUT.dimTextSize },
+        })
+      }
       if (feature.label) {
         // When the opening carries its own dimensions, they run just inside its
         // back and left edges, so the label is centred on what is left.

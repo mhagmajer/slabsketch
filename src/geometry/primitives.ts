@@ -55,6 +55,41 @@ export function rectToPolygon(r: Rect): Point[] {
   ]
 }
 
+/**
+ * Corners of a rectangle whose corners are rounded to `radius`, clockwise from
+ * the top-left in screen orientation. Arcs are approximated by a fixed number
+ * of segments so the output stays byte-stable.
+ *
+ * Internal corners in stone are cut with a round tool and are a crack risk when
+ * left square, so a fabricator needs the radius drawn, not described.
+ */
+export function roundedRectToPolygon(r: Rect, radius: Mm, segments = 8): Point[] {
+  const limit = Math.min(r.width, r.height) / 2
+  const rad = Math.min(Math.max(radius, 0), limit)
+  if (rad <= 0) return rectToPolygon(r)
+
+  const arc = (cx: Mm, cy: Mm, fromDeg: number, toDeg: number): Point[] => {
+    const points: Point[] = []
+    for (let i = 0; i <= segments; i++) {
+      const angle = ((fromDeg + ((toDeg - fromDeg) * i) / segments) * Math.PI) / 180
+      points.push({ x: cx + rad * Math.cos(angle), y: cy + rad * Math.sin(angle) })
+    }
+    return points
+  }
+
+  const left = r.x + rad
+  const right = r.x + r.width - rad
+  const top = r.y + rad
+  const bottom = r.y + r.height - rad
+
+  return [
+    ...arc(left, top, 180, 270),
+    ...arc(right, top, 270, 360),
+    ...arc(right, bottom, 0, 90),
+    ...arc(left, bottom, 90, 180),
+  ]
+}
+
 export function boundsOfPoints(points: readonly Point[]): Bounds {
   if (points.length === 0) {
     throw new Error('boundsOfPoints: empty point list')
