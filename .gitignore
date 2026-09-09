@@ -1,6 +1,24 @@
+# Dependencies
 node_modules/
+
+# Build output
 dist/
-examples/output/
 *.tsbuildinfo
+
+# Generated drawings: the inputs are tracked, the output is not.
+# Run `npm run example` to regenerate them.
+examples/output/
+
+# Editors and tooling
+.idea/
+.vscode/
+*.swp
+
+# OS
 .DS_Store
+
+# Logs and local environment
+*.log
 npm-debug.log*
+.env
+.env.local

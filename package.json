@@ -14,6 +14,15 @@
     "dimensioning"
   ],
   "license": "MIT",
+  "author": "Marcin Hagmajer",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mhagmajer/slabsketch.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mhagmajer/slabsketch/issues"
+  },
+  "homepage": "https://github.com/mhagmajer/slabsketch#readme",
   "type": "module",
   "bin": {
     "slabsketch": "dist/cli.js"
@@ -26,7 +35,11 @@
       "default": "./dist/index.js"
     }
   },
-  "files": ["dist", "README.md", "LICENSE"],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "engines": {
     "node": ">=18"
   },

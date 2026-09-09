@@ -1,5 +1,8 @@
 # SlabSketch
 
+[![CI](https://github.com/mhagmajer/slabsketch/actions/workflows/ci.yml/badge.svg)](https://github.com/mhagmajer/slabsketch/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 Generate clean, dimensioned 2D technical drawings of countertops and stone slabs
 from structured input, instead of drawing them by hand in CAD.
 
@@ -80,7 +83,7 @@ npm install slabsketch         # library
 Or run it straight out of a clone:
 
 ```bash
-git clone https://github.com/your-name/slabsketch.git
+git clone https://github.com/mhagmajer/slabsketch.git
 cd slabsketch
 npm install
 npm run build
