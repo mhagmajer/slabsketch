@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="420mm" height="297mm" viewBox="0 0 420 297">
+  <title>Kitchen countertop</title>
+  <desc>SlabSketch technical drawing. Scale 1:10, units mm, sheet A3.</desc>
+  <rect x="0" y="0" width="420" height="297" fill="#ffffff"/>
+  <g fill="none" stroke="none" stroke-linecap="round" stroke-linejoin="round" font-family="Helvetica, Arial, sans-serif" shape-rendering="geometricPrecision">
+    <g id="frame">
+      <polygon points="10,10 410,10 410,287 10,287" stroke="#111111" stroke-width="0.5" fill="none"/>
+      <polygon points="314,253 410,253 410,287 314,287" stroke="#111111" stroke-width="0.5" fill="none"/>
+      <line x1="314" y1="264" x2="410" y2="264" stroke="#111111" stroke-width="0.18"/>
+      <line x1="314" y1="272" x2="410" y2="272" stroke="#111111" stroke-width="0.18"/>
+      <line x1="314" y1="280" x2="410" y2="280" stroke="#111111" stroke-width="0.18"/>
+    </g>
+    <g id="outline">
+      <polygon points="89.75,129.4 373.75,129.4 373.75,191.4 89.75,191.4" stroke="#111111" stroke-width="0.6" fill="none"/>
+    </g>
+    <g id="cutout">
+      <polygon points="139.75,135.9 195.75,135.9 195.75,184.9 139.75,184.9" stroke="#111111" stroke-width="0.35" fill="none"/>
+      <polygon points="254.75,144.4 308.75,144.4 308.75,184.4 254.75,184.4" stroke="#111111" stroke-width="0.35" fill="none"/>
+    </g>
+    <g id="hole">
+      <circle cx="281.75" cy="136.9" r="1.75" stroke="#111111" stroke-width="0.35" fill="none"/>
+      <circle cx="290.75" cy="136.9" r="1.4" stroke="#111111" stroke-width="0.35" fill="none"/>
+    </g>
+    <g id="centreline">
+      <line x1="277" y1="136.9" x2="286.5" y2="136.9" stroke="#111111" stroke-width="0.18" stroke-dasharray="4 1.5 0.8 1.5"/>
+      <line x1="281.75" y1="132.15" x2="281.75" y2="141.65" stroke="#111111" stroke-width="0.18" stroke-dasharray="4 1.5 0.8 1.5"/>
+      <line x1="286.35" y1="136.9" x2="295.15" y2="136.9" stroke="#111111" stroke-width="0.18" stroke-dasharray="4 1.5 0.8 1.5"/>
+      <line x1="290.75" y1="132.5" x2="290.75" y2="141.3" stroke="#111111" stroke-width="0.18" stroke-dasharray="4 1.5 0.8 1.5"/>
+    </g>
+    <g id="dimension">
+      <line x1="139.75" y1="142.9" x2="195.75" y2="142.9" stroke="#1a4d80" stroke-width="0.18"/>
+      <polygon points="139.75,142.9 142.55,143.75 142.55,142.05" fill="#1a4d80"/>
+      <polygon points="195.75,142.9 192.95,142.05 192.95,143.75" fill="#1a4d80"/>
+      <text x="167.75" y="141.9" dy="0" font-size="2.5" fill="#1a4d80" text-anchor="middle">560</text>
+      <line x1="254.75" y1="151.4" x2="308.75" y2="151.4" stroke="#1a4d80" stroke-width="0.18"/>
+      <polygon points="254.75,151.4 257.55,152.25 257.55,150.55" fill="#1a4d80"/>
+      <polygon points="308.75,151.4 305.95,150.55 305.95,152.25" fill="#1a4d80"/>
+      <text x="281.75" y="150.4" dy="0" font-size="2.5" fill="#1a4d80" text-anchor="middle">540</text>
+      <line x1="89.75" y1="128.2" x2="89.75" y2="105.5" stroke="#1a4d80" stroke-width="0.18"/>
+      <line x1="139.75" y1="134.7" x2="139.75" y2="105.5" stroke="#1a4d80" stroke-width="0.18"/>
+      <line x1="89.75" y1="107.1" x2="139.75" y2="107.1" stroke="#1a4d80" stroke-width="0.18"/>
+      <polygon points="89.75,107.1 92.55,107.95 92.55,106.25" fill="#1a4d80"/>
+      <polygon points="139.75,107.1 136.95,106.25 136.95,107.95" fill="#1a4d80"/>
+      <text x="114.75" y="106.1" dy="0" font-size="2.5" fill="#1a4d80" text-anchor="middle">500</text>
+      <line x1="89.75" y1="128.2" x2="89.75" y2="96.5" stroke="#1a4d80" stroke-width="0.18"/>
+      <line x1="254.75" y1="143.2" x2="254.75" y2="96.5" stroke="#1a4d80" stroke-width="0.18"/>
+      <line x1="89.75" y1="98.1" x2="254.75" y2="98.1" stroke="#1a4d80" stroke-width="0.18"/>
+      <polygon points="89.75,98.1 92.55,98.95 92.55,97.25" fill="#1a4d80"/>
+      <polygon points="254.75,98.1 251.95,97.25 251.95,98.95" fill="#1a4d80"/>
+      <text x="172.25" y="97.1" dy="0" font-size="2.5" fill="#1a4d80" text-anchor="middle">1650</text>
+      <line x1="89.75" y1="128.2" x2="89.75" y2="87.5" stroke="#1a4d80" stroke-width="0.18"/>
+      <line x1="281.75" y1="133.95" x2="281.75" y2="87.5" stroke="#1a4d80" stroke-width="0.18"/>
+      <line x1="89.75" y1="89.1" x2="281.75" y2="89.1" stroke="#1a4d80" stroke-width="0.18"/>
+      <polygon points="89.75,89.1 92.55,89.95 92.55,88.25" fill="#1a4d80"/>
+      <polygon points="281.75,89.1 278.95,88.25 278.95,89.95" fill="#1a4d80"/>
+      <text x="185.75" y="88.1" dy="0" font-size="2.5" fill="#1a4d80" text-anchor="middle">1920</text>
+      <line x1="89.75" y1="128.2" x2="89.75" y2="78.5" stroke="#1a4d80" stroke-width="0.18"/>
+      <line x1="290.75" y1="134.3" x2="290.75" y2="78.5" stroke="#1a4d80" stroke-width="0.18"/>
+      <line x1="89.75" y1="80.1" x2="290.75" y2="80.1" stroke="#1a4d80" stroke-width="0.18"/>
+      <polygon points="89.75,80.1 92.55,80.95 92.55,79.25" fill="#1a4d80"/>
+      <polygon points="290.75,80.1 287.95,79.25 287.95,80.95" fill="#1a4d80"/>
+      <text x="190.25" y="79.1" dy="0" font-size="2.5" fill="#1a4d80" text-anchor="middle">2010</text>
+      <line x1="89.75" y1="128.2" x2="89.75" y2="69.5" stroke="#1a4d80" stroke-width="0.18"/>
+      <line x1="373.75" y1="128.2" x2="373.75" y2="69.5" stroke="#1a4d80" stroke-width="0.18"/>
+      <line x1="89.75" y1="71.1" x2="373.75" y2="71.1" stroke="#1a4d80" stroke-width="0.18"/>
+      <polygon points="89.75,71.1 92.55,71.95 92.55,70.25" fill="#1a4d80"/>
+      <polygon points="373.75,71.1 370.95,70.25 370.95,71.95" fill="#1a4d80"/>
+      <text x="231.75" y="70.1" dy="0" font-size="2.5" fill="#1a4d80" text-anchor="middle">2840</text>
+      <line x1="146.75" y1="135.9" x2="146.75" y2="184.9" stroke="#1a4d80" stroke-width="0.18"/>
+      <polygon points="146.75,135.9 145.9,138.7 147.6,138.7" fill="#1a4d80"/>
+      <polygon points="146.75,184.9 147.6,182.1 145.9,182.1" fill="#1a4d80"/>
+      <text x="145.75" y="160.4" dy="0" font-size="2.5" fill="#1a4d80" text-anchor="middle" transform="rotate(-90 145.75 160.4)">490</text>
+      <line x1="261.75" y1="144.4" x2="261.75" y2="184.4" stroke="#1a4d80" stroke-width="0.18"/>
+      <polygon points="261.75,144.4 260.9,147.2 262.6,147.2" fill="#1a4d80"/>
+      <polygon points="261.75,184.4 262.6,181.6 260.9,181.6" fill="#1a4d80"/>
+      <text x="260.75" y="164.4" dy="0" font-size="2.5" fill="#1a4d80" text-anchor="middle" transform="rotate(-90 260.75 164.4)">400</text>
+      <line x1="88.55" y1="129.4" x2="75.15" y2="129.4" stroke="#1a4d80" stroke-width="0.18"/>
+      <line x1="138.55" y1="135.9" x2="75.15" y2="135.9" stroke="#1a4d80" stroke-width="0.18"/>
+      <line x1="76.75" y1="123.8" x2="76.75" y2="141.5" stroke="#1a4d80" stroke-width="0.18"/>
+      <polygon points="76.75,129.4 77.6,126.6 75.9,126.6" fill="#1a4d80"/>
+      <polygon points="76.75,135.9 75.9,138.7 77.6,138.7" fill="#1a4d80"/>
+      <text x="75.75" y="132.65" dy="0" font-size="2.5" fill="#1a4d80" text-anchor="middle" transform="rotate(-90 75.75 132.65)">65</text>
+      <line x1="88.55" y1="129.4" x2="57.15" y2="129.4" stroke="#1a4d80" stroke-width="0.18"/>
+      <line x1="253.55" y1="144.4" x2="57.15" y2="144.4" stroke="#1a4d80" stroke-width="0.18"/>
+      <line x1="58.75" y1="129.4" x2="58.75" y2="144.4" stroke="#1a4d80" stroke-width="0.18"/>
+      <polygon points="58.75,129.4 57.9,132.2 59.6,132.2" fill="#1a4d80"/>
+      <polygon points="58.75,144.4 59.6,141.6 57.9,141.6" fill="#1a4d80"/>
+      <text x="57.75" y="136.9" dy="0" font-size="2.5" fill="#1a4d80" text-anchor="middle" transform="rotate(-90 57.75 136.9)">150</text>
+      <line x1="88.55" y1="129.4" x2="66.15" y2="129.4" stroke="#1a4d80" stroke-width="0.18"/>
+      <line x1="278.8" y1="136.9" x2="66.15" y2="136.9" stroke="#1a4d80" stroke-width="0.18"/>
+      <line x1="67.75" y1="123.8" x2="67.75" y2="142.5" stroke="#1a4d80" stroke-width="0.18"/>
+      <polygon points="67.75,129.4 68.6,126.6 66.9,126.6" fill="#1a4d80"/>
+      <polygon points="67.75,136.9 66.9,139.7 68.6,139.7" fill="#1a4d80"/>
+      <text x="66.75" y="133.15" dy="0" font-size="2.5" fill="#1a4d80" text-anchor="middle" transform="rotate(-90 66.75 133.15)">75</text>
+      <line x1="88.55" y1="129.4" x2="48.15" y2="129.4" stroke="#1a4d80" stroke-width="0.18"/>
+      <line x1="88.55" y1="191.4" x2="48.15" y2="191.4" stroke="#1a4d80" stroke-width="0.18"/>
+      <line x1="49.75" y1="129.4" x2="49.75" y2="191.4" stroke="#1a4d80" stroke-width="0.18"/>
+      <polygon points="49.75,129.4 48.9,132.2 50.6,132.2" fill="#1a4d80"/>
+      <polygon points="49.75,191.4 50.6,188.6 48.9,188.6" fill="#1a4d80"/>
+      <text x="48.75" y="160.4" dy="0" font-size="2.5" fill="#1a4d80" text-anchor="middle" transform="rotate(-90 48.75 160.4)">620</text>
+      <line x1="282.987" y1="135.663" x2="294.25" y2="124.4" stroke="#1a4d80" stroke-width="0.18"/>
+      <line x1="294.25" y1="124.4" x2="302.893" y2="124.4" stroke="#1a4d80" stroke-width="0.18"/>
+      <polygon points="282.987,135.663 280.406,137.041 281.609,138.244" fill="#1a4d80"/>
+      <text x="294.75" y="123.4" dy="0" font-size="2.5" fill="#1a4d80">Ø35</text>
+      <text x="294.75" y="120.1" dy="0" font-size="2.5" fill="#1a4d80">Faucet</text>
+      <line x1="291.74" y1="135.91" x2="309.75" y2="117.9" stroke="#1a4d80" stroke-width="0.18"/>
+      <line x1="309.75" y1="117.9" x2="328.12" y2="117.9" stroke="#1a4d80" stroke-width="0.18"/>
+      <polygon points="291.74,135.91 289.159,137.289 290.361,138.491" fill="#1a4d80"/>
+      <text x="310.25" y="116.9" dy="0" font-size="2.5" fill="#1a4d80">Ø28</text>
+      <text x="310.25" y="113.6" dy="0" font-size="2.5" fill="#1a4d80">Soap dispenser</text>
+    </g>
+    <g id="annotation">
+      <text x="167.75" y="160.4" dy="1.146" font-size="3.2" fill="#111111" text-anchor="middle" font-weight="bold">Hob</text>
+      <text x="281.75" y="164.4" dy="1.146" font-size="3.2" fill="#111111" text-anchor="middle" font-weight="bold">Sink</text>
+      <text x="88.25" y="127.9" dy="0" font-size="2.4" fill="#111111" text-anchor="end">(0,0)</text>
+    </g>
+    <g id="title">
+      <text x="316.5" y="258.5" dy="1.432" font-size="4" fill="#111111" font-weight="bold">Kitchen countertop</text>
+      <text x="316.5" y="268" dy="0.859" font-size="2.4" fill="#111111">Material: Silestone Blanco Norte</text>
+      <text x="407.5" y="268" dy="0.859" font-size="2.4" fill="#111111" text-anchor="end">Thickness: 20 mm</text>
+      <text x="316.5" y="276" dy="0.859" font-size="2.4" fill="#111111">Scale 1:10</text>
+      <text x="407.5" y="276" dy="0.859" font-size="2.4" fill="#111111" text-anchor="end">Units: mm | Sheet: A3</text>
+      <text x="316.5" y="283.5" dy="0.859" font-size="2.4" fill="#111111">Project: Flat 4, Rosebery Avenue | Client: M. Nowak</text>
+      <text x="407.5" y="283.5" dy="0.859" font-size="2.4" fill="#111111" text-anchor="end">Drawn: SlabSketch | Rev: A</text>
+      <text x="10" y="254" dy="1.718" font-size="2.4" fill="#111111" font-weight="bold">PRELIMINARY DRAWING - all dimensions to be verified on site and by the fabricator.</text>
+      <text x="10" y="258" dy="1.718" font-size="2.4" fill="#111111">1. Undermount sink; cutout dimensions are the finished opening.</text>
+      <text x="10" y="261.4" dy="1.718" font-size="2.4" fill="#111111">2. Front edge profile to be confirmed with the fabricator.</text>
+      <text x="10" y="264.8" dy="1.718" font-size="2.4" fill="#111111">3. Wall run is not square - template on site before cutting.</text>
+    </g>
+  </g>
+</svg>

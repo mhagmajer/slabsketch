@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ['22.x', '24.x']
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+
+      - run: npm ci
+
+      - name: Lint and format check
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: Render the example (smoke test)
+        run: npm run example
+
+      - name: Check the example inputs stay in sync
+        run: |
+          node -e "
+            const { parse } = require('yaml');
+            const fs = require('fs');
+            const yaml = parse(fs.readFileSync('examples/kitchen-countertop.yaml', 'utf8'));
+            const json = JSON.parse(fs.readFileSync('examples/kitchen-countertop.json', 'utf8'));
+            if (JSON.stringify(yaml) !== JSON.stringify(json)) {
+              console.error('examples/kitchen-countertop.json is out of sync with the YAML');
+              process.exit(1);
+            }
+          "

@@ -1,0 +1,54 @@
+{
+  "name": "slabsketch",
+  "version": "0.1.0",
+  "description": "Generate clean, dimensioned 2D technical drawings of countertops and stone slabs from structured YAML/JSON input.",
+  "keywords": [
+    "countertop",
+    "worktop",
+    "stone",
+    "technical-drawing",
+    "svg",
+    "pdf",
+    "cad",
+    "fabrication",
+    "dimensioning"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "slabsketch": "dist/cli.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": ["dist", "README.md", "LICENSE"],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "format": "biome format --write .",
+    "test": "node --test \"test/**/*.test.ts\"",
+    "test:update": "UPDATE_SNAPSHOTS=1 node --test \"test/**/*.test.ts\"",
+    "example": "node src/cli.ts render examples/kitchen-countertop.yaml -o examples/output/kitchen-countertop.svg && node src/cli.ts render examples/kitchen-countertop.yaml -f pdf -o examples/output/kitchen-countertop.pdf",
+    "start": "node src/cli.ts",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "yaml": "^2.6.1",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2"
+  }
+}

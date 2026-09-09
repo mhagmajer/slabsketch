@@ -1,0 +1,68 @@
+# SlabSketch example: a straight kitchen run with a hob, an undermount sink and
+# two tap holes.
+#
+# Coordinate system (all values in millimetres):
+#   origin (0,0) = back-left corner of the slab, seen from above
+#   x increases to the right
+#   y increases toward the front edge
+#   cutouts are anchored by their back-left corner; holes by their centre
+
+version: 1
+
+countertop:
+  name: Kitchen countertop
+  width: 2840
+  depth: 620
+  thickness: 20
+  material: Silestone Blanco Norte
+
+cutouts:
+  - id: hob
+    label: Hob
+    x: 500
+    y: 65
+    width: 560
+    height: 490
+
+  - id: sink
+    label: Sink
+    x: 1650
+    y: 150
+    width: 540
+    height: 400
+
+holes:
+  - id: faucet
+    label: Faucet
+    x: 1920
+    y: 75
+    diameter: 35
+
+  - id: dispenser
+    label: Soap dispenser
+    x: 2010
+    y: 75
+    diameter: 28
+
+notes:
+  - Undermount sink; cutout dimensions are the finished opening.
+  - Front edge profile to be confirmed with the fabricator.
+  - Wall run is not square - template on site before cutting.
+
+checks:
+  minEdgeDistance: 50
+  minFeatureDistance: 50
+
+drawing:
+  scale: auto
+  sheet: a3
+  orientation: landscape
+  reference:
+    x: left
+    y: back
+
+metadata:
+  project: Flat 4, Rosebery Avenue
+  client: M. Nowak
+  drawnBy: SlabSketch
+  revision: A

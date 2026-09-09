@@ -1,0 +1,156 @@
+/**
+ * Pure geometric primitives shared by every layer above the input parser.
+ *
+ * All values are millimetres in the document coordinate system:
+ * origin (0,0) at the back-left corner of the slab, +x to the right,
+ * +y toward the front of the countertop.
+ */
+
+/** A length in millimetres. */
+export type Mm = number
+
+export interface Point {
+  x: Mm
+  y: Mm
+}
+
+export interface Rect {
+  x: Mm
+  y: Mm
+  width: Mm
+  height: Mm
+}
+
+export interface Bounds {
+  minX: Mm
+  minY: Mm
+  maxX: Mm
+  maxY: Mm
+}
+
+export function point(x: Mm, y: Mm): Point {
+  return { x, y }
+}
+
+export function rectBounds(r: Rect): Bounds {
+  return { minX: r.x, minY: r.y, maxX: r.x + r.width, maxY: r.y + r.height }
+}
+
+export function circleBounds(center: Point, radius: Mm): Bounds {
+  return {
+    minX: center.x - radius,
+    minY: center.y - radius,
+    maxX: center.x + radius,
+    maxY: center.y + radius,
+  }
+}
+
+/** Corners of a rectangle, clockwise from the top-left in screen orientation. */
+export function rectToPolygon(r: Rect): Point[] {
+  return [
+    { x: r.x, y: r.y },
+    { x: r.x + r.width, y: r.y },
+    { x: r.x + r.width, y: r.y + r.height },
+    { x: r.x, y: r.y + r.height },
+  ]
+}
+
+export function boundsOfPoints(points: readonly Point[]): Bounds {
+  if (points.length === 0) {
+    throw new Error('boundsOfPoints: empty point list')
+  }
+  let minX = Number.POSITIVE_INFINITY
+  let minY = Number.POSITIVE_INFINITY
+  let maxX = Number.NEGATIVE_INFINITY
+  let maxY = Number.NEGATIVE_INFINITY
+  for (const p of points) {
+    if (p.x < minX) minX = p.x
+    if (p.y < minY) minY = p.y
+    if (p.x > maxX) maxX = p.x
+    if (p.y > maxY) maxY = p.y
+  }
+  return { minX, minY, maxX, maxY }
+}
+
+export function unionBounds(a: Bounds, b: Bounds): Bounds {
+  return {
+    minX: Math.min(a.minX, b.minX),
+    minY: Math.min(a.minY, b.minY),
+    maxX: Math.max(a.maxX, b.maxX),
+    maxY: Math.max(a.maxY, b.maxY),
+  }
+}
+
+export function expandBounds(b: Bounds, by: Mm): Bounds {
+  return { minX: b.minX - by, minY: b.minY - by, maxX: b.maxX + by, maxY: b.maxY + by }
+}
+
+export function boundsWidth(b: Bounds): Mm {
+  return b.maxX - b.minX
+}
+
+export function boundsHeight(b: Bounds): Mm {
+  return b.maxY - b.minY
+}
+
+export function boundsContain(outer: Bounds, inner: Bounds, epsilon = 1e-9): boolean {
+  return (
+    inner.minX >= outer.minX - epsilon &&
+    inner.minY >= outer.minY - epsilon &&
+    inner.maxX <= outer.maxX + epsilon &&
+    inner.maxY <= outer.maxY + epsilon
+  )
+}
+
+export function pointInBounds(b: Bounds, p: Point, epsilon = 1e-9): boolean {
+  return (
+    p.x >= b.minX - epsilon &&
+    p.x <= b.maxX + epsilon &&
+    p.y >= b.minY - epsilon &&
+    p.y <= b.maxY + epsilon
+  )
+}
+
+/**
+ * Shortest distance from `b` to the inside face of `outer`, i.e. how much
+ * material is left between the feature and the nearest slab edge.
+ * Negative when the feature pokes outside.
+ */
+export function distanceToBoundsEdge(outer: Bounds, b: Bounds): Mm {
+  return Math.min(
+    b.minX - outer.minX,
+    b.minY - outer.minY,
+    outer.maxX - b.maxX,
+    outer.maxY - b.maxY,
+  )
+}
+
+/**
+ * Width of the material bridge between two axis-aligned boxes.
+ * Zero when they touch, negative when they overlap.
+ */
+export function boundsGap(a: Bounds, b: Bounds): Mm {
+  const dx = Math.max(a.minX - b.maxX, b.minX - a.maxX)
+  const dy = Math.max(a.minY - b.maxY, b.minY - a.maxY)
+  if (dx >= 0 && dy >= 0) return Math.hypot(dx, dy)
+  if (dx >= 0) return dx
+  if (dy >= 0) return dy
+  // Overlapping on both axes: report the (negative) depth of the smaller overlap.
+  return Math.max(dx, dy)
+}
+
+export function boundsOverlap(a: Bounds, b: Bounds, epsilon = 1e-9): boolean {
+  return (
+    a.minX < b.maxX - epsilon &&
+    b.minX < a.maxX - epsilon &&
+    a.minY < b.maxY - epsilon &&
+    b.minY < a.maxY - epsilon
+  )
+}
+
+/** Round to `digits` decimals, normalising -0 to 0 so output stays byte-stable. */
+export function round(value: number, digits = 3): number {
+  const factor = 10 ** digits
+  const r = Math.round(value * factor) / factor
+  return r === 0 ? 0 : r
+}

@@ -1,0 +1,6 @@
+node_modules/
+dist/
+examples/output/
+*.tsbuildinfo
+.DS_Store
+npm-debug.log*
