@@ -11,6 +11,9 @@
 /** U+00D8. Present in WinAnsiEncoding, so SVG and PDF render the same glyph. */
 export const DIAMETER_SIGN = 'Ø'
 
+/** U+00D7, also present in WinAnsiEncoding. */
+export const MULTIPLY_SIGN = '×'
+
 const WIDTHS: Record<string, number> = {
   ' ': 278,
   '!': 278,

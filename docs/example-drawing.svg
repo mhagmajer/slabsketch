@@ -31,7 +31,10 @@
       <line x1="290.75" y1="117.6" x2="290.75" y2="126.4" stroke="#111111" stroke-width="0.18" stroke-dasharray="4 1.5 0.8 1.5"/>
     </g>
     <g id="dimension">
-      <text x="265.25" y="168" dy="0" font-size="2.5" fill="#1a4d80">R10</text>
+      <line x1="255.043" y1="169.207" x2="250.093" y2="174.157" stroke="#1a4d80" stroke-width="0.18"/>
+      <line x1="250.093" y1="174.157" x2="240.963" y2="174.157" stroke="#1a4d80" stroke-width="0.18"/>
+      <polygon points="255.043,169.207 257.624,167.828 256.422,166.626" fill="#1a4d80"/>
+      <text x="249.593" y="173.157" dy="0" font-size="2.5" fill="#1a4d80" text-anchor="end">4× R10</text>
       <line x1="139.75" y1="128" x2="195.75" y2="128" stroke="#1a4d80" stroke-width="0.18"/>
       <polygon points="139.75,128 142.55,128.85 142.55,127.15" fill="#1a4d80"/>
       <polygon points="195.75,128 192.95,127.15 192.95,128.85" fill="#1a4d80"/>

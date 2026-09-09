@@ -31,7 +31,7 @@ SVG, so it stays sharp at any zoom.</sub>
 - slab outline, cutouts and circular holes, drawn to scale on a real paper size
 - **overall dimensions**, and each feature's **offset from a reference edge**
 - **cutout sizes** dimensioned inside the opening, where there is room for them
-- **corner radii** drawn as real arcs and called out (`R20`), not left square
+- **corner radii** drawn as real arcs, with an arrow on the arc and `4× R20`
 - **walls and units** the slab runs up against, hatched outside the edge
 - **diameter leaders** for holes, staggered so their labels never collide
 - centre lines on holes, labels on cutouts, an explicit `(0,0)` origin marker

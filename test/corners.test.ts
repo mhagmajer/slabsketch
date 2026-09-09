@@ -131,7 +131,28 @@ cutouts: [{ id: zlew, label: Zlew, x: 990, y: 530, width: 310, height: 390, corn
     assert.ok(outline.points.length > 4, 'the opening should be drawn with arcs')
 
     const svg = render(source, 'svg').content as string
-    assert.ok(svg.includes('>R20<'), 'the radius should be called out, not just implied')
+    assert.ok(
+      svg.includes('4&#215; R20') || svg.includes('4× R20'),
+      'the radius should say how many corners carry it',
+    )
+
+    // The callout has to point at the arc, or it says nothing about which
+    // curve it means: an arrowhead within a whisker of the front-left corner.
+    const radius = 20
+    const arcCentre = { x: 990 + radius, y: 920 - radius }
+    const onArc = {
+      x: arcCentre.x - Math.SQRT1_2 * radius,
+      y: arcCentre.y + Math.SQRT1_2 * radius,
+    }
+    const arrows = drawing.model.filter((e) => e.type === 'polygon')
+    assert.ok(
+      arrows.some((a) =>
+        a.type === 'polygon'
+          ? a.points.some((p) => Math.hypot(p.x - onArc.x, p.y - onArc.y) < 1)
+          : false,
+      ),
+      'no arrowhead touches the arc it dimensions',
+    )
   })
 
   it('says nothing about a radius when there is none', () => {
@@ -142,7 +163,7 @@ cutouts: [{ id: plyta, label: Plyta, x: 150, y: 340, width: 495, height: 315 }]
 `,
       'svg',
     ).content as string
-    assert.ok(!svg.includes('>R0<'))
-    assert.ok(!/>R\d/.test(svg))
+    assert.ok(!svg.includes('R0'))
+    assert.ok(!/R\d/.test(svg))
   })
 })

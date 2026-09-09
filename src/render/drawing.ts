@@ -40,6 +40,7 @@ import {
   type Bounds,
   type Mm,
   type Point,
+  boundsContain,
   boundsOfPoints,
   hatchLines,
   unionBounds,
@@ -50,12 +51,13 @@ import { edgeLength } from '../model/normalize.ts'
 import type {
   CountertopDocument,
   EdgeConstraint,
+  RectCutout,
   SelectedService,
   Slab,
   SlabEdge,
 } from '../model/types.ts'
 import { type ServiceId, serviceName } from '../services.ts'
-import { formatLength, textWidth } from '../text.ts'
+import { MULTIPLY_SIGN, formatLength, textWidth } from '../text.ts'
 import { GENERATOR } from '../version.ts'
 import { ICON_BOX, type IconPoint, serviceIcon } from './icons.ts'
 
@@ -163,7 +165,7 @@ const DIM_INK = '#1a4d80'
 const SERVICE_INK = '#b4531a'
 const ICON_FILL = '#dcdcdc'
 const STAMP_INK = '#767676'
-const BOUNDARY_INK = '#5a5a5a'
+const BOUNDARY_INK = '#333333'
 const PAPER = '#ffffff'
 
 export function toPaper(transform: Transform, p: Point): Point {
@@ -287,18 +289,7 @@ function buildContent(doc: CountertopDocument, slab: Slab, scale: number): Conte
         style: { layer: 'cutout', stroke: INK, strokeWidth: LAYOUT.strokeCutout },
       })
       if (feature.cornerRadius > 0 && doc.drawing.dimensions !== 'none') {
-        // Called out at a corner, the way a fabricator expects to read it.
-        entities.push({
-          type: 'text',
-          at: {
-            x: feature.bounds.minX + paperToModel(LAYOUT.dimTextSize + 8),
-            y: feature.bounds.maxY - paperToModel(1.5),
-          },
-          text: `R${formatLength(feature.cornerRadius)}`,
-          anchor: 'start',
-          baseline: 'bottom',
-          style: { layer: 'dimension', fill: DIM_INK, fontSize: LAYOUT.dimTextSize },
-        })
+        entities.push(...radiusCallout(feature, slab, scale))
       }
       if (feature.label) {
         // When the opening carries its own dimensions, they run just inside its
@@ -408,6 +399,63 @@ function buildContent(doc: CountertopDocument, slab: Slab, scale: number): Conte
 }
 
 /**
+ * A radius, called out the way a fabricator reads one: an arrow touching the
+ * arc itself, and the value on a shoulder at the other end. Free-standing text
+ * saying "R20" beside an opening does not say which curve it means, nor how
+ * many corners carry it.
+ */
+function radiusCallout(feature: RectCutout, slab: Slab, scale: number): Entity[] {
+  const p = (paperMm: number): Mm => paperMm / scale
+  const radius = feature.cornerRadius
+  const text = `4${MULTIPLY_SIGN} R${formatLength(radius)}`
+  const style = dimStyle()
+  const textStyle: Style = { layer: 'dimension', fill: DIM_INK, fontSize: LAYOUT.dimTextSize }
+
+  // Point at the front-left arc, from its own centre outwards.
+  const centre = { x: feature.bounds.minX + radius, y: feature.bounds.maxY - radius }
+  const out = { x: -Math.SQRT1_2, y: Math.SQRT1_2 }
+  const onArc = { x: centre.x + out.x * radius, y: centre.y + out.y * radius }
+
+  const shoulder = textWidth(text, LAYOUT.dimTextSize) + 1
+  const leader = p(7)
+
+  // Away from the opening if the label lands on the slab, back into it if not.
+  const candidates: Point[] = [out, { x: -out.x, y: -out.y }]
+  let direction = candidates[0] as Point
+  for (const candidate of candidates) {
+    const knee = { x: onArc.x + candidate.x * leader, y: onArc.y + candidate.y * leader }
+    const box = {
+      minX: candidate.x >= 0 ? knee.x : knee.x - p(shoulder),
+      maxX: candidate.x >= 0 ? knee.x + p(shoulder) : knee.x,
+      minY: knee.y - p(LAYOUT.dimTextSize + LAYOUT.dimTextGap),
+      maxY: knee.y,
+    }
+    if (boundsContain(slab.bounds, box)) {
+      direction = candidate
+      break
+    }
+  }
+
+  const knee = { x: onArc.x + direction.x * leader, y: onArc.y + direction.y * leader }
+  const toRight = direction.x >= 0
+  const end = { x: knee.x + (toRight ? 1 : -1) * p(shoulder), y: knee.y }
+
+  return [
+    { type: 'line', a: onArc, b: knee, style },
+    { type: 'line', a: knee, b: end, style },
+    arrowhead(onArc, { x: -direction.x, y: -direction.y }, scale),
+    {
+      type: 'text',
+      at: { x: knee.x + (toRight ? p(0.5) : -p(0.5)), y: knee.y - p(LAYOUT.dimTextGap) },
+      text,
+      anchor: toRight ? 'start' : 'end',
+      baseline: 'bottom',
+      style: textStyle,
+    },
+  ]
+}
+
+/**
  * Marks what each edge runs up against: a hatched band outside the edge, the
  * way a wall is drawn in section, with the outer line dashed for a unit rather
  * than masonry. An edge marked this way is not visible, needs no finishing, and
@@ -487,7 +535,7 @@ function boundaryEntities(slab: Slab, language: Language, scale: number): Entity
           style: {
             layer: 'boundary',
             stroke: BOUNDARY_INK,
-            strokeWidth: LAYOUT.strokeDimension,
+            strokeWidth: LAYOUT.strokeBoundaryHatch,
           },
         })
       }
@@ -500,7 +548,12 @@ function boundaryEntities(slab: Slab, language: Language, scale: number): Entity
       anchor: 'middle',
       baseline,
       ...(rotate === undefined ? {} : { rotate }),
-      style: { layer: 'boundary', fill: BOUNDARY_INK, fontSize: LAYOUT.boundaryTextSize },
+      style: {
+        layer: 'boundary',
+        fill: BOUNDARY_INK,
+        fontSize: LAYOUT.boundaryTextSize,
+        bold: true,
+      },
     })
   }
 
