@@ -122,7 +122,13 @@ export interface DrawingOptions {
   reference: DimensionReference
 }
 
+export type DrawingStatus = 'preliminary' | 'for-fabrication'
+
 export interface Metadata {
+  /** Whether the drawing is for review or released for cutting. */
+  status: DrawingStatus
+  surveyedOn?: string
+  surveyedBy?: string
   project?: string
   client?: string
   drawnBy?: string

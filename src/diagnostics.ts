@@ -27,6 +27,7 @@ export type DiagnosticCode =
   | 'W_DUPLICATE_SERVICE'
   | 'W_NOTES_TRUNCATED'
   | 'W_SERVICE_ON_HIDDEN_EDGE'
+  | 'W_NO_SURVEY_DATE'
 
 export interface Diagnostic {
   severity: Severity

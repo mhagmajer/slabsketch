@@ -36,7 +36,7 @@ SVG, so it stays sharp at any zoom.</sub>
 - **diameter leaders** for holes, staggered so their labels never collide
 - centre lines on holes, labels on cutouts, an explicit `(0,0)` origin marker
 - title block with material, thickness, scale, units, sheet size and metadata
-- notes block, always headed by a preliminary-drawing disclaimer
+- notes block, headed by the drawing's status: preliminary, or the survey it rests on
 - **chosen additional services** marked on the geometry and listed in a schedule
 - generator stamp in the bottom margin, naming the version and the source file
 - optional Polish wording for everything SlabSketch writes itself (`--lang pl`)
@@ -202,6 +202,26 @@ Only `countertop` is required; everything else has a documented default.
 Objects are **strict** — an unknown key such as `hight: 490` is an error, not a
 silently ignored field. That matters when a coding agent is editing the file.
 
+### Preliminary, or for fabrication
+
+Every drawing is preliminary by default and says so above the notes: dimensions
+to be verified on site. Once the site has actually been measured, say so, and
+the banner changes to record what the drawing now rests on:
+
+```yaml
+metadata:
+  status: for-fabrication    # preliminary (the default) | for-fabrication
+  surveyedOn: "2026-09-20"
+  surveyedBy: M. Hagmajer
+```
+
+> FOR FABRICATION — outline surveyed 2026-09-20 by M. Hagmajer.
+> Appliance sizes per makers' documentation.
+
+A drawing released for cutting with no survey date raises
+`W_NO_SURVEY_DATE`: whoever cuts from it has to be able to tell which
+measurement it came from.
+
 ### What the edges run up against
 
 A worktop that slots between walls is a different job from a free-standing
@@ -348,6 +368,7 @@ Warnings — rendered, but worth a look:
 | `W_DUPLICATE_SERVICE` | the same service was chosen twice for the same place |
 | `W_SERVICE_ON_HIDDEN_EDGE` | an edge service is applied to an edge that abuts a wall or unit |
 | `W_NOTES_TRUNCATED` | more notes were given than the sheet can show |
+| `W_NO_SURVEY_DATE` | the drawing is marked for fabrication but names no survey |
 
 > **The warnings are generic proximity heuristics, not fabrication rules.**
 > Whether a given bridge of material is safe depends on the stone, the slab, the

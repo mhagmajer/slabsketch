@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs'
 import { describe, it } from 'node:test'
 import { fileURLToPath } from 'node:url'
 import { LANGUAGES, strings } from '../src/i18n.ts'
-import { render } from '../src/index.ts'
+import { loadDocument, render } from '../src/index.ts'
 import { HOMEPAGE, VERSION } from '../src/version.ts'
 import { exampleYaml } from './helpers.ts'
 
@@ -36,7 +36,7 @@ describe('generated text', () => {
       `${pl.sheet}: A3`,
       `${pl.drawnBy}:`,
       `${pl.notesHeading}:`,
-      pl.preliminary,
+      pl.statusBanner('preliminary'),
     ]) {
       assert.ok(out.includes(escapeForSvg(expected)), `missing "${expected}"`)
     }
@@ -59,7 +59,7 @@ describe('generated text', () => {
 
   it('takes the language from the input file as well as the flag', () => {
     const fromFile = svg(polishExample)
-    assert.ok(fromFile.includes(strings('pl').preliminary))
+    assert.ok(fromFile.includes(strings('pl').statusBanner('preliminary')))
     const overridden = svg(polishExample, { language: 'en' })
     assert.ok(overridden.includes('PRELIMINARY DRAWING'))
   })
@@ -68,9 +68,62 @@ describe('generated text', () => {
     assert.deepEqual([...LANGUAGES], ['en', 'pl'])
     for (const language of LANGUAGES) {
       const table = strings(language)
-      assert.ok(table.preliminary.length > 20)
+      assert.ok(table.statusBanner('preliminary').length > 20)
+      assert.ok(table.statusBanner('for-fabrication', '2026-09-15').includes('2026-09-15'))
       assert.ok(table.generatedWith().includes(VERSION))
     }
+  })
+})
+
+describe('drawing status', () => {
+  const base = `
+countertop: { name: Blat, width: 1400, depth: 1000, thickness: 20 }
+`
+
+  it('is a preliminary drawing unless it says otherwise', () => {
+    const loaded = loadDocument(base)
+    assert.ok(loaded.ok)
+    assert.equal(loaded.document.metadata.status, 'preliminary')
+    assert.ok((render(base, 'svg').content as string).includes('PRELIMINARY DRAWING'))
+  })
+
+  it('states the survey a for-fabrication drawing rests on', () => {
+    const source = `${base}
+metadata:
+  status: for-fabrication
+  surveyedOn: "2026-09-20"
+  surveyedBy: M. Hagmajer
+`
+    const out = render(source, 'svg').content as string
+    assert.ok(out.includes('FOR FABRICATION'))
+    assert.ok(out.includes('2026-09-20'))
+    assert.ok(out.includes('M. Hagmajer'))
+    assert.ok(!out.includes('PRELIMINARY'))
+
+    const pl = render(source, 'svg', { language: 'pl' }).content as string
+    assert.ok(pl.includes('RYSUNEK WYKONAWCZY'))
+    assert.ok(pl.includes('2026-09-20'))
+  })
+
+  it('will not let a fabrication drawing hide which survey it came from', () => {
+    const loaded = loadDocument(`${base}
+metadata: { status: for-fabrication }
+`)
+    assert.ok(loaded.ok, 'a missing date is a warning, not a refusal')
+    assert.ok(loaded.diagnostics.some((d) => d.code === 'W_NO_SURVEY_DATE'))
+
+    const dated = loadDocument(`${base}
+metadata: { status: for-fabrication, surveyedOn: "2026-09-20" }
+`)
+    assert.ok(dated.ok)
+    assert.deepEqual(dated.diagnostics, [])
+  })
+
+  it('rejects a status it does not know', () => {
+    const result = loadDocument(`${base}
+metadata: { status: draft }
+`)
+    assert.equal(result.ok, false)
   })
 })
 

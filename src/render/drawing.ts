@@ -1016,7 +1016,12 @@ function buildSheetFurniture(
   entities.push({
     type: 'text',
     at: { x: notesX, y: noteY },
-    text: truncateToWidth(t.preliminary, notesWidth, size, true),
+    text: truncateToWidth(
+      t.statusBanner(doc.metadata.status, doc.metadata.surveyedOn, doc.metadata.surveyedBy),
+      notesWidth,
+      size,
+      true,
+    ),
     anchor: 'start',
     baseline: 'top',
     style: { layer: 'title', fill: INK, fontSize: size, bold: true },

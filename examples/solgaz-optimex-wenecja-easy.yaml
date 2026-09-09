@@ -70,7 +70,7 @@ services:
     target: dozownik
 
 notes:
-  - Obrys blatu wg szablonu z miejsca montażu - blat wchodzi między ściany z trzech stron.
+  - Obrys z pomiaru na miejscu - blat wchodzi między ściany z trzech stron.
   - Wykończenie tylko krawędzi frontowej; tył i boki niewidoczne, bez obróbki.
   - Wycięcie płyty grzewczej - tolerancja ±1 mm, naroża ostre; płyta nakładana, bez wpustu.
   - Kołnierz płyty zakrywa cięcie tylko o 7,5 mm z boków - krawędź cięcia musi być równa.
@@ -88,6 +88,11 @@ drawing:
   sheet: a3
 
 metadata:
+  # Po pomiarze wpisz datę w surveyedOn i podbij revision - baner nad uwagami
+  # zmieni się z rysunku wstępnego na wykonawczy.
+  status: for-fabrication
+  # surveyedOn: 2026-09-20
+  # surveyedBy: M. Hagmajer
   project: Blat 1400 x 1000 - Solgaz Optimex 2+1 / Wenecja Easy 40
   drawnBy: SlabSketch
   revision: A

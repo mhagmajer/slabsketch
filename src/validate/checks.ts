@@ -43,6 +43,20 @@ function pathsByFeature(slab: Slab): Map<Feature, string> {
 
 export function checkDocument(doc: CountertopDocument): Diagnostic[] {
   const diagnostics: Diagnostic[] = []
+
+  // A drawing released for cutting should say when the site was measured;
+  // without it nobody can tell which survey the dimensions came from.
+  if (doc.metadata.status === 'for-fabrication' && !doc.metadata.surveyedOn) {
+    diagnostics.push(
+      warning(
+        'W_NO_SURVEY_DATE',
+        'the drawing is marked for fabrication but carries no survey date; ' +
+          'set metadata.surveyedOn',
+        { path: 'metadata.surveyedOn' },
+      ),
+    )
+  }
+
   for (const slab of doc.slabs) {
     checkSlab(slab, doc.checks, diagnostics)
     checkServices(slab, diagnostics)

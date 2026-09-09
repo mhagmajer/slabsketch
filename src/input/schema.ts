@@ -125,6 +125,14 @@ export const drawingSchema = z
 
 export const metadataSchema = z
   .object({
+    /**
+     * `preliminary` is a drawing for review; `for-fabrication` states that the
+     * dimensions come from a survey and the part may be cut from them.
+     */
+    status: z.enum(['preliminary', 'for-fabrication']).default('preliminary'),
+    /** When the site was measured. Expected on a for-fabrication drawing. */
+    surveyedOn: z.string().min(1).optional(),
+    surveyedBy: z.string().min(1).optional(),
     project: z.string().min(1).optional(),
     client: z.string().min(1).optional(),
     drawnBy: z.string().min(1).optional(),

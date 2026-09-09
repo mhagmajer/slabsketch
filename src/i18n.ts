@@ -7,6 +7,7 @@
  * the tool, not by whoever receives the drawing.
  */
 
+import type { DrawingStatus } from './model/types.ts'
 import { GENERATOR, HOMEPAGE } from './version.ts'
 
 export type Language = 'en' | 'pl'
@@ -30,7 +31,8 @@ export interface Strings {
   edgeNames: Record<'back' | 'front' | 'left' | 'right', string>
   /** Words drawn on the band that marks what an edge runs up against. */
   edgeConstraints: Record<'wall' | 'cabinet', string>
-  preliminary: string
+  /** The banner over the notes, which states what the drawing is. */
+  statusBanner: (status: DrawingStatus, surveyedOn?: string, surveyedBy?: string) => string
   moreItems: (count: number) => string
   generatedWith: (source?: string) => string
   description: (scale: string, sheet: string) => string
@@ -51,7 +53,14 @@ const en: Strings = {
   wholeSlab: 'whole slab',
   edgeNames: { back: 'back edge', front: 'front edge', left: 'left edge', right: 'right edge' },
   edgeConstraints: { wall: 'WALL', cabinet: 'CABINET' },
-  preliminary: 'PRELIMINARY DRAWING - all dimensions to be verified on site and by the fabricator.',
+  statusBanner: (status, surveyedOn, surveyedBy) => {
+    if (status === 'preliminary') {
+      return 'PRELIMINARY DRAWING - all dimensions to be verified on site and by the fabricator.'
+    }
+    const survey = surveyedOn ? `surveyed ${surveyedOn}` : 'surveyed on site'
+    const who = surveyedBy ? ` by ${surveyedBy}` : ''
+    return `FOR FABRICATION - outline ${survey}${who}. Appliance sizes per makers' documentation.`
+  },
   moreItems: (count) => `+${count} more`,
   generatedWith: (source) =>
     `Generated with ${GENERATOR}${source ? ` from ${source}` : ''} · ${HOMEPAGE}`,
@@ -79,7 +88,14 @@ const pl: Strings = {
     right: 'krawędź prawa',
   },
   edgeConstraints: { wall: 'ŚCIANA', cabinet: 'MEBLE' },
-  preliminary: 'RYSUNEK WSTĘPNY - wszystkie wymiary do weryfikacji na budowie i przez wykonawcę.',
+  statusBanner: (status, surveyedOn, surveyedBy) => {
+    if (status === 'preliminary') {
+      return 'RYSUNEK WSTĘPNY - wszystkie wymiary do weryfikacji na budowie i przez wykonawcę.'
+    }
+    const survey = surveyedOn ? `z pomiaru z dnia ${surveyedOn}` : 'z pomiaru na miejscu'
+    const who = surveyedBy ? `, ${surveyedBy}` : ''
+    return `RYSUNEK WYKONAWCZY - obrys ${survey}${who}. Wymiary urządzeń wg dokumentacji producentów.`
+  },
   moreItems: (count) => `+${count} więcej`,
   generatedWith: (source) =>
     `Wygenerowano w ${GENERATOR}${source ? ` z pliku ${source}` : ''} · ${HOMEPAGE}`,
