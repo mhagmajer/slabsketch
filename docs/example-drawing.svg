@@ -213,7 +213,7 @@
       <text x="39.8" y="239.8" dy="1.718" font-size="2.4" fill="#767676">front edge · 2840 mm</text>
       <text x="135.8" y="236" dy="1.718" font-size="2.4" fill="#111111">Polished underside</text>
       <text x="135.8" y="239.8" dy="1.718" font-size="2.4" fill="#767676">front edge · 2840 mm</text>
-      <text x="10" y="292" dy="0.716" font-size="2" fill="#767676">Generated with SlabSketch v0.1.0 from kitchen-countertop.yaml</text>
+      <text x="10" y="292" dy="0.716" font-size="2" fill="#767676">Generated with SlabSketch v0.1.0 from kitchen-countertop.yaml · github.com/mhagmajer/slabsketch</text>
     </g>
   </g>
 </svg>

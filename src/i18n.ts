@@ -7,7 +7,7 @@
  * the tool, not by whoever receives the drawing.
  */
 
-import { GENERATOR } from './version.ts'
+import { GENERATOR, HOMEPAGE } from './version.ts'
 
 export type Language = 'en' | 'pl'
 
@@ -54,7 +54,7 @@ const en: Strings = {
   preliminary: 'PRELIMINARY DRAWING - all dimensions to be verified on site and by the fabricator.',
   moreItems: (count) => `+${count} more`,
   generatedWith: (source) =>
-    source ? `Generated with ${GENERATOR} from ${source}` : `Generated with ${GENERATOR}`,
+    `Generated with ${GENERATOR}${source ? ` from ${source}` : ''} · ${HOMEPAGE}`,
   description: (scale, sheet) =>
     `SlabSketch technical drawing. Scale ${scale}, units mm, sheet ${sheet}.`,
 }
@@ -82,7 +82,7 @@ const pl: Strings = {
   preliminary: 'RYSUNEK WSTĘPNY - wszystkie wymiary do weryfikacji na budowie i przez wykonawcę.',
   moreItems: (count) => `+${count} więcej`,
   generatedWith: (source) =>
-    source ? `Wygenerowano w ${GENERATOR} z pliku ${source}` : `Wygenerowano w ${GENERATOR}`,
+    `Wygenerowano w ${GENERATOR}${source ? ` z pliku ${source}` : ''} · ${HOMEPAGE}`,
   description: (scale, sheet) =>
     `Rysunek techniczny SlabSketch. Skala ${scale}, jednostki mm, format ${sheet}.`,
 }

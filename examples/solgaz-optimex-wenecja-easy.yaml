@@ -70,13 +70,13 @@ services:
     target: dozownik
 
 notes:
-  - Blat wchodzi między ściany z trzech stron - obrys wg szablonu z miejsca montażu, widoczny tylko front.
-  - Płyta pionowo - sterowanie z przodu, wylot spalin z tyłu; wycięcie 315 x 495 mm ±1, naroża ostre.
-  - Płyta nakładana wg instrukcji - leży na blacie na uszczelce, obrys 330 x 517 mm. Bez wpustu.
-  - Producent nie wymaga mocowania płyty i odradza stosowanie klejów oraz silikonu.
-  - Płyta 150 mm od lewej krawędzi - dokładnie minimum wymagane przy szafce na blacie lub narożniku.
-  - Zlew - wycięcie 310 x 390 mm, naroża R20; 80 mm od frontu to założenie szablonu dla blatu 600/620.
-  - Otwory Ø35 wg kart katalogowych; kołnierz dozownika ma Ø40, otworu nie wolno powiększać.
+  - Obrys blatu wg szablonu z miejsca montażu - blat wchodzi między ściany z trzech stron.
+  - Wykończenie tylko krawędzi frontowej; tył i boki niewidoczne, bez obróbki.
+  - Wycięcie płyty grzewczej - tolerancja ±1 mm, naroża ostre; płyta nakładana, bez wpustu.
+  - Kołnierz płyty zakrywa cięcie tylko o 7,5 mm z boków - krawędź cięcia musi być równa.
+  - Położenia i orientacja wycięć bez zmian; 150 mm od ściany to minimum producenta płyty.
+  - Otworów Ø35 nie powiększać - kołnierz dozownika ma tylko Ø40.
+  - Do uzupełnienia przed wyceną - materiał i profil krawędzi frontowej.
 
 checks:
   minEdgeDistance: 50

@@ -4,7 +4,7 @@ import { describe, it } from 'node:test'
 import { fileURLToPath } from 'node:url'
 import { LANGUAGES, strings } from '../src/i18n.ts'
 import { render } from '../src/index.ts'
-import { VERSION } from '../src/version.ts'
+import { HOMEPAGE, VERSION } from '../src/version.ts'
 import { exampleYaml } from './helpers.ts'
 
 const polishExample = readFileSync(
@@ -84,6 +84,13 @@ describe('generator stamp', () => {
   it('names the source file when one is known', () => {
     assert.ok(svg(exampleYaml(), { source: 'blat.yaml' }).includes('from blat.yaml'))
     assert.ok(!svg(exampleYaml()).includes(' from '))
+  })
+
+  it('points a reader at the tool that made the drawing', () => {
+    const out = svg(exampleYaml())
+    assert.ok(out.includes(HOMEPAGE), 'the stamp should carry the project link')
+    const pl = svg(exampleYaml(), { language: 'pl' })
+    assert.ok(pl.includes(HOMEPAGE), 'in every language')
   })
 
   it('is translated too', () => {

@@ -113,6 +113,11 @@ const WIDTHS: Record<string, number> = {
   Ø: 778, // Ø
   '×': 584, // ×
   '°': 400, // °
+  '±': 584,
+  '·': 278,
+  '–': 556,
+  '—': 1000,
+  '’': 191,
 }
 
 /** The same, for Helvetica-Bold. Bold glyphs are wider, and the PDF must say so. */
@@ -215,6 +220,11 @@ const BOLD_WIDTHS: Record<string, number> = {
   Ø: 778,
   '×': 584,
   '°': 400,
+  '±': 584,
+  '·': 278,
+  '–': 556,
+  '—': 1000,
+  '’': 238,
 }
 
 const FALLBACK_WIDTH = 556

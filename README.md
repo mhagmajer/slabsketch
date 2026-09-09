@@ -132,7 +132,7 @@ The bottom margin, outside the frame, carries a stamp naming what produced the
 file and from which input:
 
 ```text
-Generated with SlabSketch v0.1.0 from kitchen-countertop.yaml
+Generated with SlabSketch v0.1.0 from kitchen-countertop.yaml · github.com/mhagmajer/slabsketch
 ```
 
 The SVG repeats it as a comment and in `<desc>`; the PDF puts it in `/Producer`
