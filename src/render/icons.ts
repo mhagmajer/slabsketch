@@ -418,6 +418,12 @@ const ICONS: Record<ServiceId, IconPrimitive[]> = {
       }
     }),
   ],
+  // A pipe seen end-on: the bore and the wall of the pipe passing through it.
+  'pipe-hole': [
+    PLAN_OUTLINE,
+    { kind: 'circle', center: [12, 7], radius: 3 },
+    { kind: 'circle', center: [12, 7], radius: 2 },
+  ],
   'socket-hole': [
     PLAN_OUTLINE,
     { kind: 'circle', center: [12, 7], radius: 2.6 },

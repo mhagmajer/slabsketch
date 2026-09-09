@@ -112,6 +112,14 @@ const DEFINITIONS = [
     names: { en: 'Socket hole', pl: 'Otwór na gniazdko' },
   },
   {
+    // Not on the price list, which stops at fittings; the work exists all the
+    // same, and a hole nobody named is a hole nobody drills.
+    id: 'pipe-hole',
+    scope: 'hole',
+    measure: 'count',
+    names: { en: 'Hole for a pipe or conduit', pl: 'Otwór na rurę lub przewód' },
+  },
+  {
     id: 'siphon-hole',
     scope: 'hole',
     measure: 'count',

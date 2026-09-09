@@ -18,7 +18,7 @@
  * placed in that band.
  */
 
-import type { DimensionReference, Slab } from '../model/types.ts'
+import type { DimensionReference, Slab, SlabEdge } from '../model/types.ts'
 import { formatDiameter, formatLength, textWidth } from '../text.ts'
 import {
   type Bounds,
@@ -104,11 +104,18 @@ export interface AutoDimensionOptions {
   scale: number
   /** Annotation text size in paper mm; used to size leader shoulders. */
   textSizePaper?: number
+  /**
+   * Extra room, in paper mm, that a leader must clear beyond each edge - the
+   * band marking a wall or a unit sits there, and a label landing on it is
+   * unreadable.
+   */
+  edgeClearancePaper?: Partial<Record<SlabEdge, number>>
 }
 
 export function autoDimensions(slab: Slab, options: AutoDimensionOptions): Dimension[] {
   const { reference, scale } = options
   const textSizePaper = options.textSizePaper ?? 2.5
+  const edgeClearance = options.edgeClearancePaper ?? {}
   const { bounds } = slab
   const dimensions: Dimension[] = []
 
@@ -316,7 +323,10 @@ export function autoDimensions(slab: Slab, options: AutoDimensionOptions): Dimen
       // Escape the part through the edge that needs the shortest leader.
       let shortest = Number.POSITIVE_INFINITY
       for (const candidate of LEADER_DIRECTIONS) {
-        const needed = leaderToEscape(slab, hole.center, hole.radius, candidate, metrics, clearance)
+        const needed = leaderToEscape(slab, hole.center, hole.radius, candidate, metrics, {
+          y: clearance + beyondEdge(candidate.y < 0 ? 'back' : 'front', edgeClearance, scale),
+          x: clearance + beyondEdge(candidate.x < 0 ? 'left' : 'right', edgeClearance, scale),
+        })
         if (needed < shortest - 1e-9) {
           shortest = needed
           direction = candidate
@@ -463,14 +473,24 @@ function leaderToEscape(
   radius: Mm,
   direction: Point,
   metrics: LabelMetrics,
-  clearance: Mm,
+  clearance: { x: Mm; y: Mm },
 ): number {
-  const vertical = direction.y < 0 ? slab.bounds.minY - clearance : slab.bounds.maxY + clearance
-  const horizontal = direction.x < 0 ? slab.bounds.minX - clearance : slab.bounds.maxX + clearance
+  const vertical = direction.y < 0 ? slab.bounds.minY - clearance.y : slab.bounds.maxY + clearance.y
+  const horizontal =
+    direction.x < 0 ? slab.bounds.minX - clearance.x : slab.bounds.maxX + clearance.x
 
   const byY = (Math.abs(vertical - center.y) / Math.abs(direction.y) - radius) * metrics.scale
   const byX = (Math.abs(horizontal - center.x) / Math.abs(direction.x) - radius) * metrics.scale
   return Math.min(byY, byX)
+}
+
+/** Room a leader must leave beyond one edge, in model units. */
+function beyondEdge(
+  edge: SlabEdge,
+  clearance: Partial<Record<SlabEdge, number>>,
+  scale: number,
+): Mm {
+  return (clearance[edge] ?? 0) / scale
 }
 
 /**

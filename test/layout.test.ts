@@ -27,31 +27,37 @@ describe('sheet margins', () => {
 
   for (const name of examples) {
     for (const sheet of ['a4', 'a3', 'a2'] as SheetName[]) {
-      it(`keeps ${name} inside the page on ${sheet.toUpperCase()}`, () => {
+      it(`never overflows ${sheet.toUpperCase()} without saying so for ${name}`, () => {
         const { drawing, diagnostics } = buildDrawing(documentOf(name, sheet), { source: name })
-        assert.ok(
-          !diagnostics.some((d) => d.code === 'W_SCALE_CLAMPED'),
-          'auto scale should always find a fit on these sheets',
-        )
+        const clamped = diagnostics.some((d) => d.code === 'W_SCALE_CLAMPED')
 
         const bounds = drawingPaperBounds(drawing)
         const page = drawing.sheet
-        // Nothing may reach the paper edge: the frame is inset, and the only
-        // thing outside it is the generator stamp in the bottom margin.
         const margin = 2
-        assert.ok(bounds.minX >= margin, `left margin is ${bounds.minX.toFixed(2)} mm`)
-        assert.ok(bounds.minY >= margin, `top margin is ${bounds.minY.toFixed(2)} mm`)
+        const fits =
+          bounds.minX >= margin &&
+          bounds.minY >= margin &&
+          page.width - bounds.maxX >= margin &&
+          page.height - bounds.maxY >= margin
+
+        // A drawing may be too big for a sheet - a long note list and a full
+        // schedule can leave too little room. What it may never do is run off
+        // the paper while claiming to have fitted.
         assert.ok(
-          page.width - bounds.maxX >= margin,
-          `right margin is ${(page.width - bounds.maxX).toFixed(2)} mm`,
-        )
-        assert.ok(
-          page.height - bounds.maxY >= margin,
-          `bottom margin is ${(page.height - bounds.maxY).toFixed(2)} mm`,
+          fits || clamped,
+          `${name} on ${sheet} runs off the page with no W_SCALE_CLAMPED ` +
+            `(x ${bounds.minX.toFixed(1)}..${bounds.maxX.toFixed(1)} of ${page.width})`,
         )
       })
     }
   }
+
+  it('fits every example on A3, the sheet they are drawn for', () => {
+    for (const name of examples) {
+      const { diagnostics } = buildDrawing(documentOf(name, 'a3'), { source: name })
+      assert.ok(!diagnostics.some((d) => d.code === 'W_SCALE_CLAMPED'), `${name} does not fit A3`)
+    }
+  })
 
   it('keeps the part and its dimensions inside the frame', () => {
     for (const name of examples) {

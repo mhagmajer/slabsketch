@@ -111,6 +111,36 @@ countertop: { name: Blat, width: 1400, depth: 1000, thickness: 20 }
     assert.ok(dimTop < bandTop, 'dimension bands must sit beyond the wall band')
   })
 
+  it('sends a leader clear of the band, not onto its hatching', () => {
+    // A hole tight against a walled edge has to label itself outside the part,
+    // and the band marking the wall is in the way.
+    const source = `
+countertop:
+  name: Blat
+  width: 1400
+  depth: 710
+  thickness: 20
+  edges: { back: wall }
+cutouts: [{ id: plyta, label: Płyta, x: 40, y: 100, width: 315, height: 495 }]
+holes: [{ id: gaz, label: Rura gazowa, x: 110, y: 40, diameter: 35 }]
+`
+    const loaded = loadDocument(source)
+    assert.ok(loaded.ok)
+    const { drawing } = buildDrawing(loaded.document)
+    const label = drawing.model.find((e) => e.type === 'text' && e.text === 'Rura gazowa')
+    assert.ok(label?.type === 'text')
+
+    const bandOuterEdge = Math.min(
+      ...drawing.model
+        .filter((e) => e.style.layer === 'boundary' && e.type === 'polyline')
+        .flatMap((e) => (e.type === 'polyline' ? e.points.map((p) => p.y) : [])),
+    )
+    assert.ok(
+      label.at.y <= bandOuterEdge,
+      `label sits at y=${label.at.y.toFixed(0)}, on a band that ends at ${bandOuterEdge.toFixed(0)}`,
+    )
+  })
+
   it('warns when an edge service is applied to an edge nobody will see', () => {
     const found = codes(`${slab('front: wall')}
 services: [{ service: half-bullnose, edge: front }]

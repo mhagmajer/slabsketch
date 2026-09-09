@@ -362,6 +362,12 @@ function buildContent(doc: CountertopDocument, slab: Slab, scale: number): Conte
     reference: doc.drawing.reference,
     scale,
     textSizePaper: LAYOUT.dimTextSize,
+    edgeClearancePaper: {
+      back: boundaryExtentPaper(slab.edges.back),
+      front: boundaryExtentPaper(slab.edges.front),
+      left: boundaryExtentPaper(slab.edges.left),
+      right: boundaryExtentPaper(slab.edges.right),
+    },
   })
   const diameters = dimensions.filter((d): d is DiameterDimension => d.kind === 'diameter')
 

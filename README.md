@@ -296,7 +296,7 @@ in order to price it.
 | Applies to | Services |
 | --- | --- |
 | an opening (`target:`) | `hob-cutout` `top-mount-cutout` `undermount-cutout` `flush-cutout` `stone-sink-single` `stone-sink-double` `drainer-grooves` `column-notch` |
-| a hole (`target:`) | `tap-hole` `soap-dispenser-hole` `pop-up-waste-hole` `socket-hole` `siphon-hole` |
+| a hole (`target:`) | `tap-hole` `soap-dispenser-hole` `pop-up-waste-hole` `socket-hole` `siphon-hole` `pipe-hole` |
 | an edge (`edge:`) | `underside-polish` `led-groove` `thickened-edge` `half-bullnose` `quarter-bullnose` `waterfall-edge` |
 | the whole slab | `underside-polish-all` |
 

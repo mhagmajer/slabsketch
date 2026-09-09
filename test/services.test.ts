@@ -28,7 +28,7 @@ function codes(source: string): string[] {
 
 describe('service catalogue', () => {
   it('covers every service on the order form', () => {
-    assert.equal(SERVICE_IDS.length, 20)
+    assert.equal(SERVICE_IDS.length, 21)
     const byScope = new Map<string, number>()
     for (const id of SERVICE_IDS) {
       const scope = serviceDefinition(id).scope
@@ -37,7 +37,7 @@ describe('service catalogue', () => {
     assert.deepEqual([...byScope.entries()].sort(), [
       ['cutout', 8],
       ['edge', 6],
-      ['hole', 5],
+      ['hole', 6],
       ['slab', 1],
     ])
   })

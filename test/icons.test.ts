@@ -23,6 +23,7 @@ holes:
   - { id: h3, x: 1100, y: 780, diameter: 35 }
   - { id: h4, x: 1300, y: 780, diameter: 35 }
   - { id: h5, x: 1500, y: 780, diameter: 35 }
+  - { id: h6, x: 1700, y: 780, diameter: 35 }
 services:
   - { service: hob-cutout, target: c1 }
   - { service: top-mount-cutout, target: c7 }
@@ -37,6 +38,7 @@ services:
   - { service: pop-up-waste-hole, target: h3 }
   - { service: socket-hole, target: h4 }
   - { service: siphon-hole, target: h5 }
+  - { service: pipe-hole, target: h6 }
   - { service: underside-polish, edge: front }
   - { service: led-groove, edge: front, from: 200, to: 2800 }
   - { service: thickened-edge, edge: back }
