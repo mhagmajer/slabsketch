@@ -26,6 +26,7 @@ export type DiagnosticCode =
   | 'W_SCALE_CLAMPED'
   | 'W_DUPLICATE_SERVICE'
   | 'W_NOTES_TRUNCATED'
+  | 'W_SERVICE_ON_HIDDEN_EDGE'
 
 export interface Diagnostic {
   severity: Severity

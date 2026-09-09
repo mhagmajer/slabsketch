@@ -41,12 +41,19 @@ import {
   type Mm,
   type Point,
   boundsOfPoints,
+  hatchLines,
   unionBounds,
 } from '../geometry/primitives.ts'
 import { SCALE_LADDER, formatScale } from '../geometry/scale.ts'
 import { type Language, type Strings, strings } from '../i18n.ts'
 import { edgeLength } from '../model/normalize.ts'
-import type { CountertopDocument, SelectedService, Slab } from '../model/types.ts'
+import type {
+  CountertopDocument,
+  EdgeConstraint,
+  SelectedService,
+  Slab,
+  SlabEdge,
+} from '../model/types.ts'
 import { type ServiceId, serviceName } from '../services.ts'
 import { formatLength, textWidth } from '../text.ts'
 import { GENERATOR } from '../version.ts'
@@ -58,6 +65,7 @@ export type Layer =
   | 'cutout'
   | 'hole'
   | 'centreline'
+  | 'boundary'
   | 'dimension'
   | 'service'
   | 'annotation'
@@ -155,6 +163,7 @@ const DIM_INK = '#1a4d80'
 const SERVICE_INK = '#b4531a'
 const ICON_FILL = '#dcdcdc'
 const STAMP_INK = '#767676'
+const BOUNDARY_INK = '#5a5a5a'
 const PAPER = '#ffffff'
 
 export function toPaper(transform: Transform, p: Point): Point {
@@ -349,6 +358,8 @@ function buildContent(doc: CountertopDocument, slab: Slab, scale: number): Conte
     style: { layer: 'annotation', fill: INK, fontSize: LAYOUT.subLabelTextSize },
   })
 
+  entities.push(...boundaryEntities(slab, doc.drawing.language, scale))
+
   if (doc.drawing.dimensions === 'none') {
     // Chosen services are marked whether or not the drawing is dimensioned.
     entities.push(...serviceEntities(slab, [], scale))
@@ -372,12 +383,16 @@ function buildContent(doc: CountertopDocument, slab: Slab, scale: number): Conte
 
   // Push the dimension bands clear of anything the leaders occupy.
   const clearance = 4
-  const baseTop = leaderBounds
-    ? Math.max(LAYOUT.dimBaseOffset, (slab.bounds.minY - leaderBounds.minY) * scale + clearance)
-    : LAYOUT.dimBaseOffset
-  const baseLeft = leaderBounds
-    ? Math.max(LAYOUT.dimBaseOffset, (slab.bounds.minX - leaderBounds.minX) * scale + clearance)
-    : LAYOUT.dimBaseOffset
+  const baseTop = Math.max(
+    LAYOUT.dimBaseOffset,
+    boundaryExtentPaper(slab.edges.back) + clearance,
+    leaderBounds ? (slab.bounds.minY - leaderBounds.minY) * scale + clearance : 0,
+  )
+  const baseLeft = Math.max(
+    LAYOUT.dimBaseOffset,
+    boundaryExtentPaper(slab.edges.left) + clearance,
+    leaderBounds ? (slab.bounds.minX - leaderBounds.minX) * scale + clearance : 0,
+  )
 
   packDimensions(dimensions, scale, LAYOUT.dimTextSize)
   for (const dimension of dimensions) {
@@ -390,6 +405,111 @@ function buildContent(doc: CountertopDocument, slab: Slab, scale: number): Conte
   entities.push(...serviceEntities(slab, diameters, scale))
 
   return { entities, bounds: boundsOfEntities(entities, scale) }
+}
+
+/**
+ * Marks what each edge runs up against: a hatched band outside the edge, the
+ * way a wall is drawn in section, with the outer line dashed for a unit rather
+ * than masonry. An edge marked this way is not visible, needs no finishing, and
+ * has to be templated on site.
+ */
+function boundaryEntities(slab: Slab, language: Language, scale: number): Entity[] {
+  const t = strings(language)
+  const p = (paperMm: number): Mm => paperMm / scale
+  const entities: Entity[] = []
+  const width = p(LAYOUT.boundaryBandWidth)
+  const { bounds } = slab
+
+  const bands: Array<{
+    edge: SlabEdge
+    band: Bounds
+    label: Point
+    rotate?: number
+    baseline: TextBaseline
+  }> = [
+    {
+      edge: 'back',
+      band: { minX: bounds.minX, maxX: bounds.maxX, minY: bounds.minY - width, maxY: bounds.minY },
+      label: { x: (bounds.minX + bounds.maxX) / 2, y: bounds.minY - width - p(1) },
+      baseline: 'bottom',
+    },
+    {
+      edge: 'front',
+      band: { minX: bounds.minX, maxX: bounds.maxX, minY: bounds.maxY, maxY: bounds.maxY + width },
+      label: { x: (bounds.minX + bounds.maxX) / 2, y: bounds.maxY + width + p(1) },
+      baseline: 'top',
+    },
+    {
+      edge: 'left',
+      band: { minX: bounds.minX - width, maxX: bounds.minX, minY: bounds.minY, maxY: bounds.maxY },
+      label: { x: bounds.minX - width - p(1), y: (bounds.minY + bounds.maxY) / 2 },
+      rotate: -90,
+      baseline: 'bottom',
+    },
+    {
+      edge: 'right',
+      band: { minX: bounds.maxX, maxX: bounds.maxX + width, minY: bounds.minY, maxY: bounds.maxY },
+      label: { x: bounds.maxX + width + p(1), y: (bounds.minY + bounds.maxY) / 2 },
+      rotate: 90,
+      baseline: 'bottom',
+    },
+  ]
+
+  for (const { edge, band, label, rotate, baseline } of bands) {
+    const constraint = slab.edges[edge]
+    if (constraint === 'open') continue
+
+    const outline: Style = {
+      layer: 'boundary',
+      stroke: BOUNDARY_INK,
+      strokeWidth: LAYOUT.strokeBoundary,
+      ...(constraint === 'cabinet' ? { dash: [2.4, 1.6] } : {}),
+    }
+    entities.push({
+      type: 'polyline',
+      points: [
+        { x: band.minX, y: band.minY },
+        { x: band.maxX, y: band.minY },
+        { x: band.maxX, y: band.maxY },
+        { x: band.minX, y: band.maxY },
+      ],
+      closed: true,
+      style: outline,
+    })
+
+    // Masonry is hatched; a unit is left as a plain outline.
+    if (constraint === 'wall') {
+      for (const [a, b] of hatchLines(band, p(LAYOUT.boundaryHatchPitch))) {
+        entities.push({
+          type: 'line',
+          a,
+          b,
+          style: {
+            layer: 'boundary',
+            stroke: BOUNDARY_INK,
+            strokeWidth: LAYOUT.strokeDimension,
+          },
+        })
+      }
+    }
+
+    entities.push({
+      type: 'text',
+      at: label,
+      text: t.edgeConstraints[constraint],
+      anchor: 'middle',
+      baseline,
+      ...(rotate === undefined ? {} : { rotate }),
+      style: { layer: 'boundary', fill: BOUNDARY_INK, fontSize: LAYOUT.boundaryTextSize },
+    })
+  }
+
+  return entities
+}
+
+/** How far a boundary band and its label reach beyond the edge, in paper mm. */
+function boundaryExtentPaper(constraint: EdgeConstraint): number {
+  return constraint === 'open' ? 0 : LAYOUT.boundaryBandWidth + 1 + LAYOUT.boundaryTextSize + 1
 }
 
 // ---------------------------------------------------------------------------

@@ -84,6 +84,7 @@ export function normalizeDocument(
     ...(countertop.material === undefined ? {} : { material: countertop.material }),
     features,
     services: input.services.map((selected, index) => resolveService(selected, index, bounds)),
+    edges: countertop.edges,
   }
 
   const rawScale = overrides.scale ?? input.drawing.scale

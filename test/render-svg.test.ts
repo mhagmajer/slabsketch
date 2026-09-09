@@ -2,8 +2,9 @@ import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
 import { loadDocument, render } from '../src/index.ts'
 import type { CountertopDocument } from '../src/model/types.ts'
+import type { Layer } from '../src/render/drawing.ts'
 import { buildDrawing, toPaper } from '../src/render/drawing.ts'
-import { renderSvg } from '../src/render/svg.ts'
+import { LAYER_ORDER, renderSvg } from '../src/render/svg.ts'
 import { MINIMAL_YAML, assertSnapshot, exampleYaml } from './helpers.ts'
 
 function documentOf(source: string): CountertopDocument {
@@ -62,6 +63,24 @@ describe('SVG rendering', () => {
       ),
       'projected hole not found in the SVG',
     )
+  })
+
+  it('emits every layer the drawing model can produce', () => {
+    // A layer missing from the renderer's order is silently dropped, which is
+    // how the boundary bands first went missing from the SVG but not the PDF.
+    const declared: Layer[] = [
+      'frame',
+      'boundary',
+      'outline',
+      'cutout',
+      'hole',
+      'centreline',
+      'dimension',
+      'service',
+      'annotation',
+      'title',
+    ]
+    assert.deepEqual([...LAYER_ORDER].sort(), declared.sort())
   })
 
   it('separates the drawing into named layers', () => {

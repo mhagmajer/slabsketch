@@ -78,6 +78,18 @@ export const serviceSchema = z
   })
   .strict()
 
+const edgeConstraint = z.enum(['open', 'wall', 'cabinet'])
+
+export const edgesSchema = z
+  .object({
+    back: edgeConstraint.default('open'),
+    front: edgeConstraint.default('open'),
+    left: edgeConstraint.default('open'),
+    right: edgeConstraint.default('open'),
+  })
+  .strict()
+  .default({})
+
 export const countertopSchema = z
   .object({
     name: z.string().min(1).default('Countertop'),
@@ -85,6 +97,8 @@ export const countertopSchema = z
     depth: size,
     thickness: size,
     material: z.string().min(1).optional(),
+    /** What each edge runs up against; `open` is a free, visible edge. */
+    edges: edgesSchema,
   })
   .strict()
 

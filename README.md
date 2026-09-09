@@ -32,6 +32,7 @@ SVG, so it stays sharp at any zoom.</sub>
 - **overall dimensions**, and each feature's **offset from a reference edge**
 - **cutout sizes** dimensioned inside the opening, where there is room for them
 - **corner radii** drawn as real arcs and called out (`R20`), not left square
+- **walls and units** the slab runs up against, hatched outside the edge
 - **diameter leaders** for holes, staggered so their labels never collide
 - centre lines on holes, labels on cutouts, an explicit `(0,0)` origin marker
 - title block with material, thickness, scale, units, sheet size and metadata
@@ -201,6 +202,32 @@ Only `countertop` is required; everything else has a documented default.
 Objects are **strict** — an unknown key such as `hight: 490` is an error, not a
 silently ignored field. That matters when a coding agent is editing the file.
 
+### What the edges run up against
+
+A worktop that slots between walls is a different job from a free-standing
+island: the buried edges need no finishing, and the slab has to be templated on
+site rather than cut to a nominal size. Say so, and the drawing shows it:
+
+```yaml
+countertop:
+  name: Kitchen countertop
+  width: 1400
+  depth: 1000
+  thickness: 20
+  edges:
+    back: wall       # open | wall | cabinet
+    left: wall
+    right: cabinet
+    front: open      # the default
+```
+
+A constrained edge gets a band drawn outside it, hatched for masonry and left as
+a dashed outline for a unit, labelled in the drawing's language. Dimension bands
+are pushed clear of it automatically. Applying an edge service — a profile, a
+polished underside — to an edge that abuts something raises
+`W_SERVICE_ON_HIDDEN_EDGE`, because finishing an edge nobody will see is money
+on the floor.
+
 ### Additional services
 
 The fabrication extras a customer picks — edge profiles, undermount cutouts, tap
@@ -319,6 +346,8 @@ Warnings — rendered, but worth a look:
 | `W_FEATURE_OVERLAP` | two cutouts, or two holes, overlap |
 | `W_SCALE_CLAMPED` | the drawing does not fit the sheet at any standard scale |
 | `W_DUPLICATE_SERVICE` | the same service was chosen twice for the same place |
+| `W_SERVICE_ON_HIDDEN_EDGE` | an edge service is applied to an edge that abuts a wall or unit |
+| `W_NOTES_TRUNCATED` | more notes were given than the sheet can show |
 
 > **The warnings are generic proximity heuristics, not fabrication rules.**
 > Whether a given bridge of material is safe depends on the stone, the slab, the

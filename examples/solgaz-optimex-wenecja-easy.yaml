@@ -22,6 +22,13 @@ countertop:
   width: 1400
   depth: 1000
   thickness: 20
+  # Co blat zastaje po każdej stronie. Krawędź stykająca się z czymkolwiek nie
+  # jest widoczna, nie wymaga wykończenia i musi być szablonowana na miejscu.
+  edges:
+    back: wall
+    left: wall
+    right: wall
+    front: open
 
 cutouts:
   - id: plyta
@@ -63,7 +70,7 @@ services:
     target: dozownik
 
 notes:
-  - Krawędź tylna przylega do ściany - bez wykończenia i bez obróbki naroży tylnych.
+  - Blat wchodzi między ściany z trzech stron - szablon na miejscu, tylko front widoczny.
   - Płyta pionowo - sterowanie z przodu, wylot spalin z tyłu; wycięcie 315 x 495 mm ±1, naroża ostre.
   - Płyta nakładana wg instrukcji - leży na blacie na uszczelce, obrys 330 x 517 mm. Bez wpustu.
   - Producent nie wymaga mocowania płyty i odradza stosowanie klejów oraz silikonu.

@@ -66,6 +66,11 @@ export const LAYOUT = {
   markRadius: 2.4,
   markTextSize: 2.6,
   strokeService: 0.9,
+  /** Band drawn outside an edge that abuts a wall or a unit. */
+  boundaryBandWidth: 5,
+  boundaryHatchPitch: 1.6,
+  boundaryTextSize: 2.2,
+  strokeBoundary: 0.4,
   arrowLength: 2.8,
   arrowHalfWidth: 0.85,
   /** Gap between the geometry and the start of an extension line. */

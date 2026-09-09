@@ -93,6 +93,18 @@ function checkServices(slab: Slab, diagnostics: Diagnostic[]): void {
           error('E_SERVICE_SCOPE', `${name} applies to an edge, not to "${selected.target}"`, at),
         )
       }
+      // Finishing an edge nobody will ever see is money on the floor.
+      const abuts = selected.run ? slab.edges[selected.run.edge] : 'open'
+      if (abuts !== 'open' && selected.run) {
+        diagnostics.push(
+          warning(
+            'W_SERVICE_ON_HIDDEN_EDGE',
+            `${name} is applied to the ${selected.run.edge} edge, which abuts a ${abuts} ` +
+              'and will not be visible',
+            at,
+          ),
+        )
+      }
     } else if (definition.scope === 'slab') {
       if (selected.target || selected.run) {
         diagnostics.push(

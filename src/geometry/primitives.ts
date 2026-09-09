@@ -183,6 +183,29 @@ export function boundsOverlap(a: Bounds, b: Bounds, epsilon = 1e-9): boolean {
   )
 }
 
+/**
+ * Parallel 45-degree lines filling a box, clipped to it. Used to hatch the band
+ * that marks an edge running up against a wall, the way a wall is hatched in
+ * section on any plan drawing.
+ */
+export function hatchLines(b: Bounds, pitch: Mm): Array<[Point, Point]> {
+  // Every line satisfies x - y = c; stepping c by pitch * sqrt(2) spaces them
+  // `pitch` apart measured perpendicular to the lines.
+  const step = pitch * Math.SQRT2
+  const first = Math.ceil((b.minX - b.maxY) / step) * step
+  const segments: Array<[Point, Point]> = []
+  for (let c = first; c <= b.maxX - b.minY; c += step) {
+    const yStart = Math.max(b.minY, b.minX - c)
+    const yEnd = Math.min(b.maxY, b.maxX - c)
+    if (yEnd - yStart <= 1e-9) continue
+    segments.push([
+      { x: yStart + c, y: yStart },
+      { x: yEnd + c, y: yEnd },
+    ])
+  }
+  return segments
+}
+
 /** Round to `digits` decimals, normalising -0 to 0 so output stays byte-stable. */
 export function round(value: number, digits = 3): number {
   const factor = 10 ** digits

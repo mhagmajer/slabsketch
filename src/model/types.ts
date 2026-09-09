@@ -50,9 +50,20 @@ export interface Slab {
   material?: string
   features: Feature[]
   services: SelectedService[]
+  /** What each edge abuts; `open` means a free, visible edge. */
+  edges: SlabEdges
 }
 
 export type SlabEdge = 'back' | 'front' | 'left' | 'right'
+
+/**
+ * What an edge runs up against. An edge that abuts something is not visible,
+ * needs no finishing, and has to be templated on site rather than trusted to a
+ * nominal dimension.
+ */
+export type EdgeConstraint = 'open' | 'wall' | 'cabinet'
+
+export type SlabEdges = Record<SlabEdge, EdgeConstraint>
 
 /** A run along one edge of the slab, resolved to real coordinates. */
 export interface EdgeRun {

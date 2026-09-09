@@ -28,6 +28,8 @@ export interface Strings {
   /** Column words used in the services schedule. */
   wholeSlab: string
   edgeNames: Record<'back' | 'front' | 'left' | 'right', string>
+  /** Words drawn on the band that marks what an edge runs up against. */
+  edgeConstraints: Record<'wall' | 'cabinet', string>
   preliminary: string
   moreItems: (count: number) => string
   generatedWith: (source?: string) => string
@@ -48,6 +50,7 @@ const en: Strings = {
   servicesHeading: 'ADDITIONAL SERVICES',
   wholeSlab: 'whole slab',
   edgeNames: { back: 'back edge', front: 'front edge', left: 'left edge', right: 'right edge' },
+  edgeConstraints: { wall: 'WALL', cabinet: 'CABINET' },
   preliminary: 'PRELIMINARY DRAWING - all dimensions to be verified on site and by the fabricator.',
   moreItems: (count) => `+${count} more`,
   generatedWith: (source) =>
@@ -75,6 +78,7 @@ const pl: Strings = {
     left: 'krawędź lewa',
     right: 'krawędź prawa',
   },
+  edgeConstraints: { wall: 'ŚCIANA', cabinet: 'MEBLE' },
   preliminary: 'RYSUNEK WSTĘPNY - wszystkie wymiary do weryfikacji na budowie i przez wykonawcę.',
   moreItems: (count) => `+${count} więcej`,
   generatedWith: (source) =>

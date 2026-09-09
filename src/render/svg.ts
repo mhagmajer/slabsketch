@@ -12,8 +12,9 @@ import { GENERATOR } from '../version.ts'
 import type { Drawing, Entity, Layer, Style, TextEntity } from './drawing.ts'
 import { projectEntity } from './drawing.ts'
 
-const LAYER_ORDER: readonly Layer[] = [
+export const LAYER_ORDER: readonly Layer[] = [
   'frame',
+  'boundary',
   'outline',
   'cutout',
   'hole',
