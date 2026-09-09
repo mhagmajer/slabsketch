@@ -3,7 +3,7 @@ import { readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, it } from 'node:test'
 import { fileURLToPath } from 'node:url'
-import { LAYOUT, frameArea, sheetSize } from '../src/geometry/layout.ts'
+import { LAYOUT, frameArea, notesCapacity, sheetSize } from '../src/geometry/layout.ts'
 import { loadDocument } from '../src/index.ts'
 import type { SheetName } from '../src/model/types.ts'
 import { buildDrawing, drawingPaperBounds } from '../src/render/drawing.ts'
@@ -89,6 +89,37 @@ describe('sheet margins', () => {
       frameArea(a5).width * LAYOUT.titleBlockMaxFraction < LAYOUT.titleBlockWidth,
       'A5 should get a narrowed title block',
     )
+  })
+
+  it('says when notes will not all fit, rather than dropping them quietly', () => {
+    const sheet = sheetSize('a3', 'landscape')
+    const capacity = notesCapacity(sheet)
+    assert.ok(capacity >= 5 && capacity <= 12, `implausible capacity: ${capacity}`)
+
+    const notes = Array.from({ length: capacity + 2 }, (_, i) => `Uwaga numer ${i + 1}`)
+    const source = `
+countertop: { name: S, width: 1400, depth: 1000, thickness: 20 }
+notes:
+${notes.map((n) => `  - ${n}`).join('\n')}
+`
+    const loaded = loadDocument(source)
+    assert.ok(loaded.ok)
+    const { diagnostics } = buildDrawing(loaded.document)
+    const warning = diagnostics.find((d) => d.code === 'W_NOTES_TRUNCATED')
+    assert.ok(warning, 'expected a warning when notes overflow the strip')
+    assert.match(warning.message, new RegExp(String(capacity)))
+
+    // And a list that fits raises nothing.
+    const fits = loadDocument(`
+countertop: { name: S, width: 1400, depth: 1000, thickness: 20 }
+notes:
+${notes
+  .slice(0, capacity)
+  .map((n) => `  - ${n}`)
+  .join('\n')}
+`)
+    assert.ok(fits.ok)
+    assert.ok(!buildDrawing(fits.document).diagnostics.some((d) => d.code === 'W_NOTES_TRUNCATED'))
   })
 
   it('reports honestly when a drawing cannot fit', () => {

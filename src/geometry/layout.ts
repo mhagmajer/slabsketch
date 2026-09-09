@@ -61,6 +61,7 @@ export const LAYOUT = {
   scheduleIconHeight: 7,
   scheduleTextSize: 2.4,
   scheduleHeadingSize: 2.8,
+  notesLineHeight: 3.4,
   /** Radius of the mark that ties a service on the drawing to its schedule row. */
   markRadius: 2.4,
   markTextSize: 2.6,
@@ -131,6 +132,16 @@ export function contentArea(sheet: Sheet, scheduleHeight = 0): Area {
     width: frame.width - 2 * LAYOUT.contentPadding,
     height: frame.height - reserved - scheduleHeight - 2 * LAYOUT.contentPadding,
   }
+}
+
+/**
+ * How many notes the bottom strip can show, under the preliminary line and the
+ * heading. Anything beyond this would be dropped, so the caller warns instead.
+ */
+export function notesCapacity(sheet: Sheet): number {
+  const strip = titleStripArea(sheet)
+  const used = 1 + LAYOUT.notesLineHeight + 1 + LAYOUT.notesLineHeight
+  return Math.max(0, Math.floor((strip.height - used) / LAYOUT.notesLineHeight))
 }
 
 /** The band listing the chosen services, when any were chosen. */

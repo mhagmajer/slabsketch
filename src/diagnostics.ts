@@ -25,6 +25,7 @@ export type DiagnosticCode =
   | 'W_FEATURE_OVERLAP'
   | 'W_SCALE_CLAMPED'
   | 'W_DUPLICATE_SERVICE'
+  | 'W_NOTES_TRUNCATED'
 
 export interface Diagnostic {
   severity: Severity

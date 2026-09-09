@@ -229,6 +229,43 @@ holes: [{ id: tap, label: Tap, x: 1215, y: 500, diameter: 35 }]
     assert.ok(kneeY > 600, `label should clear the front edge, knee at y=${kneeY}`)
   })
 
+  it('fans leaders outwards, so their labels never cross', () => {
+    // Two holes centred over a sink: the left one must not reach across the
+    // right one, or the two leaders draw an X.
+    const source = `
+countertop: { name: Blat, width: 1400, depth: 1000, thickness: 20 }
+cutouts: [{ id: zlew, label: Zlew, x: 990, y: 530, width: 310, height: 390 }]
+holes:
+  - { id: bateria, label: Bateria Flex 6020, x: 1085, y: 460, diameter: 35 }
+  - { id: dozownik, label: Dozownik Slim 500, x: 1205, y: 460, diameter: 35 }
+`
+    const scale = 0.1
+    const leaders = dimensionsOf(source, scale)
+      .filter((d) => d.kind === 'diameter')
+      .sort((a, b) =>
+        a.kind === 'diameter' && b.kind === 'diameter' ? a.center.x - b.center.x : 0,
+      )
+    assert.equal(leaders.length, 2)
+
+    const kneeX = leaders.map((d) => {
+      assert.ok(d.kind === 'diameter')
+      return d.center.x + d.direction.x * (d.radius + d.leaderPaper / scale)
+    })
+    assert.ok(
+      (kneeX[0] as number) < (kneeX[1] as number),
+      `leaders cross: knees at ${kneeX.map((x) => x.toFixed(0)).join(' and ')}`,
+    )
+  })
+
+  it('leaves a lone hole pointing the default way', () => {
+    const leader = dimensionsOf(`
+countertop: { name: Blat, width: 1400, depth: 1000, thickness: 20 }
+holes: [{ id: bateria, label: Bateria, x: 700, y: 500, diameter: 35 }]
+`).find((d) => d.kind === 'diameter')
+    assert.ok(leader?.kind === 'diameter')
+    assert.ok(leader.direction.x > 0)
+  })
+
   it('is deterministic', () => {
     const a = JSON.stringify(dimensionsOf(exampleYaml()))
     const b = JSON.stringify(dimensionsOf(exampleYaml()))

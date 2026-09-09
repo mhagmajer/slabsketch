@@ -29,6 +29,7 @@ import {
   contentArea,
   fitsIn,
   frameArea,
+  notesCapacity,
   scheduleArea,
   scheduleLayout,
   sheetSize,
@@ -215,6 +216,17 @@ export function buildDrawing(doc: CountertopDocument, options: BuildOptions = {}
       area.y +
       (area.height - (paperExtent.maxY - paperExtent.minY)) / 2 -
       content.bounds.minY * scale,
+  }
+
+  const capacity = notesCapacity(sheet)
+  if (doc.notes.length > capacity) {
+    diagnostics.push(
+      warning(
+        'W_NOTES_TRUNCATED',
+        `sheet ${sheet.name.toUpperCase()} has room for ${capacity} notes but ${doc.notes.length} ` +
+          'were given; the rest are not drawn. Shorten the list or use a larger sheet',
+      ),
+    )
   }
 
   const paper = buildSheetFurniture(doc, slab, sheet, scale, options.source)
@@ -820,7 +832,7 @@ function buildSheetFurniture(
   // Notes, to the left of the title block, clipped to the space they have.
   const notesX = strip.x + pad
   const notesWidth = strip.width - block.width - LAYOUT.titleBlockGap - 2 * pad
-  const lineHeight = 3.4
+  const lineHeight = LAYOUT.notesLineHeight
   const size = LAYOUT.smallTextSize
   let noteY = strip.y + 1
   entities.push({
@@ -844,8 +856,7 @@ function buildSheetFurniture(
     })
     noteY += lineHeight
 
-    const room = Math.max(0, Math.floor((strip.y + strip.height - noteY) / lineHeight))
-    doc.notes.slice(0, room).forEach((note, index) => {
+    doc.notes.slice(0, notesCapacity(sheet)).forEach((note, index) => {
       entities.push({
         type: 'text',
         at: { x: notesX, y: noteY + index * lineHeight },

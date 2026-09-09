@@ -1,8 +1,10 @@
 # Blat pod konkretne urządzenia, z wymiarami z dokumentacji producentów:
 #
-#   płyta gazowa   Solgaz Optimex 2+1
-#                  wycięcie 495 x 315 mm ±1, naroża ostre (instrukcja, rys. 5.1, s. 36)
-#                  korpus 517 x 330 mm; min. 150 mm od boku, min. 38 mm od frontu
+#   płyta gazowa   Solgaz Optimex 2+1, montaż pionowy
+#                  palniki jeden za drugim, sterowanie z przodu, wylot spalin z tyłu
+#                  (widok z góry, rys. 1.5 instrukcji) - stąd 330 w poprzek, 517 w głąb
+#                  wycięcie 315 x 495 mm ±1, naroża ostre (instrukcja, rys. 5.1, s. 36)
+#                  min. 150 mm od boku szafki/narożnika, min. 38 mm od frontu
 #   zlewozmywak    Primagran Wenecja Easy 40, podwieszany, jednokomorowy
 #                  wycięcie 310 x 390 mm, naroża R20 (szablon Undermount Easy)
 #                  komora 320 x 400 mm; 90/80 mm z tyłu/przodu to założenia dla blatu 600-620 mm
@@ -10,8 +12,8 @@
 #   dozownik       Primagran Slim 500 ml - otwór Ø35 mm
 #
 # Rozmieszczenie: płyta dosunięta w lewo i wyśrodkowana w głąb, zlew przy
-# prawej i przedniej krawędzi, bateria z dozownikiem za zlewem. Między nimi
-# zostaje 345 mm wolnego blatu na całej głębokości - to jest przestrzeń robocza.
+# prawej i przedniej krawędzi, bateria z dozownikiem wyśrodkowane nad zlewem.
+# Między płytą a zlewem zostaje 525 mm wolnego blatu na całej głębokości.
 
 version: 1
 
@@ -25,9 +27,9 @@ cutouts:
   - id: plyta
     label: Solgaz Optimex 2+1
     x: 150          # min. 150 mm od boku szafki / narożnika wg instrukcji
-    y: 342.5        # wyśrodkowane w głąb blatu
-    width: 495
-    height: 315
+    y: 252.5        # wyśrodkowane w głąb blatu
+    width: 315      # w poprzek blatu
+    height: 495     # w głąb blatu
 
   - id: zlew
     label: Wenecja Easy 40
@@ -40,13 +42,13 @@ cutouts:
 holes:
   - id: bateria
     label: Bateria Flex 6020
-    x: 1145         # na osi komory zlewu
+    x: 1085         # para otworów wyśrodkowana nad komorą zlewu
     y: 460          # 70 mm za wycięciem zlewu
     diameter: 35
 
   - id: dozownik
     label: Dozownik Slim 500
-    x: 1265         # 120 mm w prawo od baterii
+    x: 1205         # 120 mm w prawo od baterii
     y: 460
     diameter: 35
 
@@ -63,12 +65,12 @@ services:
 
 notes:
   - Krawędź tylna przylega do ściany - bez wykończenia i bez obróbki naroży tylnych.
-  - Płyta licowana z blatem - obrys korpusu 517 x 330 mm; wpust i jego głębokość ustala kamieniarz.
+  - Płyta pionowo - sterowanie z przodu, wylot spalin z tyłu; wycięcie 315 x 495 mm ±1, naroża ostre.
+  - Płyta licowana - obrys korpusu 330 x 517 mm; wpust i jego głębokość ustala kamieniarz.
   - Instrukcja Solgaz opisuje wyłącznie montaż nakładany na uszczelce - licowanie jest odstępstwem.
-  - Wycięcie płyty 495 x 315 mm, tolerancja ±1 mm, naroża ostre (rys. 5.1 instrukcji).
   - Płyta 150 mm od lewej krawędzi - dokładnie minimum wymagane przy szafce na blacie lub narożniku.
-  - Zlew - wycięcie 310 x 390 mm, naroża R20, komora 320 x 400 mm (szablon Primagran).
-  - Zlew 80 mm od frontu - wg szablonu to założenie dla blatu 600/620 mm, nie wymóg dla 1000 mm.
+  - Zlew - wycięcie 310 x 390 mm, naroża R20; 80 mm od frontu to założenie szablonu dla blatu 600/620.
+  - Otwory Ø35 wg kart katalogowych; kołnierz dozownika ma Ø40, otworu nie wolno powiększać.
 
 checks:
   minEdgeDistance: 50

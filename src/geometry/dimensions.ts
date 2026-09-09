@@ -275,6 +275,10 @@ export function autoDimensions(slab: Slab, options: AutoDimensionOptions): Dimen
   // geometry alone, so the result is stable.
   const minKneeXPaper = new Map<string, number>()
   const placedLabels: Bounds[] = []
+  const groupCentreX =
+    holes.length > 0
+      ? (Math.min(...holes.map((h) => h.center.x)) + Math.max(...holes.map((h) => h.center.x))) / 2
+      : 0
 
   byX.forEach(({ hole }, rank) => {
     const rows = hole.label ? 2 : 1
@@ -291,10 +295,13 @@ export function autoDimensions(slab: Slab, options: AutoDimensionOptions): Dimen
     const basePaper = LEADER_MIN_PAPER + rank * LEADER_STAGGER_PAPER
     const clearance = (LEADER_CLEAR_PAPER + rank * LEADER_STAGGER_PAPER) / scale
 
-    let direction = LEADER_DIRECTIONS[0] as Point
+    // Leaders fan outwards from the middle of the group, so the label of a
+    // hole on the left never reaches across the label of one on its right.
+    const candidates = preferOutward(LEADER_DIRECTIONS, hole.center.x, groupCentreX)
+    let direction = candidates[0] as Point
     let leaderPaper = basePaper
 
-    const inOpenMaterial = LEADER_DIRECTIONS.find((candidate) =>
+    const inOpenMaterial = candidates.find((candidate) =>
       labelIsClear(
         slab,
         placedLabels,
@@ -433,6 +440,15 @@ function labelBox(
     minY: direction.y < 0 ? kneeY - height : kneeY,
     maxY: direction.y < 0 ? kneeY : kneeY + height,
   }
+}
+
+/**
+ * Candidate directions, reordered so the one pointing away from the middle of
+ * the hole group is tried first. With a single hole the order is unchanged.
+ */
+function preferOutward(directions: readonly Point[], x: Mm, centreX: Mm): readonly Point[] {
+  if (x >= centreX) return directions
+  return [...directions].sort((a, b) => Math.sign(a.x) - Math.sign(b.x))
 }
 
 /**
