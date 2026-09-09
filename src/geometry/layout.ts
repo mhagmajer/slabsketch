@@ -62,6 +62,8 @@ export const LAYOUT = {
   scheduleTextSize: 2.4,
   scheduleHeadingSize: 2.8,
   notesLineHeight: 3.4,
+  /** The bottom strip never takes more than this share of the frame. */
+  stripMaxFraction: 0.35,
   /** Radius of the mark that ties a service on the drawing to its schedule row. */
   markRadius: 2.4,
   markTextSize: 2.6,
@@ -129,9 +131,9 @@ export function scheduleLayout(sheet: Sheet, count: number): { columns: number; 
 }
 
 /** The area the part and its dimensions may occupy, above everything else. */
-export function contentArea(sheet: Sheet, scheduleHeight = 0): Area {
+export function contentArea(sheet: Sheet, scheduleHeight = 0, noteCount = 0): Area {
   const frame = frameArea(sheet)
-  const reserved = LAYOUT.titleBlockHeight + LAYOUT.titleBlockGap
+  const reserved = stripHeight(sheet, noteCount) + LAYOUT.titleBlockGap
   return {
     x: frame.x + LAYOUT.contentPadding,
     y: frame.y + LAYOUT.contentPadding,
@@ -140,20 +142,36 @@ export function contentArea(sheet: Sheet, scheduleHeight = 0): Area {
   }
 }
 
-/**
- * How many notes the bottom strip can show, under the preliminary line and the
- * heading. Anything beyond this would be dropped, so the caller warns instead.
- */
-export function notesCapacity(sheet: Sheet): number {
-  const strip = titleStripArea(sheet)
+/** Height the notes want: the status banner, the heading, and one line each. */
+function notesHeight(count: number): number {
   const used = 1 + LAYOUT.notesLineHeight + 1 + LAYOUT.notesLineHeight
-  return Math.max(0, Math.floor((strip.height - used) / LAYOUT.notesLineHeight))
+  return used + count * LAYOUT.notesLineHeight + 1
+}
+
+/**
+ * Height of the bottom strip. The title block sets the minimum; a long list of
+ * notes may push it taller, up to a share of the sheet, because on a
+ * fabrication drawing the notes are the content and the block is furniture.
+ */
+export function stripHeight(sheet: Sheet, noteCount = 0): number {
+  const frame = frameArea(sheet)
+  return Math.min(
+    Math.max(LAYOUT.titleBlockHeight, notesHeight(noteCount)),
+    frame.height * LAYOUT.stripMaxFraction,
+  )
+}
+
+/** How many notes fit, once the strip has grown as far as it is allowed to. */
+export function notesCapacity(sheet: Sheet, noteCount = 0): number {
+  const height = stripHeight(sheet, noteCount)
+  const used = 1 + LAYOUT.notesLineHeight + 1 + LAYOUT.notesLineHeight
+  return Math.max(0, Math.floor((height - used) / LAYOUT.notesLineHeight))
 }
 
 /** The band listing the chosen services, when any were chosen. */
-export function scheduleArea(sheet: Sheet, height: number): Area {
+export function scheduleArea(sheet: Sheet, height: number, noteCount = 0): Area {
   const frame = frameArea(sheet)
-  const reserved = LAYOUT.titleBlockHeight + LAYOUT.titleBlockGap
+  const reserved = stripHeight(sheet, noteCount) + LAYOUT.titleBlockGap
   return {
     x: frame.x + LAYOUT.contentPadding,
     y: frame.y + frame.height - reserved - height,
@@ -163,13 +181,14 @@ export function scheduleArea(sheet: Sheet, height: number): Area {
 }
 
 /** The bottom strip holding the notes block and the title block. */
-export function titleStripArea(sheet: Sheet): Area {
+export function titleStripArea(sheet: Sheet, noteCount = 0): Area {
   const frame = frameArea(sheet)
+  const height = stripHeight(sheet, noteCount)
   return {
     x: frame.x,
-    y: frame.y + frame.height - LAYOUT.titleBlockHeight,
+    y: frame.y + frame.height - height,
     width: frame.width,
-    height: LAYOUT.titleBlockHeight,
+    height,
   }
 }
 

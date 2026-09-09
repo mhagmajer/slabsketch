@@ -3,7 +3,7 @@ import { readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, it } from 'node:test'
 import { fileURLToPath } from 'node:url'
-import { LAYOUT, frameArea, notesCapacity, sheetSize } from '../src/geometry/layout.ts'
+import { LAYOUT, frameArea, notesCapacity, sheetSize, stripHeight } from '../src/geometry/layout.ts'
 import { loadDocument } from '../src/index.ts'
 import type { SheetName } from '../src/model/types.ts'
 import { buildDrawing, drawingPaperBounds } from '../src/render/drawing.ts'
@@ -91,10 +91,24 @@ describe('sheet margins', () => {
     )
   })
 
+  it('grows the strip for a longer list of notes, up to a share of the sheet', () => {
+    const sheet = sheetSize('a3', 'landscape')
+    // The strip starts at the title block's height and only grows when it must.
+    assert.equal(stripHeight(sheet, 3), LAYOUT.titleBlockHeight)
+    assert.ok(stripHeight(sheet, 12) > LAYOUT.titleBlockHeight)
+    assert.ok(notesCapacity(sheet, 12) >= 12, 'twelve notes should simply fit')
+
+    // But it stops: the drawing itself needs the sheet.
+    const frame = frameArea(sheet)
+    assert.ok(stripHeight(sheet, 200) <= frame.height * LAYOUT.stripMaxFraction + 1e-9)
+  })
+
   it('says when notes will not all fit, rather than dropping them quietly', () => {
     const sheet = sheetSize('a3', 'landscape')
-    const capacity = notesCapacity(sheet)
-    assert.ok(capacity >= 5 && capacity <= 12, `implausible capacity: ${capacity}`)
+    // Enough notes to exceed even the grown strip.
+    const many = 200
+    const capacity = notesCapacity(sheet, many)
+    assert.ok(capacity > 7 && capacity < many, `implausible capacity: ${capacity}`)
 
     const notes = Array.from({ length: capacity + 2 }, (_, i) => `Uwaga numer ${i + 1}`)
     const source = `

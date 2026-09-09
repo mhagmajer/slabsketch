@@ -179,7 +179,7 @@ export function buildDrawing(doc: CountertopDocument, options: BuildOptions = {}
   const diagnostics: Diagnostic[] = []
   const sheet = sheetSize(doc.drawing.sheet, doc.drawing.orientation)
   const schedule = scheduleLayout(sheet, doc.slabs[0]?.services.length ?? 0)
-  const area = contentArea(sheet, schedule.height)
+  const area = contentArea(sheet, schedule.height, doc.notes.length)
   const slab = doc.slabs[0]
   if (!slab) throw new Error('buildDrawing: document has no slab')
 
@@ -229,7 +229,7 @@ export function buildDrawing(doc: CountertopDocument, options: BuildOptions = {}
       content.bounds.minY * scale,
   }
 
-  const capacity = notesCapacity(sheet)
+  const capacity = notesCapacity(sheet, doc.notes.length)
   if (doc.notes.length > capacity) {
     diagnostics.push(
       warning(
@@ -918,11 +918,11 @@ function buildSheetFurniture(
     style: frameStyle,
   })
 
-  const strip = titleStripArea(sheet)
+  const strip = titleStripArea(sheet, doc.notes.length)
   const blockWidth = titleBlockWidth(sheet)
   const block = {
     x: strip.x + strip.width - blockWidth,
-    y: strip.y,
+    y: strip.y + strip.height - LAYOUT.titleBlockHeight,
     width: blockWidth,
     height: LAYOUT.titleBlockHeight,
   }
@@ -1039,7 +1039,7 @@ function buildSheetFurniture(
     })
     noteY += lineHeight
 
-    doc.notes.slice(0, notesCapacity(sheet)).forEach((note, index) => {
+    doc.notes.slice(0, notesCapacity(sheet, doc.notes.length)).forEach((note, index) => {
       entities.push({
         type: 'text',
         at: { x: notesX, y: noteY + index * lineHeight },
@@ -1078,7 +1078,7 @@ function scheduleEntities(doc: CountertopDocument, slab: Slab, sheet: Sheet): En
   const language = doc.drawing.language
   const { columns, height } = scheduleLayout(sheet, slab.services.length)
   if (columns === 0) return []
-  const area = scheduleArea(sheet, height)
+  const area = scheduleArea(sheet, height, doc.notes.length)
   const entities: Entity[] = []
 
   entities.push({

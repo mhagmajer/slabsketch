@@ -12,16 +12,17 @@
 #   bateria        Primagran Flex 6020 - otwór Ø35 mm
 #   dozownik       Primagran Slim 500 ml - otwór Ø35 mm
 #
-# Rozmieszczenie: płyta dosunięta w lewo i wyśrodkowana w głąb, zlew przy
-# prawej i przedniej krawędzi, bateria z dozownikiem wyśrodkowane nad zlewem.
-# Między płytą a zlewem zostaje 525 mm wolnego blatu na całej głębokości.
+# Rozmieszczenie z pomiaru: płyta 40 mm od lewej ściany, zlew 45 mm od prawej,
+# bateria na osi komory, dozownik po jej lewej stronie - od strony przestrzeni
+# roboczej, bo z prawej zostaje tylko 45 mm do ściany.
+# Między płytą a zlewem zostaje 695 mm wolnego blatu na całej głębokości.
 
 version: 1
 
 countertop:
-  name: Blat kuchenny 1400 x 1000
-  width: 1400
-  depth: 1000
+  name: Blat kuchenny 1405 x 710
+  width: 1405
+  depth: 710
   thickness: 20
   material: Granit Shivakashi, Lapis Gold
   # Co blat zastaje po każdej stronie. Krawędź stykająca się z czymkolwiek nie
@@ -36,16 +37,16 @@ cutouts:
   - id: plyta
     label: Płyta nakładana
     product: Gazowa płyta ceramiczna Solgaz Optimex 2+1
-    x: 150          # min. 150 mm od boku szafki / narożnika wg instrukcji
-    y: 252.5        # wyśrodkowane w głąb blatu
+    x: 40           # z pomiaru; producent wymaga 150 mm - patrz uwagi
+    y: 107.5        # wyśrodkowane w głąb blatu
     width: 315      # w poprzek blatu
     height: 495     # w głąb blatu
 
   - id: zlew
     label: Zlew podwieszany
     product: Zlewozmywak podwieszany jednokomorowy 40 cm Wenecja Easy
-    x: 990          # 100 mm od prawej krawędzi
-    y: 530          # 80 mm od krawędzi przedniej - wg założeń szablonu
+    x: 1050         # 45 mm od prawej ściany, z pomiaru
+    y: 240          # 80 mm od krawędzi przedniej
     width: 310
     height: 390
     cornerRadius: 20   # R20 wg szablonu Primagran
@@ -54,15 +55,15 @@ holes:
   - id: bateria
     label: Bateria
     product: Bateria kuchenna z elastyczną wylewką Flex 6020 Primagran
-    x: 1085         # para otworów wyśrodkowana nad komorą zlewu
-    y: 460          # 70 mm za wycięciem zlewu
+    x: 1205         # na osi komory zlewu
+    y: 170          # 70 mm za wycięciem zlewu
     diameter: 35
 
   - id: dozownik
     label: Dozownik
     product: Dozownik do płynu Slim 500 ml Primagran
-    x: 1205         # 120 mm w prawo od baterii
-    y: 460
+    x: 1085         # 120 mm w lewo od baterii, od strony przestrzeni roboczej
+    y: 170
     diameter: 35
 
 services:
@@ -78,9 +79,10 @@ services:
 notes:
   - Obrys z pomiaru na miejscu - blat wchodzi między ściany z trzech stron.
   - Wykończenie tylko krawędzi frontowej; tył i boki niewidoczne, bez obróbki.
-  - Wycięcie płyty grzewczej - tolerancja ±1 mm, naroża ostre; płyta nakładana, bez wpustu.
+  - Płyta nakładana, bez wpustu; wycięcie z tolerancją ±1 mm, naroża ostre.
   - Kołnierz płyty zakrywa cięcie tylko o 7,5 mm z boków - krawędź cięcia musi być równa.
-  - Położenia i orientacja wycięć bez zmian; 150 mm od ściany to minimum producenta płyty.
+  - Pas 40 mm przy płycie i 45 mm przy zlewie - ostrożnie przy transporcie i montażu.
+  - Płyta 40 mm od ściany zamiast 150 mm wymaganych przez Solgaz - świadoma decyzja inwestora.
   - Otworów Ø35 nie powiększać - kołnierz dozownika ma tylko Ø40.
   - Do uzupełnienia - profil krawędzi frontowej i wykończenie powierzchni.
 
@@ -97,8 +99,7 @@ metadata:
   # Po pomiarze wpisz datę w surveyedOn i podbij revision - baner nad uwagami
   # zmieni się z rysunku wstępnego na wykonawczy.
   status: for-fabrication
-  # surveyedOn: 2026-09-20
-  # surveyedBy: M. Hagmajer
-  project: Blat 1400 x 1000 - Solgaz Optimex 2+1 / Wenecja Easy 40
+  surveyedOn: 2026-09-09
+  project: Blat 1405 x 710 - Solgaz Optimex 2+1 / Wenecja Easy 40
   drawnBy: SlabSketch
   revision: A

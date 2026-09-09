@@ -373,7 +373,7 @@ Warnings — rendered, but worth a look:
 | `W_SCALE_CLAMPED` | the drawing does not fit the sheet at any standard scale |
 | `W_DUPLICATE_SERVICE` | the same service was chosen twice for the same place |
 | `W_SERVICE_ON_HIDDEN_EDGE` | an edge service is applied to an edge that abuts a wall or unit |
-| `W_NOTES_TRUNCATED` | more notes were given than the sheet can show |
+| `W_NOTES_TRUNCATED` | more notes were given than the sheet can show, even after the strip grows |
 | `W_NO_SURVEY_DATE` | the drawing is marked for fabrication but names no survey |
 
 > **The warnings are generic proximity heuristics, not fabrication rules.**
