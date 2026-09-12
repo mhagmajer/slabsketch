@@ -47,7 +47,7 @@ cutouts:
     label: Zlew podwieszany
     product: Zlewozmywak podwieszany jednokomorowy 40 cm Wenecja Easy
     x: 1050         # 45 mm od prawej ściany, z pomiaru
-    y: 260          # 60 mm od krawędzi przedniej
+    y: 250          # 60 mm od krawędzi przedniej
     width: 310
     height: 390
     cornerRadius: 20   # R20 wg szablonu Primagran
@@ -57,21 +57,21 @@ holes:
     label: Bateria
     product: Bateria kuchenna z elastyczną wylewką Flex 6020 Primagran
     x: 1205         # na osi komory zlewu
-    y: 200          # 60 mm za wycięciem zlewu
+    y: 190          # 60 mm za wycięciem zlewu
     diameter: 35
 
   - id: gaz
     label: Rura gazowa
     product: Przyłącze gazowe R1/2 - otwór przelotowy z zapasem
     x: 110          # z pomiaru
-    y: 40           # z pomiaru
-    diameter: 35
+    y: 35           # z pomiaru
+    diameter: 30
 
   - id: dozownik
     label: Dozownik
     product: Dozownik do płynu Slim 500 ml Primagran
     x: 1085         # 120 mm w lewo od baterii, od strony przestrzeni roboczej
-    y: 200
+    y: 190
     diameter: 35
 
 services:
